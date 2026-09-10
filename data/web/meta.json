@@ -1,0 +1,128 @@
+{
+ "n_otus": 14093,
+ "k_neighbours": 50,
+ "arrays": {
+  "umap.f32.bin": {
+   "dtype": "float32",
+   "shape": [
+    14093,
+    2
+   ]
+  },
+  "nbr_sne_idx.i16.bin": {
+   "dtype": "int16",
+   "shape": [
+    14093,
+    50
+   ]
+  },
+  "nbr_sne_sim.f32.bin": {
+   "dtype": "float32",
+   "shape": [
+    14093,
+    50
+   ]
+  },
+  "nbr_phylo_idx.i16.bin": {
+   "dtype": "int16",
+   "shape": [
+    14093,
+    50
+   ]
+  },
+  "nbr_phylo_sim.f32.bin": {
+   "dtype": "float32",
+   "shape": [
+    14093,
+    50
+   ]
+  }
+ },
+ "layout": "row-major; row i of every array is otus.json[i]; neighbour values are row numbers into that same order",
+ "color_by": {
+  "phylum": [
+   "Bacillota",
+   "Bacteroidota",
+   "Pseudomonadota",
+   "Actinomycetota",
+   "Fusobacteriota",
+   "Cyanobacteriota",
+   "Verrucomicrobiota",
+   "Thermodesulfobacteriota",
+   "Patescibacteria",
+   "Campylobacterota",
+   "Spirochaetota",
+   "Synergistota",
+   "Deinococcota",
+   "Methanobacteriota",
+   "Bdellovibrionota",
+   "Fibrobacterota",
+   "Thermoplasmatota",
+   "Chloroflexota",
+   "Elusimicrobiota",
+   "Myxococcota",
+   "Deferribacterota",
+   "Planctomycetota",
+   "Thermoproteota",
+   "Halobacteriota",
+   "Balneolota",
+   "Acidobacteriota",
+   "Candidatus Eremiobacterota"
+  ],
+  "Oxygen_Preference": [
+   "anaerobic",
+   "aerobic",
+   "facultatively"
+  ],
+  "Gram_Status": [
+   "positive",
+   "negative"
+  ],
+  "Motility": [
+   0,
+   1
+  ],
+  "Spore_Formation": [
+   0,
+   1
+  ],
+  "Lactose": [
+   1,
+   0
+  ],
+  "Salicin": [
+   0,
+   1
+  ],
+  "Glycerol": [
+   0,
+   1
+  ],
+  "Melibiose": [
+   0,
+   1
+  ],
+  "Maltose": [
+   1,
+   0
+  ],
+  "Sucrose": [
+   0,
+   1
+  ],
+  "Trehalose": [
+   0,
+   1
+  ],
+  "Sorbitol": [
+   0,
+   1
+  ]
+ },
+ "inputs": {
+  "sne": "social_niche_embedding_100.txt",
+  "phylo": "phylo_embed_PCA_100.txt",
+  "taxonomy": "taxmap_slv_ssu_ref_nr_138.2.txt",
+  "traits": "../data/traits_predict/trait_table.csv"
+ }
+}
