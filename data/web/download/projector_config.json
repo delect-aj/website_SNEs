@@ -1,0 +1,13 @@
+{
+ "embeddings": [
+  {
+   "tensorName": "SNE \u2014 human gut OTUs (14,093 x 100)",
+   "tensorShape": [
+    14093,
+    100
+   ],
+   "tensorPath": "https://microbiome.example.org/data/download/projector_vectors.tsv",
+   "metadataPath": "https://microbiome.example.org/data/download/projector_metadata.tsv"
+  }
+ ]
+}

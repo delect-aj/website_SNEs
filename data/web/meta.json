@@ -16,13 +16,6 @@
     50
    ]
   },
-  "nbr_sne_sim.f32.bin": {
-   "dtype": "float32",
-   "shape": [
-    14093,
-    50
-   ]
-  },
   "nbr_phylo_idx.i16.bin": {
    "dtype": "int16",
    "shape": [
@@ -30,8 +23,15 @@
     50
    ]
   },
-  "nbr_phylo_sim.f32.bin": {
-   "dtype": "float32",
+  "nbr_sne_sim.f16.bin": {
+   "dtype": "float16",
+   "shape": [
+    14093,
+    50
+   ]
+  },
+  "nbr_phylo_sim.f16.bin": {
+   "dtype": "float16",
    "shape": [
     14093,
     50

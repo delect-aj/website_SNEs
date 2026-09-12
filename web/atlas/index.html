@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas — microbial social niches</title>
+<meta name="description" content="An interactive map of 14,093 human gut OTUs from ecological embeddings, with inferred traits and their cross-validated accuracy.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__title" href="/">Microbial social niches</a>
+    <nav>
+      <a href="/atlas/" aria-current="page">Atlas</a>
+      <a href="/dysbiosis/">Dysbiosis score</a>
+      <a href="/download/">Download</a>
+      <a href="/cite/">Cite</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap--wide">
+
+  <div class="wrap" style="padding-bottom:16px">
+    <h1>Atlas of gut microbial niches</h1>
+    <p class="lede" style="margin-top:12px">
+      Each point is one OTU, placed by who it appears with. Nearby points
+      co-occur; that is not the same as being related, and the card makes the
+      difference visible by listing both neighbourhoods side by side.
+    </p>
+  </div>
+
+  <div class="wrap" style="padding-bottom:16px">
+    <div class="spread" style="gap:24px; align-items:flex-end">
+      <div style="flex:1 1 320px; min-width:280px">
+        <label for="search">Find a taxon</label>
+        <input type="text" id="search" placeholder="genus, species or OTU id"
+               autocomplete="off" style="width:100%; margin-top:4px">
+        <div id="results" class="stack" style="margin-top:8px"></div>
+      </div>
+      <div>
+        <label for="color-by">Colour by</label>
+        <select id="color-by" style="margin-top:4px"></select>
+      </div>
+      <div>
+        <button id="reset" class="button--quiet" type="button">Reset view</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="atlas">
+    <div class="well" id="well">
+      <canvas id="canvas" tabindex="0"
+              aria-label="Scatter plot of 14,093 OTUs. Use the arrow keys to pan, plus and minus to zoom, zero to reset. The search box above reaches any taxon directly."></canvas>
+      <div class="well__legend" id="legend" hidden></div>
+      <div class="well__status" id="status">
+        <p style="margin:0">Loading the atlas…</p>
+        <div class="progress" style="margin-top:8px"><div class="progress__bar" id="bar"></div></div>
+        <p class="small" id="progress-text" style="margin:8px 0 0"></p>
+      </div>
+    </div>
+
+    <aside class="card-panel" id="panel" aria-live="polite">
+      <p class="muted">Pick a point, or search for a taxon, to see its card.</p>
+    </aside>
+  </div>
+
+  <div class="wrap" style="padding-top:24px">
+    <details>
+      <summary>About this map, and what the numbers on a card mean</summary>
+      <div class="stack" style="margin-top:12px">
+        <p>
+          Positions come from a UMAP of the 100-dimensional ecological
+          embedding, computed once and shipped as a binary. Distances on
+          screen are a two-dimensional approximation and should not be read
+          quantitatively; use the neighbour lists on a card for that.
+        </p>
+        <p>
+          Trait values are the output of a random forest fitted on SNE vectors,
+          trained on Traitar genome labels. Their accuracy is estimated by
+          holding out a whole phylum at a time: the model never sees any
+          member of the phylum it is scored on. That is a harder test than a
+          random split, and it is the number shown beside every value.
+        </p>
+        <p>
+          Traits whose held-out AUC falls below 0.65 are collapsed by default.
+          They are still there — the fold-out at the bottom of a card has
+          them — but they are not presented as if they were knowledge.
+        </p>
+      </div>
+    </details>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>
+      Research use only. Not a medical device; not for diagnosis, treatment or
+      prevention of any disease. Trait values are statistical inferences from
+      co-occurrence, not experimental measurements.
+    </p>
+    <p><a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a></p>
+  </div>
+</footer>
+
+<script type="module" src="/assets/js/atlas.js"></script>
+
+</body>
+</html>

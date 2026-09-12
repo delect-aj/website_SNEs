@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download — microbial social niches</title>
+<meta name="description" content="The SNE embedding matrix, trait tables, vocabulary and model, in formats you can load directly.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__title" href="/">Microbial social niches</a>
+    <nav>
+      <a href="/atlas/">Atlas</a>
+      <a href="/dysbiosis/">Dysbiosis score</a>
+      <a href="/download/" aria-current="page">Download</a>
+      <a href="/cite/">Cite</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <h1>Download</h1>
+
+  <p class="lede" style="margin-top:12px">
+    Everything the site serves is static and public. Load the embeddings into
+    Python, open them in the TensorFlow Embedding Projector, or take the raw
+    arrays and build something else.
+  </p>
+
+  <section style="margin-top:32px">
+    <h2>Look at the embedding in 3D</h2>
+    <div class="card" style="margin-top:12px">
+      <p>
+        The TensorFlow Embedding Projector reads the same vectors this site
+        uses, and does the 3D work for free. The link below opens it with the
+        table already loaded and the SILVA taxonomy attached.
+      </p>
+      <p>
+        <a class="button" id="projector" href="https://projector.tensorflow.org/"
+           rel="noopener">Open in the Embedding Projector</a>
+      </p>
+      <p class="small muted" id="projector-note"></p>
+    </div>
+  </section>
+
+  <section style="margin-top:32px">
+    <h2>Load it in Python</h2>
+    <div class="card" style="margin-top:12px">
+      <p>
+        The vector file is word2vec text, which gensim reads directly:
+      </p>
+      <pre class="mono small" style="overflow-x:auto; background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:12px">import gzip
+from gensim.models import KeyedVectors
+
+with gzip.open("sne_vectors.txt.gz", "rb") as raw:
+    vectors = KeyedVectors.load_word2vec_format(raw, binary=False)
+
+vectors.most_similar("AB002518.1.1416", topn=10)</pre>
+      <p>
+        <a class="button" id="colab" rel="noopener">Open a Colab notebook</a>
+      </p>
+      <p class="small muted">
+        The notebook installs what it needs, downloads the vectors, and scores
+        a sample with the same model this site runs, so you can check the two
+        agree before building on either.
+      </p>
+    </div>
+  </section>
+
+  <section style="margin-top:32px">
+    <h2>Files</h2>
+    <p class="muted" style="margin-top:12px">
+      Sizes are as served, before compression. Checksums are in
+      <a href="/data/manifest.json" class="mono">manifest.json</a>.
+    </p>
+    <div id="files" style="margin-top:12px">
+      <p class="muted">Loading the manifest…</p>
+    </div>
+  </section>
+
+  <section style="margin-top:32px">
+    <h2>What these files are</h2>
+    <details open>
+      <summary>Formats and layout</summary>
+      <div class="stack" style="margin-top:12px">
+        <p>
+          <span class="mono">sne_vectors.txt.gz</span> — the 14,093 × 100
+          embedding, word2vec text, one OTU id per line. The ids are SILVA
+          138.2 accession numbers with the alignment span, the same form the
+          OTU tables use.
+        </p>
+        <p>
+          <span class="mono">dysbiosis_encoder.onnx</span> and
+          <span class="mono">dysbiosis_embed.f16.bin</span> — the classifier.
+          The graph takes already-gathered 100-dimensional vectors, not token
+          indices, because all thirteen fold checkpoints share one frozen
+          embedding table and baking it into the graph would ship it thirteen
+          times. Gather rows from the embedding blob with the indices in
+          <span class="mono">vocab.json</span>, multiply by the rank-normalized
+          abundance, and the graph does the rest.
+        </p>
+        <p>
+          <span class="mono">traits_proba.f16.bin</span> — the random forest's
+          probability for every labelled OTU, on all classes of every trait,
+          laid out as described in <span class="mono">traits.json</span>. This
+          is what the confidence bands on the atlas are drawn from.
+        </p>
+        <p>
+          <span class="mono">ref_scores.json</span> — the 10,276 reference
+          samples' model scores, split into controls and cases, sorted. This is
+          the distribution the percentile is read from.
+        </p>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>
+      Research use only. Not a medical device; not for diagnosis, treatment or
+      prevention of any disease.
+    </p>
+    <p><a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a></p>
+  </div>
+</footer>
+
+<script type="module">
+const COLAB = "https://colab.research.google.com/github/delect-aj/website_SNEs/blob/main/script/quickstart_colab.ipynb";
+
+const DESCRIPTIONS = {
+  "sne_vectors.txt.gz": "The embedding matrix, word2vec text",
+  "projector_vectors.tsv": "The same values for the Embedding Projector",
+  "projector_metadata.tsv": "One row per OTU: id and seven SILVA ranks",
+  "projector_config.json": "The Projector's manifest for the two files above",
+  "sne.f16.bin": "The embedding matrix, float16, row-major (14093 × 100)",
+  "vocab.json": "OTU id to model index, in the order the model expects",
+  "dysbiosis_encoder.onnx": "The thirteen-fold ensemble classifier",
+  "dysbiosis_embed.f16.bin": "The frozen embedding table the graph reads",
+  "traits_proba.f16.bin": "Forest probabilities for every labelled OTU",
+  "traits.json": "Trait order, class order, offsets and AUCs",
+  "bacdive.json": "Curated measurements, which override predictions",
+  "ref_scores.json": "Reference cohort scores, controls and cases",
+  "metrics.json": "The AUCs, fold choices and reference cohort counts",
+  "manifest.json": "Sizes and SHA-256 of everything above",
+  "umap.f32.bin": "Two-dimensional layout of the embedding (14093 × 2)",
+  "otus.json": "Taxonomy, genome linkage and trait values per OTU",
+  "nbr_sne_idx.i16.bin": "Each OTU's 50 nearest ecological neighbours",
+  "nbr_phylo_idx.i16.bin": "The same, from the phylogenetic embedding",
+  "nbr_sne_sim.f16.bin": "Ecological neighbour cosine similarities, float16",
+  "nbr_phylo_sim.f16.bin": "The same for the phylogenetic neighbours",
+  "meta.json": "Array shapes, dtypes and colour-by levels",
+};
+
+function human(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1048576) return `${(bytes / 1024).toFixed(0)} kB`;
+  return `${(bytes / 1048576).toFixed(2)} MB`;
+}
+
+const response = await fetch("/data/manifest.json");
+const manifest = await response.json();
+
+document.getElementById("projector").href = manifest.projector_url;
+document.getElementById("projector-note").textContent =
+  "The Projector fetches the two TSVs from this site, so it only works once "
+  + "this site is reachable at a public address.";
+document.getElementById("colab").href = COLAB;
+
+const table = document.createElement("table");
+const head = document.createElement("thead");
+head.innerHTML = "<tr><th>File</th><th>Contents</th><th class='num'>Size</th></tr>";
+table.appendChild(head);
+
+const body = document.createElement("tbody");
+for (const entry of manifest.files) {
+  if (entry.file === "manifest.json") continue;
+  const row = document.createElement("tr");
+
+  const name = document.createElement("td");
+  const link = document.createElement("a");
+  link.href = `/data/${entry.file}`;
+  link.className = "mono";
+  link.textContent = entry.file;
+  name.appendChild(link);
+  row.appendChild(name);
+
+  const description = document.createElement("td");
+  description.textContent = DESCRIPTIONS[entry.file] || "";
+  row.appendChild(description);
+
+  const size = document.createElement("td");
+  size.className = "num";
+  size.textContent = human(entry.bytes);
+  row.appendChild(size);
+
+  body.appendChild(row);
+}
+table.appendChild(body);
+
+document.getElementById("files").replaceChildren(table);
+</script>
+
+</body>
+</html>

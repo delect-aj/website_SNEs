@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microbial social niches — ecological embeddings of the human gut</title>
+<meta name="description" content="Ecological embeddings for 14,093 human gut OTUs: an interactive atlas, trait inference for uncultured taxa, and a research-use dysbiosis score.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__title" href="/">Microbial social niches</a>
+    <nav>
+      <a href="/atlas/">Atlas</a>
+      <a href="/dysbiosis/">Dysbiosis score</a>
+      <a href="/download/">Download</a>
+      <a href="/cite/">Cite</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <h1>Ecological embeddings of the human gut microbiome</h1>
+
+  <p class="lede" style="margin-top:16px">
+    Every one of 14,093 SILVA 97% OTUs is placed in a 100-dimensional space by
+    the company it keeps, learned from co-occurrence across roughly 210,000
+    human faecal samples. Two OTUs sit close together if they tend to appear in
+    the same communities — not because they are related.
+  </p>
+
+  <div class="grid grid--3" style="margin-top:32px">
+
+    <div class="card">
+      <div class="card__title"><h2>Atlas</h2></div>
+      <p>Browse the 14,093 OTUs as a map. Look up any taxon and see its
+        ecological neighbours beside its phylogenetic ones — the two lists
+        overlap less than you would expect.</p>
+      <p class="small muted">Uncultured OTUs outnumber cultured ones twelve to
+        one here, and most of them have no genome. Their trait values on the
+        card are inferred, each carrying the cross-validated AUC it earned.</p>
+      <p><a class="button" href="/atlas/">Open the atlas</a></p>
+    </div>
+
+    <div class="card">
+      <div class="card__title"><h2>Dysbiosis score</h2></div>
+      <p>Score one faecal sample against a reference cohort of 10,276. The
+        model runs entirely in your browser; nothing you upload leaves it.</p>
+      <p class="small muted">The result is a percentile, not a probability, not
+        a risk, and not a diagnosis. See the page for what it does and does not
+        support.</p>
+      <p><a class="button" href="/dysbiosis/">Score a sample</a></p>
+    </div>
+
+    <div class="card">
+      <div class="card__title"><h2>Data and code</h2></div>
+      <p>The embedding matrix, the trait tables, the model and its fold
+        checkpoints, in formats you can load directly into gensim, the
+        TensorFlow Embedding Projector, or Python.</p>
+      <p class="small muted">Research use only. Not a medical device.</p>
+      <p><a class="button" href="/download/">Download</a></p>
+    </div>
+
+  </div>
+
+  <section style="margin-top:32px">
+    <h2>What this is, and what it is not</h2>
+    <div class="note" style="margin-top:16px">
+      <p>
+        These embeddings describe <strong>realized niches</strong>: the role a
+        taxon plays inside the gut community, inferred from who it co-occurs
+        with. That is not the same as its physiology in pure culture. An OTU
+        whose inferred trait is "anaerobic" is one that behaves like an
+        anaerobe in the gut, partly because it keeps anaerobic company.
+      </p>
+      <p>
+        Every model here was trained on human faecal 16S data. Nothing on this
+        site applies to soil, marine, oral or skin communities, and nothing on
+        it is a diagnostic.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>
+      Research use only. Not a medical device; not for diagnosis, treatment or
+      prevention of any disease. Predictions are statistical inferences from
+      co-occurrence, not experimental measurements.
+    </p>
+    <p>
+      <a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a>
+      · <a href="/cite/">Citation</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

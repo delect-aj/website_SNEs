@@ -1,0 +1,52 @@
+# systemd unit for the /map service, for hosts that would rather not run
+# Docker. Install as /etc/systemd/system/microbial-map.service.
+#
+#   useradd --system --home /srv/microbial --shell /usr/sbin/nologin microbial
+#   python3 -m venv /srv/microbial/venv
+#   /srv/microbial/venv/bin/pip install -r server/requirements.txt
+#   systemctl enable --now microbial-map
+
+[Unit]
+Description=Microbial embeddings reference mapper (POST /map)
+Documentation=https://github.com/xu-research-lab/microbial-embeddings
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=microbial
+Group=microbial
+WorkingDirectory=/srv/microbial/app
+
+Environment=OTU_REFSEQS=/srv/microbial/data/otu_refseqs.fasta
+Environment=VSEARCH_BINARY=/usr/local/bin/vsearch
+Environment=PYTHONUNBUFFERED=1
+
+ExecStart=/srv/microbial/venv/bin/python -m uvicorn app.main:app \
+          --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
+
+Restart=on-failure
+RestartSec=3
+
+# The service reads two files and writes only to /tmp. Everything else is
+# denied, so an exploit in the request path has nowhere to go.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=false
+ReadOnlyPaths=/srv/microbial/data
+
+# One core, a little headroom over the container limits.
+CPUQuota=100%
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target
