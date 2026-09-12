@@ -178,27 +178,50 @@ server block:
 limit_req_zone $binary_remote_addr zone=map_limit:10m rate=10r/m;
 ```
 
-Then:
+The supplied config has an HTTPS block referencing a certificate that does not
+exist on a fresh host, so installing it first makes `nginx -t` fail. Go in two
+phases, with the certificate obtained between them:
 
 ```bash
+sudo mkdir -p /var/www/certbot
+
+# Phase 1: HTTP only. Enough for nginx to start and for certbot to answer the
+# ACME challenge. DNS must already point at this host.
+sudo tee /etc/nginx/sites-available/microbial-embeddings >/dev/null <<'CONF'
+server {
+    listen 80;
+    server_name your.domain;
+    root /srv/microbial/site;
+    location /.well-known/acme-challenge/ { root /var/www/certbot; }
+    location / { return 404; }
+}
+CONF
+sudo ln -sf /etc/nginx/sites-available/microbial-embeddings \
+  /etc/nginx/sites-enabled/microbial-embeddings
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
+
+sudo certbot certonly --webroot -w /var/www/certbot -d your.domain
+
+# Phase 2: the real config, which now has a certificate to point at.
 sudo cp deploy/nginx.conf /etc/nginx/sites-available/microbial-embeddings
 sudo sed -i 's|SITE_ROOT|/srv/microbial/site|' \
   /etc/nginx/sites-available/microbial-embeddings
 sudo sed -i 's|microbiome.example.org|your.domain|g' \
   /etc/nginx/sites-available/microbial-embeddings
-
-sudo mkdir -p /var/www/certbot
-sudo ln -s /etc/nginx/sites-available/microbial-embeddings \
-  /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
-
-# DNS must already point at this host for the certificate to issue.
-sudo certbot --nginx -d your.domain
 ```
 
-Certbot rewrites the listen directives and installs a renewal timer. Check it:
-`sudo systemctl list-timers | grep certbot`.
+Certbot installed a renewal timer when it issued the certificate. Check it:
+`sudo systemctl list-timers | grep certbot`. Renewal reuses the webroot path
+above, which the deployed config keeps serving.
+
+One header is load-bearing and easy to miss: `.wasm` must be served as
+`application/wasm`, because onnxruntime-web instantiates it with the streaming
+API, which refuses anything else. The symptom is a dysbiosis page that does
+nothing and logs nothing useful. The config handles it in its own location
+block rather than in a `types` block, which would replace the inherited MIME
+map instead of extending it.
 
 ### Firewall
 
@@ -318,8 +341,8 @@ curl -s localhost:8000/health    # on the server
 ### Logs
 
 ```bash
-docker compose logs -f map       # Option A
-journalctl -u microbial-map -f   # Option B
+docker compose -f deploy/docker-compose.yml logs -f map   # Option A
+journalctl -u microbial-map -f                            # Option B
 sudo tail -f /var/log/nginx/access.log
 ```
 

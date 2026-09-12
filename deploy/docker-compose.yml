@@ -15,9 +15,11 @@ services:
       - "127.0.0.1:8000:8000"
     volumes:
       # The vsearch database, built by script/web_export/export_assets.py.
-      # Read-only: the service never writes to it.
+      # Read-only: the service never writes to it. The path is relative to
+      # this file, so run compose with -f from the repository root:
+      #   docker compose -f deploy/docker-compose.yml up -d --build
       - type: bind
-        source: ./data/otu_refseqs.fasta
+        source: ../data/otu_refseqs.fasta
         target: /srv/data/otu_refseqs.fasta
         read_only: true
     environment:

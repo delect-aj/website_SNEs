@@ -3,8 +3,11 @@
 #
 #   useradd --system --home /srv/microbial --shell /usr/sbin/nologin microbial
 #   python3 -m venv /srv/microbial/venv
-#   /srv/microbial/venv/bin/pip install -r server/requirements.txt
+#   /srv/microbial/venv/bin/pip install -r /srv/microbial/server/requirements.txt
 #   systemctl enable --now microbial-map
+#
+# Assumes the layout in the repository README: server/ and data/ are siblings
+# under /srv/microbial, and the reference FASTA sits in data/.
 
 [Unit]
 Description=Microbial embeddings reference mapper (POST /map)
@@ -16,7 +19,9 @@ Wants=network-online.target
 Type=simple
 User=microbial
 Group=microbial
-WorkingDirectory=/srv/microbial/app
+# `python -m uvicorn` puts the working directory on sys.path, so `app.main`
+# resolves from here without the package being installed.
+WorkingDirectory=/srv/microbial/server
 
 Environment=OTU_REFSEQS=/srv/microbial/data/otu_refseqs.fasta
 Environment=VSEARCH_BINARY=/usr/local/bin/vsearch
