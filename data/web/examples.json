@@ -1,0 +1,38 @@
+[
+ {
+  "file": "crc_control.json",
+  "label": "CRC control",
+  "sample_id": "DRR305708",
+  "n_otus": 194
+ },
+ {
+  "file": "crc_case.json",
+  "label": "CRC case",
+  "sample_id": "DRR305656",
+  "n_otus": 205
+ },
+ {
+  "file": "ibd_control.json",
+  "label": "IBD control",
+  "sample_id": "ERR1368970",
+  "n_otus": 171
+ },
+ {
+  "file": "ibd_case.json",
+  "label": "IBD case",
+  "sample_id": "ERR1368879",
+  "n_otus": 139
+ },
+ {
+  "file": "t2dm_control.json",
+  "label": "T2DM control",
+  "sample_id": "ERR10891756",
+  "n_otus": 86
+ },
+ {
+  "file": "t2dm_case.json",
+  "label": "T2DM case",
+  "sample_id": "ERR10891776",
+  "n_otus": 131
+ }
+]

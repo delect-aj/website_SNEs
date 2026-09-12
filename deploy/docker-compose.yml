@@ -1,0 +1,41 @@
+# The /map service. nginx runs on the host and proxies to it on localhost, so
+# TLS and static files stay where they are easiest to manage.
+#
+#   docker compose up -d --build
+#   curl -s localhost:8000/health | jq
+
+services:
+  map:
+    build:
+      context: ../server
+    image: microbial-embeddings/map:1.0
+    container_name: microbial-map
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      # The vsearch database, built by script/web_export/export_assets.py.
+      # Read-only: the service never writes to it.
+      - type: bind
+        source: ./data/otu_refseqs.fasta
+        target: /srv/data/otu_refseqs.fasta
+        read_only: true
+    environment:
+      OTU_REFSEQS: /srv/data/otu_refseqs.fasta
+      VSEARCH_BINARY: vsearch
+    # A single vsearch run uses one core; capping the container keeps it from
+    # starving nginx on a two-core host.
+    cpus: "1.0"
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

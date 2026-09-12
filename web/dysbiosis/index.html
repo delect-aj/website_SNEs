@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dysbiosis score — microbial social niches</title>
+<meta name="description" content="Score one faecal 16S sample against a reference cohort of 10,276, with the model running entirely in your browser.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css">
+<script src="/assets/vendor/ort/ort.min.js"></script>
+<script src="/assets/vendor/papaparse/papaparse.min.js"></script>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__title" href="/">Microbial social niches</a>
+    <nav>
+      <a href="/atlas/">Atlas</a>
+      <a href="/dysbiosis/" aria-current="page">Dysbiosis score</a>
+      <a href="/download/">Download</a>
+      <a href="/cite/">Cite</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <h1>Ecological dysbiosis score</h1>
+
+  <p class="lede" style="margin-top:12px">
+    One number, placed against 10,276 reference samples. It says how unusual a
+    community is in the direction this model associates with disease — not what
+    disease, not how likely, and not whether anyone is ill.
+  </p>
+
+  <div class="warn" style="margin-top:16px">
+    <p style="margin:0">
+      <strong>Research use only.</strong> This is not a medical device and it
+      does not diagnose anything. If you have a health concern, see a clinician;
+      nothing here is a substitute for one.
+    </p>
+  </div>
+
+  <section style="margin-top:32px">
+    <h2>1 · Choose an input</h2>
+
+    <div class="radio-row" style="margin-top:12px" id="modes">
+      <label><input type="radio" name="mode" value="example" checked><span>Run an example sample</span></label>
+      <label><input type="radio" name="mode" value="table"><span>OTU table with SILVA 138.2 ids</span></label>
+      <label><input type="radio" name="mode" value="fasta"><span>Rep-seqs FASTA + counts</span></label>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div id="mode-example">
+        <p class="muted" style="margin-bottom:12px">
+          Six real samples from the reference cohort, already reduced to the
+          counts the model reads. Pick one; the page runs the same code the
+          uploads go through.
+        </p>
+        <div id="examples" class="radio-row"></div>
+      </div>
+
+      <div id="mode-table" hidden>
+        <p class="muted">
+          A tab-separated table whose rows are SILVA 138.2 97% OTU ids of the
+          form <span class="mono">accession.start.stop</span>, with one column
+          per sample. QIIME2 and DADA2 both export this.
+        </p>
+        <p><input type="file" id="table-file" accept=".tsv,.txt,.csv,.biom"></p>
+        <div id="table-samples"></div>
+      </div>
+
+      <div id="mode-fasta" hidden>
+        <p class="muted">
+          Amplicon sequences and their counts. The sequences are mapped to the
+          reference OTUs by the site's server — the only part of this page that
+          is not done in your browser — and nothing is stored afterwards.
+        </p>
+        <p>
+          <label for="fasta-file">Rep-seqs FASTA</label><br>
+          <input type="file" id="fasta-file" accept=".fasta,.fa,.fna,.fq">
+        </p>
+        <p>
+          <label for="counts-file">Count table (features as rows)</label><br>
+          <input type="file" id="counts-file" accept=".tsv,.txt,.csv">
+        </p>
+        <div id="fasta-samples"></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-top:32px" id="run-section">
+    <h2>2 · Run</h2>
+    <p style="margin-top:12px">
+      <button id="run" type="button">Score this sample</button>
+      <span class="small muted" id="run-note" style="margin-left:12px"></span>
+    </p>
+    <div id="run-status"></div>
+  </section>
+
+  <section style="margin-top:32px" id="result-section" hidden>
+    <h2>3 · Result</h2>
+    <div class="card" id="result" style="margin-top:12px"></div>
+  </section>
+
+  <section style="margin-top:32px">
+    <h2>What this score is not</h2>
+    <details open>
+      <summary>Read this before using the number</summary>
+      <div class="stack" style="margin-top:12px">
+        <p>
+          The model is trained on human faecal 16S data only. It has no meaning
+          for soil, water, oral, skin or vaginal communities, and it has no
+          meaning for a sample that is not 16S.
+        </p>
+        <p>
+          The reference cohort spans thirteen diseases. The model was trained
+          across them, so its accuracy on a disease it has never seen is lower
+          than its accuracy on this cohort — AUC 0.64 by leave-one-disease-out,
+          against 0.80 within the cohort. A community from a condition outside
+          the thirteen will therefore sit closer to the middle than it should.
+        </p>
+        <p>
+          It is one number from one model on one sample. Gut communities vary
+          far more within a person over a month than the difference this score
+          is trying to detect, so a single sample cannot support a conclusion
+          about an individual.
+        </p>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>
+      Research use only. Not a medical device; not for diagnosis, treatment or
+      prevention of any disease. No sample data is stored: uploads are processed
+      in memory and discarded.
+    </p>
+    <p><a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a></p>
+  </div>
+</footer>
+
+<script type="module" src="/assets/js/dysbiosis.js"></script>
+
+</body>
+</html>

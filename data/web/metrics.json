@@ -1,0 +1,80 @@
+{
+ "lodo_auc": 0.6383,
+ "per_disease_auc": {
+  "AS": 0.5931,
+  "ASD": 0.3435,
+  "BD": 0.6382,
+  "CAD": 0.614,
+  "CRC": 0.5572,
+  "GD": 0.551,
+  "IBD": 0.725,
+  "IBS": 0.5681,
+  "MS": 0.5223,
+  "OB": 0.6626,
+  "PD": 0.6079,
+  "SZ": 0.6353,
+  "T2DM": 0.6248
+ },
+ "reference_auc": 0.7976,
+ "reference_auc_note": "How well the deployed ensemble separates the cohort it was trained on. Twelve of the thirteen folds saw each sample's disease, so this is not a generalisation estimate and is not shown to visitors; lodo_auc is.",
+ "n_reference": 10276,
+ "n_controls": 4386,
+ "n_cases": 5890,
+ "folds": {
+  "AS": {
+   "member": "m12",
+   "valid_auc": 0.694
+  },
+  "ASD": {
+   "member": "m29",
+   "valid_auc": 0.697
+  },
+  "BD": {
+   "member": "m12",
+   "valid_auc": 0.6646
+  },
+  "CAD": {
+   "member": "m16",
+   "valid_auc": 0.6701
+  },
+  "CRC": {
+   "member": "m14",
+   "valid_auc": 0.6555
+  },
+  "GD": {
+   "member": "m31",
+   "valid_auc": 0.6775
+  },
+  "IBD": {
+   "member": "m14",
+   "valid_auc": 0.6919
+  },
+  "IBS": {
+   "member": "m14",
+   "valid_auc": 0.6845
+  },
+  "MS": {
+   "member": "m31",
+   "valid_auc": 0.6868
+  },
+  "OB": {
+   "member": "m14",
+   "valid_auc": 0.6945
+  },
+  "PD": {
+   "member": "m23",
+   "valid_auc": 0.6735
+  },
+  "SZ": {
+   "member": "m8",
+   "valid_auc": 0.6826
+  },
+  "T2DM": {
+   "member": "m2",
+   "valid_auc": 0.6722
+  }
+ },
+ "num_steps": 600,
+ "n_tokens": 14021,
+ "n_informative_otus": 8850
+}

@@ -1,0 +1,141 @@
+{
+ "files": [
+  {
+   "file": "bacdive.json",
+   "bytes": 39925,
+   "sha256": "00ba0e8887e2d345ba982996be436a4bd49df103047cb03831d7bc502b0dcac2"
+  },
+  {
+   "file": "download/projector_config.json",
+   "bytes": 313,
+   "sha256": "6d66fd616feb8a25723200b679350322d4a3b684c801b5c88d6c8db574cbf6f2"
+  },
+  {
+   "file": "download/projector_metadata.tsv",
+   "bytes": 1380718,
+   "sha256": "7e2064657d5d702b8605f749d2856fb336afc080ca2b6a099575a5d649fe24ff"
+  },
+  {
+   "file": "download/projector_vectors.tsv",
+   "bytes": 13169908,
+   "sha256": "d425a22c25fdd238fc07d5c7e50c19a10c54c5bbb3629bc6189508218ec6f0d5"
+  },
+  {
+   "file": "download/sne_vectors.txt.gz",
+   "bytes": 5290542,
+   "sha256": "70ec9ceb209174bdaf22107519b1976818f24a4f6ed71dd8638ab985ea4f385f"
+  },
+  {
+   "file": "dysbiosis_embed.f16.bin",
+   "bytes": 2804200,
+   "sha256": "b1095f9a90b9638d8cf1597ba34eece15f17d1808b696bdfd9730453d02ed1b2"
+  },
+  {
+   "file": "dysbiosis_encoder.onnx",
+   "bytes": 4707593,
+   "sha256": "4288685f400c9bcd0618a81b9327e4e059e07f311a519ab316e9a887284ea5f7"
+  },
+  {
+   "file": "examples.json",
+   "bytes": 635,
+   "sha256": "33040a4b6779deb2e3ac9b4524cbe97b287b763811f5f3d6642a98580c34112a"
+  },
+  {
+   "file": "examples/crc_case.json",
+   "bytes": 4548,
+   "sha256": "9fdd6fa8bb8788e0420b9a859a523ff3f0412d7c7183644541e9b24f0ecd685a"
+  },
+  {
+   "file": "examples/crc_control.json",
+   "bytes": 4349,
+   "sha256": "06ef6673f22cf97e0e9f1f6b736b7b777fa29de45f38a4c3f52e7daa2847b8b5"
+  },
+  {
+   "file": "examples/ibd_case.json",
+   "bytes": 3169,
+   "sha256": "7c243c06c5e972fe858b805fd36c72c39ed1e5fef757890853660469d90d6520"
+  },
+  {
+   "file": "examples/ibd_control.json",
+   "bytes": 3849,
+   "sha256": "0624e59ee1490b2a9ae6c02de5f53a357fce5f1f309fbe4b50359dd6397d8cd4"
+  },
+  {
+   "file": "examples/t2dm_case.json",
+   "bytes": 2939,
+   "sha256": "a02050341381f5a1c4e0aabf7534f4cf839f9ea7334bfc159d4f865aa072ef28"
+  },
+  {
+   "file": "examples/t2dm_control.json",
+   "bytes": 2007,
+   "sha256": "ac89d6b32b46182e710a41c835f1ef9543f35cb55e6695d566a38df831546ba3"
+  },
+  {
+   "file": "meta.json",
+   "bytes": 1906,
+   "sha256": "828e05e69b99bcbb46281c49d186a175e2d8311c060d7ba00e09477d4786257a"
+  },
+  {
+   "file": "metrics.json",
+   "bytes": 1425,
+   "sha256": "0f6a6ebe21d1d31422274dbbd86c650c8c0731ffa636efd7d70c728897a67b22"
+  },
+  {
+   "file": "nbr_phylo_idx.i16.bin",
+   "bytes": 1409300,
+   "sha256": "5a050332f6a484512630cfccb233eff0346580970e9edfec97b76cc7dd965980"
+  },
+  {
+   "file": "nbr_phylo_sim.f16.bin",
+   "bytes": 1409300,
+   "sha256": "b27a0ad358d08f749cfdcdbc3bc51d7dfba59b48ea6ed5df5c42f01148cfedd5"
+  },
+  {
+   "file": "nbr_sne_idx.i16.bin",
+   "bytes": 1409300,
+   "sha256": "eaa971df69c597095d1380ba90975f07e490f3fb7273e33924a683e055a16260"
+  },
+  {
+   "file": "nbr_sne_sim.f16.bin",
+   "bytes": 1409300,
+   "sha256": "e5589534774a5b4ada93acffe225cb9e874f5105d103b6a5b36f69e6e8b692be"
+  },
+  {
+   "file": "otus.json",
+   "bytes": 16109738,
+   "sha256": "74d558fe406b844c74b88f5c11aa16d0204716f527c64c30d076f79413e64c7f"
+  },
+  {
+   "file": "ref_scores.json",
+   "bytes": 74807,
+   "sha256": "bfdf46c72257ba81761be62ed2b1c33928ab22486bdfb06f04e1e7a6dee63511"
+  },
+  {
+   "file": "sne.f16.bin",
+   "bytes": 2818600,
+   "sha256": "adfdcd3c325d570b880672e54190683ad167b43def64370f9c2afbb58aed5109"
+  },
+  {
+   "file": "traits.json",
+   "bytes": 2941,
+   "sha256": "5a606edef60e7aedecfd78efc2e5cda4df54d1a2c502d935a2878ba140f0dcae"
+  },
+  {
+   "file": "traits_proba.f16.bin",
+   "bytes": 54704,
+   "sha256": "cf1128f40b1e9bdb100758a17561ccdb5c1d8db2daf4c5c382f72bcfbf25b393"
+  },
+  {
+   "file": "umap.f32.bin",
+   "bytes": 112744,
+   "sha256": "ff3885a7c27aca14875c03d8cddbe8fb47d991c2a449064bfe7d9d275107fe28"
+  },
+  {
+   "file": "vocab.json",
+   "bytes": 256413,
+   "sha256": "78ff1a4b73ac6dd0697fc316d5a947e5e80a95b7ffef936e6bbeeaf99ca122ce"
+  }
+ ],
+ "projector_url": "https://projector.tensorflow.org/?config=https://microbiome.example.org/data/download/projector_config.json",
+ "note": "Every file here is served from /data/ on this site."
+}
