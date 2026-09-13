@@ -361,13 +361,14 @@ export class Scatter {
       gl.bufferData(gl.ARRAY_BUFFER, point, gl.DYNAMIC_DRAW);
       gl.enableVertexAttribArray(this.aPosition);
       gl.vertexAttribPointer(this.aPosition, 2, gl.FLOAT, false, 0, 0);
+      // The colour array is still enabled from the cloud above, and an
+      // enabled array wins over a constant one: without this the selected
+      // core would be drawn in point 0's colour instead of white.
+      gl.disableVertexAttribArray(this.aColor);
       gl.vertexAttrib3f(this.aColor, 1.0, 1.0, 1.0);
       gl.uniform1f(this.uniforms.uSelected, 1.0);
       gl.uniform1f(this.uniforms.uPointSize, Math.max(10, 12 * this.dpr));
       gl.drawArrays(gl.POINTS, 0, 1);
-      // The colour attribute went back to a constant; the next render
-      // re-enables the buffer, so this only has to hold for this frame.
-      gl.disableVertexAttribArray(this.aColor);
     }
   }
 }
