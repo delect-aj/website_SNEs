@@ -15,6 +15,7 @@
  */
 
 import { fetchWithProgress, halfToFloat } from './binary.js';
+import { element } from './dom.js';
 import { preprocessSample, UNK_INDEX } from './preprocess.js';
 import { makeGather, scoreSample, percentileOf, topContributors } from './inference.js';
 import { renderBand } from './band.js';
@@ -53,36 +54,31 @@ const elements = {
   result: document.getElementById('result'),
 };
 
-function status(text, fraction) {
+/**
+ * Put one message in the run area, optionally with a progress bar.
+ *
+ * `kind` picks the frame: a plain card while something is running, a warn box
+ * when it failed. Both replace whatever was there, because two messages at
+ * once in a single-line status area read as one.
+ */
+function say(text, { fraction, kind = 'card' } = {}) {
   elements.runStatus.replaceChildren();
-  const card = document.createElement('div');
-  card.className = 'card';
-  const line = document.createElement('p');
+  const box = element('div', kind);
+  const line = element('p', null, text);
   line.style.margin = fraction === undefined ? '0' : '0 0 8px';
-  line.textContent = text;
-  card.appendChild(line);
+  box.appendChild(line);
   if (fraction !== undefined) {
-    const progress = document.createElement('div');
-    progress.className = 'progress';
-    const bar = document.createElement('div');
-    bar.className = 'progress__bar';
+    const progress = element('div', 'progress');
+    const bar = element('div', 'progress__bar');
     bar.style.width = `${Math.round(fraction * 100)}%`;
     progress.appendChild(bar);
-    card.appendChild(progress);
+    box.appendChild(progress);
   }
-  elements.runStatus.appendChild(card);
+  elements.runStatus.appendChild(box);
 }
 
-function problem(message) {
-  elements.runStatus.replaceChildren();
-  const card = document.createElement('div');
-  card.className = 'warn';
-  const line = document.createElement('p');
-  line.style.margin = '0';
-  line.textContent = message;
-  card.appendChild(line);
-  elements.runStatus.appendChild(card);
-}
+const status = (text, fraction) => say(text, { fraction });
+const problem = (message) => say(message, { kind: 'warn' });
 
 /* ------------------------------------------------------------------ inputs */
 
@@ -156,18 +152,17 @@ function renderSamplePicker(container, samples, onPick) {
   container.replaceChildren();
   if (!samples.length) return;
   if (samples.length === 1) {
-    const note = document.createElement('p');
-    note.className = 'small muted';
+    const note = element('p', 'small muted');
     note.textContent = `${samples[0].name} — ${samples[0].otuCounts.size} taxa`;
     container.appendChild(note);
     return;
   }
-  const label = document.createElement('label');
+  const label = element('label');
   label.textContent = `${samples.length} samples found`;
-  const select = document.createElement('select');
+  const select = element('select');
   select.style.marginLeft = '8px';
   samples.forEach((sample, index) => {
-    const option = document.createElement('option');
+    const option = element('option');
     option.value = String(index);
     option.textContent = `${sample.name} (${sample.otuCounts.size} taxa)`;
     // Rebuilding the picker between runs must not silently move the visitor
@@ -280,10 +275,9 @@ function renderResult(scored) {
   // one built from the whole community, and the difference is invisible in the
   // percentile. Say it before the number, not after it.
   if (known < sample.nOtus * 0.5) {
-    const warning = document.createElement('div');
-    warning.className = 'warn';
+    const warning = element('div', 'warn');
     warning.style.marginBottom = '16px';
-    const line = document.createElement('p');
+    const line = element('p');
     line.style.margin = '0';
     line.textContent = `Only ${known} of this sample's ${sample.nOtus} taxa `
       + `are in the model's vocabulary. The score below comes from those `
@@ -292,12 +286,10 @@ function renderResult(scored) {
     fragment.appendChild(warning);
   }
 
-  const sentence = document.createElement('p');
-  sentence.className = 'result__sentence';
+  const sentence = element('p', 'result__sentence');
   sentence.style.margin = '0 0 4px';
   sentence.appendChild(document.createTextNode('This sample sits at the '));
-  const number = document.createElement('span');
-  number.className = 'result__number';
+  const number = element('span', 'result__number');
   number.textContent = String(Math.round(percentile));
   sentence.appendChild(number);
   sentence.appendChild(document.createTextNode(
@@ -310,8 +302,7 @@ function renderResult(scored) {
   // Without it, "60th" sounds worse than it is.
   const controlMedian = percentileOf(all, controls[Math.floor(controls.length / 2)]);
   const caseMedian = percentileOf(all, cases[Math.floor(cases.length / 2)]);
-  const sub = document.createElement('p');
-  sub.className = 'small muted';
+  const sub = element('p', 'small muted');
   sub.textContent = `${Math.round(percentile)}% of reference samples score `
     + `below this one. The cohort is ${controls.length} controls and `
     + `${cases.length} cases; their medians sit at the `
@@ -319,8 +310,7 @@ function renderResult(scored) {
     + `${Math.round(caseMedian)}${ordinalSuffix(caseMedian)} percentile.`;
   fragment.appendChild(sub);
 
-  const plot = document.createElement('div');
-  plot.className = 'band';
+  const plot = element('div', 'band');
   plot.style.marginTop = '20px';
   fragment.appendChild(plot);
 
@@ -342,47 +332,42 @@ function renderResult(scored) {
     width: 720,
   });
 
-  const heading = document.createElement('h3');
+  const heading = element('h3');
   heading.textContent = 'Taxa this score leaned on';
   heading.style.margin = '24px 0 4px';
   fragment.appendChild(heading);
 
-  const note = document.createElement('p');
-  note.className = 'small muted';
+  const note = element('p', 'small muted');
   note.textContent = 'Attention averaged over folds, heads and query '
     + 'positions, so a taxon ranks high when the sample as a whole attended '
     + 'to it. This describes the model, not a biological mechanism.';
   fragment.appendChild(note);
 
-  const list = document.createElement('ol');
-  list.className = 'attn-list';
+  const list = element('ol', 'attn-list');
   for (const contributor of topContributors(attention, sample, 12)) {
-    const item = document.createElement('li');
+    const item = element('li');
     const id = state.vocab.ids[contributor.index - 2];
     if (id) {
-      const link = document.createElement('a');
+      const link = element('a');
       link.href = `/atlas/?otu=${encodeURIComponent(id)}`;
       link.textContent = id;
       link.className = 'mono';
       item.appendChild(link);
     } else {
-      const unknownNode = document.createElement('span');
-      unknownNode.className = 'mono muted';
+      const unknownNode = element('span', 'mono muted');
       unknownNode.textContent = '<unk>';
       item.appendChild(unknownNode);
     }
     item.appendChild(document.createTextNode(
       `abundance ${contributor.abundance.toFixed(2)}`));
-    const weight = document.createElement('span');
-    weight.className = 'weight';
+    const weight = element('span', 'weight');
     weight.textContent = `attention ${contributor.weight.toFixed(4)}`;
     item.appendChild(weight);
     list.appendChild(item);
   }
   fragment.appendChild(list);
 
-  const coverage = document.createElement('p');
-  coverage.className = 'small muted';
+  const coverage = element('p', 'small muted');
   coverage.style.marginTop = '16px';
   coverage.textContent = `${sample.nOtus} non-zero taxa in this sample; the `
     + `model reads at most ${state.vocab.num_steps} of them.`;
@@ -394,8 +379,7 @@ function renderResult(scored) {
   }
   fragment.appendChild(coverage);
 
-  const disclaimer = document.createElement('p');
-  disclaimer.className = 'disclaimer';
+  const disclaimer = element('p', 'disclaimer');
   disclaimer.style.marginTop = '20px';
   disclaimer.textContent = 'Research use only. Not a medical device, not a '
     + 'diagnosis, and not a probability of disease. This is one model\'s '
@@ -425,12 +409,12 @@ async function loadStatics() {
 
   state.examples = examples;
   for (const record of examples) {
-    const label = document.createElement('label');
-    const radio = document.createElement('input');
+    const label = element('label');
+    const radio = element('input');
     radio.type = 'radio';
     radio.name = 'example';
     radio.value = record.file;
-    const span = document.createElement('span');
+    const span = element('span');
     span.textContent = record.label;
     label.appendChild(radio);
     label.appendChild(span);
@@ -505,8 +489,7 @@ async function collectSamples() {
     }
     sample.otuCounts = translated;
   }
-  const note = document.createElement('p');
-  note.className = 'small muted';
+  const note = element('p', 'small muted');
   note.textContent = `${payload.mapped} of ${payload.total} sequences mapped `
     + `to reference OTUs at 97% identity. Unmapped sequences are kept and `
     + `masked, the same way a held-out cohort was.`;

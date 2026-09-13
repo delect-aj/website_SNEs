@@ -14,7 +14,7 @@
  * purpose is to show evidence.
  */
 
-const NS = 'http://www.w3.org/2000/svg';
+import { svgElement } from './dom.js';
 
 /**
  * Deterministic vertical jitter.
@@ -71,7 +71,7 @@ export function renderBand(container, spec) {
   const ticks = spec.ticks
     || [0, 0.25, 0.5, 0.75, 1].map((t) => domain[0] + t * span);
 
-  const svg = document.createElementNS(NS, 'svg');
+  const svg = svgElement('svg');
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label',
@@ -82,7 +82,7 @@ export function renderBand(container, spec) {
     + Math.min(Math.max((p - domain[0]) / span, 0), 1) * plot;
 
   // Axis
-  const axis = document.createElementNS(NS, 'line');
+  const axis = svgElement('line');
   axis.setAttribute('x1', pad.left);
   axis.setAttribute('x2', pad.left + plot);
   axis.setAttribute('y1', pad.top + laneHeight * 2 + 6);
@@ -91,7 +91,7 @@ export function renderBand(container, spec) {
   svg.appendChild(axis);
 
   for (const tick of ticks) {
-    const line = document.createElementNS(NS, 'line');
+    const line = svgElement('line');
     line.setAttribute('x1', x(tick));
     line.setAttribute('x2', x(tick));
     line.setAttribute('y1', pad.top + laneHeight * 2 + 3);
@@ -99,7 +99,7 @@ export function renderBand(container, spec) {
     line.setAttribute('class', 'band__tick');
     svg.appendChild(line);
 
-    const label = document.createElementNS(NS, 'text');
+    const label = svgElement('text');
     label.setAttribute('x', x(tick));
     label.setAttribute('y', pad.top + laneHeight * 2 + 22);
     label.setAttribute('text-anchor', 'middle');
@@ -126,7 +126,7 @@ export function renderBand(container, spec) {
       // distinguishable without either being a solid block.
       const stack = Math.max(1, Math.round(Math.sqrt(count)));
       for (let k = 0; k < stack; k += 1) {
-        const dot = document.createElementNS(NS, 'circle');
+        const dot = svgElement('circle');
         const t = jitter(bin * 31 + k, rows);
         dot.setAttribute('cx', (pad.left + (bin / bins) * plot).toFixed(1));
         dot.setAttribute('cy',
@@ -138,7 +138,7 @@ export function renderBand(container, spec) {
       }
     }
 
-    const caption = document.createElementNS(NS, 'text');
+    const caption = svgElement('text');
     caption.setAttribute('x', group.lane === 0 ? pad.left : pad.left + plot);
     caption.setAttribute('y', height - pad.bottom + 20);
     caption.setAttribute('text-anchor', group.lane === 0 ? 'start' : 'end');
@@ -149,7 +149,7 @@ export function renderBand(container, spec) {
 
   // The query: a solid triangle rising from below the axis, heavier than
   // either group, because it is the only mark a visitor is looking for.
-  const marker = document.createElementNS(NS, 'path');
+  const marker = svgElement('path');
   const at = x(spec.you);
   const base = pad.top + laneHeight * 2 + 6;
   marker.setAttribute('d',
@@ -157,7 +157,7 @@ export function renderBand(container, spec) {
   marker.setAttribute('class', 'band__you');
   svg.appendChild(marker);
 
-  const callout = document.createElementNS(NS, 'text');
+  const callout = svgElement('text');
   callout.setAttribute('x', Math.min(Math.max(at, pad.left + 40),
                                      pad.left + plot - 40));
   callout.setAttribute('y', pad.top - 8);
@@ -167,7 +167,7 @@ export function renderBand(container, spec) {
   svg.appendChild(callout);
 
   if (spec.axisLabel) {
-    const label = document.createElementNS(NS, 'text');
+    const label = svgElement('text');
     label.setAttribute('x', pad.left);
     label.setAttribute('y', pad.top - 8);
     label.setAttribute('class', 'band__label');

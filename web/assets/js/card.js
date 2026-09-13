@@ -15,19 +15,14 @@
  * their left border as well.
  */
 
+import { element } from './dom.js';
 import { renderBand } from './band.js';
 
 const RANKS = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'];
 
-function element(tag, className, text) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
-}
 
 /** Confidence glyph and wording for a cross-validated AUC. */
-export function confidence(auc, thresholds) {
+function confidence(auc, thresholds) {
   if (!Number.isFinite(auc)) return { glyph: '?', label: 'not scored', level: 'weak' };
   if (auc >= thresholds.trusted) return { glyph: '●', label: 'trusted', level: 'strong' };
   if (auc >= thresholds.hidden_below) return { glyph: '◐', label: 'moderate', level: 'medium' };

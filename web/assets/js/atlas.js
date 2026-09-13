@@ -9,6 +9,7 @@
  */
 
 import { loadArray, fetchWithProgress, halfToFloat } from './binary.js';
+import { element } from './dom.js';
 import { Scatter } from './scatter.js';
 import { renderCard, cardSummary } from './card.js';
 
@@ -72,7 +73,7 @@ function renderLegend(field) {
   const levels = (data.meta.color_by[field] || []).slice(0, MAX_CATEGORIES);
   const palette = paletteFor(data.meta.color_by[field] || []);
   legend.replaceChildren();
-  const heading = document.createElement('div');
+  const heading = element('div');
   heading.style.marginBottom = '6px';
   heading.textContent = data.meta.color_by[field].length > MAX_CATEGORIES
     ? `${data.meta.color_by[field].length} levels, the smallest folded into one colour`
@@ -80,10 +81,8 @@ function renderLegend(field) {
   legend.appendChild(heading);
 
   for (const level of levels) {
-    const item = document.createElement('span');
-    item.className = 'legend__item';
-    const swatch = document.createElement('span');
-    swatch.className = 'legend__swatch';
+    const item = element('span', 'legend__item');
+    const swatch = element('span', 'legend__swatch');
     const color = palette.get(String(level)) || OKABE_ITO[MAX_CATEGORIES - 1];
     swatch.style.background =
       `rgb(${color.map((c) => Math.round(c * 255)).join(',')})`;
@@ -123,15 +122,13 @@ function runSearch(query) {
   }
 
   if (!matches.length) {
-    const empty = document.createElement('p');
-    empty.className = 'small muted';
-    empty.textContent = 'No OTU matches that. Try a genus, or paste an OTU id.';
+    const empty = element('p', 'small muted', 'No OTU matches that. Try a genus, or paste an OTU id.');
     results.appendChild(empty);
     return;
   }
 
   for (const record of matches) {
-    const button = document.createElement('button');
+    const button = element('button');
     button.type = 'button';
     button.className = 'button--quiet';
     button.style.display = 'block';
@@ -199,7 +196,7 @@ async function load() {
 
   const selector = document.getElementById('color-by');
   for (const field of Object.keys(meta.color_by)) {
-    const option = document.createElement('option');
+    const option = element('option');
     option.value = field;
     option.textContent = field === 'phylum' ? 'phylum'
       : (traits.traits[field] ? traits.traits[field].label : field);

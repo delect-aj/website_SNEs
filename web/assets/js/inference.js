@@ -41,7 +41,7 @@ export function makeGather(table, dModel) {
  * @param {number} dModel
  * @param {Float32Array} gathered - Output of `gather(sample.features)`.
  */
-export function makeFeeds(ort, sample, numSteps, dModel, gathered) {
+function makeFeeds(ort, sample, numSteps, dModel, gathered) {
   // onnxruntime-web has no int32 tensor for this input; the graph declares
   // int64 because that is what the PyTorch mask is.
   const mask = new BigInt64Array(numSteps);
