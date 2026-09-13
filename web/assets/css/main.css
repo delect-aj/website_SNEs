@@ -258,11 +258,13 @@ details > summary::marker { color: var(--ink-3); }
 }
 .bar__fill { height: 100%; background: var(--accent); }
 
-/* Confidence is a glyph plus fill density, never a colour of its own. */
+/* Confidence is a glyph plus fill density, never a colour of its own. All
+   three steps keep text at 4.5:1 or better: --ink-3 is for disabled and
+   placeholder text, which this is not. */
 .conf { font-family: var(--mono); }
 .conf--strong { color: var(--ink); }
 .conf--medium { color: var(--ink-2); }
-.conf--weak { color: var(--ink-3); }
+.conf--weak { color: var(--ink-2); }
 
 .trait__auc { color: var(--ink-2); }
 
@@ -472,16 +474,4 @@ td.num, th.num { text-align: right; font-family: var(--mono); }
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 12px;
-}
-
-/* Utility ----------------------------------------------------------------- */
-
-.visually-hidden {
-  position: absolute;
-  width: 1px; height: 1px;
-  margin: -1px; padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
 }

@@ -114,7 +114,8 @@ function runSearch(query) {
 
   const matches = [];
   for (const record of data.otus) {
-    const haystack = `${record.id} ${record.genus} ${record.species} ${record.family}`;
+    const haystack = `${record.id} ${record.genus ?? ''} ${record.species ?? ''} `
+      + `${record.family ?? ''}`;
     if (haystack.toLowerCase().includes(needle)) {
       matches.push(record);
       if (matches.length >= 12) break;
