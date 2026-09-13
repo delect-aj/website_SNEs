@@ -49,8 +49,8 @@ Bandwidth, per visitor who uses a page:
 | Page | First visit | Repeat |
 |---|---|---|
 | Home, download, cite | < 50 kB | cached |
-| Atlas | ~4.6 MB gzipped | cached |
-| Dysbiosis | ~18 MB gzipped, of which 10.6 MB is the ONNX Runtime WebAssembly | cached |
+| Atlas | ~4.8 MB gzipped | cached |
+| Dysbiosis | ~9.2 MB gzipped — ~19 MB uncompressed, 10.9 MB of it the ONNX Runtime WebAssembly | cached |
 
 The dysbiosis page is heavy and that is a deliberate trade: the alternative is
 running inference on the server, which multiplies the required cores by
@@ -252,7 +252,7 @@ curl -s https://your.domain/data/manifest.json \
       [ "$code" = 200 ] || echo "MISSING $f ($code)"
     done
 
-# 3. Compression is on where it matters. otus.json should be ~0.9 MB.
+# 3. Compression is on where it matters. otus.json should be ~1.1 MB.
 curl -s -H 'Accept-Encoding: gzip' -o /dev/null -w '%{size_download}\n' \
   https://your.domain/data/otus.json
 

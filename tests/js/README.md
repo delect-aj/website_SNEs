@@ -4,8 +4,11 @@
 # 1. Build the fixture (needs the exported model; run on the build machine).
 .venv-export/bin/python script/web_export/export_golden.py
 
-# 2. Run the comparison.
-cd tests/js && npm install && node preprocess.test.mjs
+# 2. Run the comparisons.
+cd tests/js && npm install
+npm test                    # both files
+node preprocess.test.mjs    # the preprocessing and inference chain
+node table.test.mjs         # the count-table reader
 ```
 
 ## What is being defended
@@ -85,3 +88,23 @@ the selection rather than about the logit.
 compared to 6.0e-08 by the export, so the ranking is stable across runtimes
 except where two positions differ by less than that — in which case their
 relative order is not meaningful anyway.
+
+## The count-table reader
+
+`table.test.mjs` covers `web/assets/js/table.js`, which is where a visitor's
+file first meets the page. The cases are the shapes that arrive in practice:
+the banner line and `#OTU ID` header that `biom convert --to-tsv` and `qiime
+tools export` write, the same table transposed by hand, a row with more cells
+than the header, a comma-separated file, an all-zero table (empty, not an
+error), and text with no delimiter at all (a sentence, not a TypeError).
+
+PapaParse is a page global rather than an import, so the test installs a stub
+for it that covers delimiter detection, skipped empty lines and the
+`errors[0].type === 'Delimiter'` signal.
+
+## One runtime, three places
+
+`onnxruntime-node` is pinned here to the version `script/fetch_vendor.sh`
+vendors for the page and `export_dysbiosis.py` checks against PyTorch. Moving
+one of the three without the others means the graph visitors load is a graph
+nothing verified.

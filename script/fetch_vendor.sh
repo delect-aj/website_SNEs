@@ -6,12 +6,15 @@
 # after cloning, and again only when a version below changes.
 #
 # Versions are pinned rather than ranged: the wasm binary and the JavaScript
-# loader have to come from the same release, and the ONNX export was verified
-# against this runtime.
+# loader have to come from the same release, and the ONNX graph is verified
+# against this runtime -- `export_dysbiosis.py` checks onnxruntime against
+# PyTorch at the same version, and `tests/js` loads the graph through
+# onnxruntime-node at it. Do not move this ahead of those two, or the browser
+# will be running a runtime nothing checked the model against.
 
 set -euo pipefail
 
-ORT_VERSION="1.17.3"
+ORT_VERSION="1.16.3"
 PAPAPARSE_VERSION="5.5.3"
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
