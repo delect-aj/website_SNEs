@@ -19,6 +19,7 @@ import { element } from './dom.js';
 import { preprocessSample, UNK_INDEX } from './preprocess.js';
 import { makeGather, scoreSample, percentileOf, topContributors } from './inference.js';
 import { renderBand } from './band.js';
+import { readTable } from './table.js';
 
 const DATA = '/data';
 const WASM_PATH = '/assets/vendor/ort/';
@@ -33,6 +34,7 @@ const state = {
   examples: [],
   sampleList: [],
   selection: 0,
+  mappingNote: '',
   loaded: false,
 };
 
@@ -92,60 +94,6 @@ function showMode() {
   elements.table.hidden = mode !== 'table';
   elements.fasta.hidden = mode !== 'fasta';
   elements.runStatus.replaceChildren();
-}
-
-/** Turn a feature-by-sample grid into one sparse map per sample. */
-function samplesFromGrid(rows, header, firstColumn) {
-  const names = header.slice(firstColumn).map(String);
-  const samples = names.map((name) => ({ name, otuCounts: new Map() }));
-
-  for (const row of rows) {
-    const id = String(row[0] ?? '').trim();
-    if (!id) continue;
-    for (let column = firstColumn; column < row.length; column += 1) {
-      const value = Number(row[column]);
-      if (!Number.isFinite(value) || value <= 0) continue;
-      const sample = samples[column - firstColumn];
-      sample.otuCounts.set(id, (sample.otuCounts.get(id) || 0) + value);
-    }
-  }
-  return samples.filter((sample) => sample.otuCounts.size > 0);
-}
-
-/**
- * Read a count table in either orientation.
- *
- * QIIME2 and DADA2 both write features down the side. A table written the
- * other way round is detected by checking whether the header cells reappear
- * among the row labels.
- */
-function readTable(text, label) {
-  const parsed = Papa.parse(text.trim(), { skipEmptyLines: true });
-  if (parsed.errors.length && parsed.errors[0].type === 'Delimiter') {
-    throw new Error(`${label}: could not find a delimiter; a tab-separated `
-      + `file is expected.`);
-  }
-  const rows = parsed.data;
-  if (rows.length < 2) throw new Error(`${label}: no data rows`);
-
-  const header = rows[0].map(String);
-  const body = rows.slice(1);
-
-  const rowLabels = new Set(body.map((row) => String(row[0])));
-  const headerOverlap = header.slice(1)
-    .filter((cell) => rowLabels.has(cell)).length;
-  const transposed = headerOverlap >= Math.max(1, (header.length - 1) / 2);
-
-  if (!transposed) {
-    return samplesFromGrid(body, header, 1);
-  }
-
-  // Samples down the side: flip into feature rows first.
-  const featureIds = header.slice(1);
-  const sampleNames = body.map((row) => String(row[0]));
-  const flipped = featureIds.map((id, column) =>
-    [id, ...body.map((row) => row[column + 1])]);
-  return samplesFromGrid(flipped, ['feature', ...sampleNames], 1);
 }
 
 function renderSamplePicker(container, samples, onPick) {
@@ -240,11 +188,11 @@ async function score(otuCounts) {
   // rather than let the number through.
   if (known === 0) {
     throw new Error(
-      `None of the ${unknown} taxa in this sample are in the model's `
-      + `vocabulary, so every position was masked and there is nothing to `
-      + `score. The model reads SILVA 138.2 97% OTU ids of the form `
-      + `accession.start.stop; a table of ASV or exact-sequence ids has to go `
-      + `through the FASTA route first, which maps them.`);
+      `The model read ${unknown} of this sample's ${sample.nOtus} taxa and `
+      + `none of them are in its vocabulary, so every position was masked and `
+      + `there is nothing to score. The model reads SILVA 138.2 97% OTU ids of `
+      + `the form accession.start.stop; a table of ASV or exact-sequence ids `
+      + `has to go through the FASTA route first, which maps them.`);
   }
 
   const scored = await scoreSample(state.session, ort, sample,
@@ -346,6 +294,8 @@ function renderResult(scored) {
   const list = element('ol', 'attn-list');
   for (const contributor of topContributors(attention, sample, 12)) {
     const item = element('li');
+    // topContributors only returns positions the mask kept, so this is always
+    // a real vocabulary index and the id is always present.
     const id = state.vocab.ids[contributor.index - 2];
     if (id) {
       const link = element('a');
@@ -354,9 +304,8 @@ function renderResult(scored) {
       link.className = 'mono';
       item.appendChild(link);
     } else {
-      const unknownNode = element('span', 'mono muted');
-      unknownNode.textContent = '<unk>';
-      item.appendChild(unknownNode);
+      item.appendChild(element('span', 'mono muted',
+        `vocabulary index ${contributor.index}`));
     }
     item.appendChild(document.createTextNode(
       `abundance ${contributor.abundance.toFixed(2)}`));
@@ -429,6 +378,7 @@ async function loadStatics() {
 
 async function collectSamples() {
   const mode = currentMode();
+  state.mappingNote = '';
 
   if (mode === 'example') {
     const picked = elements.examples.querySelector('input:checked');
@@ -489,11 +439,13 @@ async function collectSamples() {
     }
     sample.otuCounts = translated;
   }
-  const note = element('p', 'small muted');
-  note.textContent = `${payload.mapped} of ${payload.total} sequences mapped `
+  // Rendered by run() once the sample picker is in place: that picker clears
+  // its container, so appending here would be wiped a moment later and the
+  // mapping rate -- the one number that says whether the FASTA was comparable
+  // to the cohort at all -- would never be seen.
+  state.mappingNote = `${payload.mapped} of ${payload.total} sequences mapped `
     + `to reference OTUs at 97% identity. Unmapped sequences are kept and `
     + `masked, the same way a held-out cohort was.`;
-  elements.fastaSamples.appendChild(note);
 
   return samples;
 }
@@ -512,6 +464,11 @@ async function run() {
       : elements.fastaSamples;
     if (currentMode() !== 'example') {
       renderSamplePicker(target, samples, (index) => { state.selection = index; });
+      if (state.mappingNote) {
+        const note = element('p', 'small muted');
+        note.textContent = state.mappingNote;
+        target.appendChild(note);
+      }
     }
 
     await ensureModel();
