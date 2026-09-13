@@ -51,11 +51,11 @@ sequences is the one thing a browser cannot do.
 **Sizing.** 1 vCPU, 2 GB RAM, 20 GB disk. vsearch is single-threaded and the
 container is capped at one core; the static site is a few files on disk.
 
-**What a visit costs.** A first visit transfers about 4.3 MB for `/atlas` and
-8.6 MB for `/dysbiosis`, gzipped. Most of the second figure is ONNX Runtime
-itself — 10.6 MB of WebAssembly uncompressed, 2.8 MB compressed — fetched once
-and then served from the browser cache. The server does no work beyond sending
-files.
+**What a visit costs.** A first visit transfers about 4.8 MB for `/atlas` and
+9.2 MB for `/dysbiosis`, gzipped — measured over the files each page fetches.
+Most of the second figure is ONNX Runtime itself: 10.9 MB of WebAssembly
+uncompressed, 3.0 MB compressed, fetched once and then served from the browser
+cache. The server does no work beyond sending files.
 
 ### What you need
 
@@ -241,7 +241,7 @@ curl -s https://your.domain/data/manifest.json \
       [ "$code" = 200 ] || echo "MISSING $f ($code)"
     done
 
-# 3. Compression is on. otus.json is 16 MB raw and should arrive as ~0.9 MB.
+# 3. Compression is on. otus.json is 16 MB raw and should arrive as ~1.1 MB.
 curl -s -H 'Accept-Encoding: gzip' -o /dev/null -w '%{size_download}\n' \
   https://your.domain/data/otus.json
 
@@ -325,13 +325,19 @@ writes, and why the order matters, is in
 
 ```bash
 node tests/js/preprocess.test.mjs          # the browser path against Python
+node tests/js/table.test.mjs               # the count-table reader
 cd server && python -m pytest tests -v     # the endpoint's limits and mapping
 ```
 
 The first is the one that matters. The site re-implements the paper's
 preprocessing in JavaScript, and a mistake there produces a plausible wrong
-number rather than an error. See [`tests/js/README.md`](tests/js/README.md) for
-what is asserted and the one place the two languages legitimately differ.
+number rather than an error. The second covers the shapes count tables
+actually arrive in — the banner `biom convert --to-tsv` writes, a table
+transposed in a spreadsheet, a row longer than its header — because the
+parser is the first thing a visitor's file meets and a TypeError from inside
+it is not something they can act on. See
+[`tests/js/README.md`](tests/js/README.md) for what is asserted and the one
+place the two languages legitimately differ.
 
 ## Two numbers worth knowing before reading the code
 
