@@ -86,11 +86,25 @@ app.add_middleware(
 _requests = defaultdict(deque)
 _rate_lock = threading.Lock()
 
+# One vsearch at a time. The endpoint runs in a threadpool so that a long
+# alignment cannot block the event loop, and this keeps that freedom from
+# turning into several vsearch processes competing for the one core.
+_vsearch_lock = threading.Semaphore(1)
+
 
 def rate_limited(client):
     """True when `client` has spent its request budget for this window."""
     now = time.monotonic()
     with _rate_lock:
+        # One deque per client that has ever called would grow without bound,
+        # so the map is swept once it is larger than a site this size should
+        # ever see. Entries whose window has passed are free to drop.
+        if len(_requests) > 10_000:
+            for other in [key for key, window in _requests.items()
+                          if not window
+                          or now - window[-1] > RATE_WINDOW_SECONDS]:
+                del _requests[other]
+
         history = _requests[client]
         while history and now - history[0] > RATE_WINDOW_SECONDS:
             history.popleft()
@@ -241,8 +255,13 @@ def run_vsearch(query_path, database):
 
 
 @app.get("/health")
-def health():
-    """Report readiness: the database has to be present for /map to work."""
+async def health():
+    """Report readiness: the database has to be present for /map to work.
+
+    Async so that it never queues in the threadpool behind a running vsearch:
+    a readiness check has to answer while the service is busy, which is when
+    it is worth asking.
+    """
     installed = os.path.exists(DATABASE)
     return {
         "status": "ok" if installed else "degraded",
@@ -255,9 +274,14 @@ def health():
 
 
 @app.post("/map")
-async def map_sequences(request: Request,
-                        rep_seqs: UploadFile = File(...)):
-    """Map rep-seqs headers to reference OTU ids at 97% identity."""
+def map_sequences(request: Request,
+                  rep_seqs: UploadFile = File(...)):
+    """Map rep-seqs headers to reference OTU ids at 97% identity.
+
+    Sync on purpose: reading the upload and running vsearch are both blocking,
+    and a `def` endpoint is run in the threadpool, so a slow alignment does not
+    stall every other request on the worker -- `/health` included.
+    """
     client = request.client.host if request.client else "unknown"
     if rate_limited(client):
         raise HTTPException(
@@ -273,7 +297,8 @@ async def map_sequences(request: Request,
         with os.fdopen(handle, "w") as temporary:
             for name, sequence in records:
                 temporary.write(f">{name}\n{sequence}\n")
-        mapping = run_vsearch(path, DATABASE)
+        with _vsearch_lock:
+            mapping = run_vsearch(path, DATABASE)
     finally:
         # Removed whether or not vsearch succeeded; nothing is kept.
         os.unlink(path)
@@ -283,17 +308,3 @@ async def map_sequences(request: Request,
         "mapped": len(mapping),
         "total": len(records),
     })
-
-
-@asynccontextmanager
-async def lifespan(_: FastAPI):
-    """Print where vsearch and the database came from at startup.
-
-    A missing binary or a wrong bind-mount path is the usual deployment
-    mistake, and it otherwise surfaces as a 503 the first time a visitor
-    uploads something.
-    """
-    print(f"[map] vsearch: {shutil.which(VSEARCH) or 'NOT FOUND'}")
-    print(f"[map] database: {DATABASE} "
-          f"({'present' if os.path.exists(DATABASE) else 'MISSING'})")
-    yield
