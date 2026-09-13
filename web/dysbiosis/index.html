@@ -28,13 +28,13 @@
 
   <h1>Ecological dysbiosis score</h1>
 
-  <p class="lede" style="margin-top:12px">
+  <p class="lede mt-12">
     One number, placed against 10,276 reference samples. It says how unusual a
     community is in the direction this model associates with disease — not what
     disease, not how likely, and not whether anyone is ill.
   </p>
 
-  <div class="warn" style="margin-top:16px">
+  <div class="warn mt-16">
     <p style="margin:0">
       <strong>Research use only.</strong> This is not a medical device and it
       does not diagnose anything. If you have a health concern, see a clinician;
@@ -42,16 +42,16 @@
     </p>
   </div>
 
-  <section style="margin-top:32px">
+  <section class="mt-32">
     <h2>1 · Choose an input</h2>
 
-    <div class="radio-row" style="margin-top:12px" id="modes">
+    <div class="radio-row mt-12" id="modes">
       <label><input type="radio" name="mode" value="example" checked><span>Run an example sample</span></label>
       <label><input type="radio" name="mode" value="table"><span>OTU table with SILVA 138.2 ids</span></label>
       <label><input type="radio" name="mode" value="fasta"><span>Rep-seqs FASTA + counts</span></label>
     </div>
 
-    <div class="card" style="margin-top:16px">
+    <div class="card mt-16">
       <div id="mode-example">
         <p class="muted" style="margin-bottom:12px">
           Six real samples from the reference cohort, already reduced to the
@@ -90,25 +90,25 @@
     </div>
   </section>
 
-  <section style="margin-top:32px" id="run-section">
+  <section id="run-section" class="mt-32">
     <h2>2 · Run</h2>
-    <p style="margin-top:12px">
+    <p class="mt-12">
       <button id="run" type="button">Score this sample</button>
       <span class="small muted" id="run-note" style="margin-left:12px"></span>
     </p>
     <div id="run-status"></div>
   </section>
 
-  <section style="margin-top:32px" id="result-section" hidden>
+  <section id="result-section" class="mt-32" hidden>
     <h2>3 · Result</h2>
-    <div class="card" id="result" style="margin-top:12px"></div>
+    <div class="card mt-12" id="result"></div>
   </section>
 
-  <section style="margin-top:32px">
+  <section class="mt-32">
     <h2>What this score is not</h2>
     <details open>
       <summary>Read this before using the number</summary>
-      <div class="stack" style="margin-top:12px">
+      <div class="stack mt-12">
         <p>
           The model is trained on human faecal 16S data only. It has no meaning
           for soil, water, oral, skin or vaginal communities, and it has no

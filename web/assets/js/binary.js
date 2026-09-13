@@ -74,7 +74,7 @@ export async function loadArray(url, spec, onProgress) {
  * @param {ArrayBuffer} buffer
  * @param {string} dtype
  */
-export function view(buffer, dtype) {
+function view(buffer, dtype) {
   switch (dtype) {
     case 'float32': return new Float32Array(buffer);
     case 'float16': return new Uint16Array(buffer);
@@ -87,7 +87,7 @@ export function view(buffer, dtype) {
 }
 
 /** Bytes per element of a manifest dtype. */
-export function bytesPerElement(dtype) {
+function bytesPerElement(dtype) {
   switch (dtype) {
     case 'float32':
     case 'int32': return 4;
@@ -138,11 +138,3 @@ function halfLookup() {
   return halfTable;
 }
 
-/** Reshape a flat array into an array of rows. */
-export function rows(data, width) {
-  const out = [];
-  for (let start = 0; start + width <= data.length; start += width) {
-    out.push(data.subarray(start, start + width));
-  }
-  return out;
-}

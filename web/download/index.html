@@ -26,15 +26,15 @@
 
   <h1>Download</h1>
 
-  <p class="lede" style="margin-top:12px">
+  <p class="lede mt-12">
     Everything the site serves is static and public. Load the embeddings into
     Python, open them in the TensorFlow Embedding Projector, or take the raw
     arrays and build something else.
   </p>
 
-  <section style="margin-top:32px">
+  <section class="mt-32">
     <h2>Look at the embedding in 3D</h2>
-    <div class="card" style="margin-top:12px">
+    <div class="card mt-12">
       <p>
         The TensorFlow Embedding Projector reads the same vectors this site
         uses, and does the 3D work for free. The link below opens it with the
@@ -48,13 +48,13 @@
     </div>
   </section>
 
-  <section style="margin-top:32px">
+  <section class="mt-32">
     <h2>Load it in Python</h2>
-    <div class="card" style="margin-top:12px">
+    <div class="card mt-12">
       <p>
         The vector file is word2vec text, which gensim reads directly:
       </p>
-      <pre class="mono small" style="overflow-x:auto; background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:12px">import gzip
+      <pre class="code">import gzip
 from gensim.models import KeyedVectors
 
 with gzip.open("sne_vectors.txt.gz", "rb") as raw:
@@ -72,22 +72,22 @@ vectors.most_similar("AB002518.1.1416", topn=10)</pre>
     </div>
   </section>
 
-  <section style="margin-top:32px">
+  <section class="mt-32">
     <h2>Files</h2>
-    <p class="muted" style="margin-top:12px">
+    <p class="muted mt-12">
       Sizes are as served, before compression. Checksums are in
       <a href="/data/manifest.json" class="mono">manifest.json</a>.
     </p>
-    <div id="files" style="margin-top:12px">
+    <div id="files" class="mt-12">
       <p class="muted">Loading the manifest…</p>
     </div>
   </section>
 
-  <section style="margin-top:32px">
+  <section class="mt-32">
     <h2>What these files are</h2>
     <details open>
       <summary>Formats and layout</summary>
-      <div class="stack" style="margin-top:12px">
+      <div class="stack mt-12">
         <p>
           <span class="mono">sne_vectors.txt.gz</span> — the 14,093 × 100
           embedding, word2vec text, one OTU id per line. The ids are SILVA

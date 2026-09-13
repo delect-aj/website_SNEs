@@ -11,8 +11,6 @@
  * contrast at 14k points; the surrounding page is not.
  */
 
-export const INK = [0.09, 0.09, 0.11];
-
 const VERTEX_SHADER = `
 attribute vec2 aPosition;
 attribute vec3 aColor;

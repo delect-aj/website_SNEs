@@ -76,14 +76,11 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 32px 0; }
 
 main { padding: 32px 0 64px; }
 
-section + section { margin-top: 32px; }
 
 .lede { font-size: 19px; color: var(--ink-2); max-width: 62ch; }
 
 .muted { color: var(--ink-2); }
 .small { font-size: 13px; }
-.tight { margin-bottom: 4px; }
-.row { display: flex; gap: 16px; flex-wrap: wrap; align-items: baseline; }
 .spread { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
 .stack > * + * { margin-top: 16px; }
 
@@ -451,6 +448,30 @@ td.num, th.num { text-align: right; font-family: var(--mono); }
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Spacing. The design uses a 4-pixel scale and three of its steps account
+   for every gap between blocks on the site, so they are named once here
+   rather than spelled out as an inline style on each element. */
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+
+/* A code or sample block: monospace, on paper rather than on a card, with a
+   hairline border and its own scroll if a line runs long. */
+.code {
+  font-family: var(--mono);
+  font-size: 13px;
+  overflow-x: auto;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
 }
 
 /* Utility ----------------------------------------------------------------- */
