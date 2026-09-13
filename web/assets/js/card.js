@@ -115,25 +115,41 @@ function labelledPositions(data, trait) {
 }
 
 /**
- * The forest's probability for the class this OTU holds, whichever kind of row
- * it is.
+ * The value the card presents for one trait.
  *
- * An inferred row stores it directly: the trait table's probability is the
- * forest's vote for the value in the row. A labelled row has none stored --
- * `traits_predict.ipynb` leaves it empty because an in-sample probability
- * would be near one and mean nothing -- so it is read from the block the
- * export wrote by refitting the same forest.
-
- * Returns null when neither is available, which happens for a curated
- * measurement on an OTU the forest was not trained on.
+ * A BacDive measurement overrides the trait table's value, here and in the
+ * row's badge; the two have to agree or the card would label an inference as
+ * a measurement. About a fifth of the measured pairs hold a different value
+ * from the inference they override.
  */
-function probabilityFor(trait, record, data) {
-  const entry = record.traits[trait];
-  if (Number.isFinite(entry.prob)) return entry.prob;
+function displayedValue(record, trait, data) {
+  const measured = (data.bacdive[record.id] || {})[trait];
+  return measured === undefined ? record.traits[trait].value : measured;
+}
 
+/**
+ * The forest's probability for one class of one trait, for one OTU.
+ *
+ * An inferred row stores the probability of the class it holds, so that is
+ * returned directly -- but only when it is the class asked for. A row with a
+ * genome label has none stored: `traits_predict.ipynb` leaves it empty
+ * because an in-sample probability would be near one and mean nothing. Those
+ * are read from the block the export wrote by refitting the same forest.
+
+ * Returns null when the class is not one the forest knows, or when the OTU is
+ * not among the labelled rows the block covers -- which is the case for a
+ * curated measurement on an OTU with no genome label for that trait.
+ */
+function probabilityFor(trait, record, data,
+                        value = record.traits[trait].value) {
   const meta = data.traits.traits[trait];
-  const classIndex = meta.classes.indexOf(String(entry.value));
+  const classIndex = meta.classes.indexOf(String(value));
   if (classIndex < 0) return null;
+
+  const entry = record.traits[trait];
+  if (String(entry.value) === String(value) && Number.isFinite(entry.prob)) {
+    return entry.prob;
+  }
 
   const position = labelledPositions(data, trait).indexOf(record.i);
   if (position < 0) return null;
@@ -149,9 +165,13 @@ function probabilityFor(trait, record, data) {
 function renderBandFor(trait, record, data) {
   const meta = data.traits.traits[trait];
   const labels = labelledPositions(data, trait);
-  const queryValue = String(record.traits[trait].value);
+  const measured = (data.bacdive[record.id] || {})[trait] !== undefined;
+  // The band is drawn for the class the card claims. When BacDive has a
+  // record that is the measured value: an axis labelled with a class the row
+  // above does not show reads as the card contradicting itself.
+  const queryValue = String(displayedValue(record, trait, data));
   const classIndex = meta.classes.indexOf(queryValue);
-  const you = probabilityFor(trait, record, data);
+  const you = probabilityFor(trait, record, data, queryValue);
   if (you === null || classIndex < 0) return null;
 
   const ctrl = [];
@@ -173,7 +193,8 @@ function renderBandFor(trait, record, data) {
     className: meta.value_labels[queryValue] || queryValue,
     ctrlLabel: `labelled ${otherValues.join(' / ')}`,
     caseLabel: `labelled ${meta.value_labels[queryValue] || queryValue}`,
-    youLabel: labelled ? `${record.id} (genome label)` : `${record.id} (inferred)`,
+    youLabel: measured ? `${record.id} (BacDive measured)`
+      : labelled ? `${record.id} (genome label)` : `${record.id} (inferred)`,
   };
 }
 
@@ -203,7 +224,8 @@ function renderTrait(trait, record, data, thresholds) {
 
   const head = element('div', 'trait__head');
   head.appendChild(element('span', 'trait__name', meta.label));
-  const valueText = meta.value_labels[String(entry.value)] || String(entry.value);
+  const shown = displayedValue(record, trait, data);
+  const valueText = meta.value_labels[String(shown)] || String(shown);
   const value = element('span', 'trait__value', valueText);
   if (curated || labelled) {
     const badge = element('span', 'badge',
