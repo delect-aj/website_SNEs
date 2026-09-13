@@ -46,7 +46,7 @@ the AUC on the site the honest one.
 |---|---|
 | `export_dysbiosis.py` | `vocab.json`, `dysbiosis_encoder.onnx`, `dysbiosis_embed.f16.bin`, `ref_scores.json`, `metrics.json`, `examples/`, `examples.json` |
 | `export_traits.py` | `traits_proba.f16.bin`, `traits.json`, `bacdive.json` |
-| `export_assets.py` | `nbr_*_sim.u8.bin`, `sne.f16.bin`, `download/*`, `manifest.json`, and the rewrite of `meta.json` |
+| `export_assets.py` | `nbr_*_sim.f16.bin`, `sne.f16.bin`, `download/*`, `manifest.json`, and the rewrite of `meta.json` |
 | `export_golden.py` | `tests/fixtures/golden.json` |
 | `export_assets.py` | `data/server/otu_refseqs.fasta` (outside the web root) |
 

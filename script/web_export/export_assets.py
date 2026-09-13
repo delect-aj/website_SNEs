@@ -4,17 +4,17 @@ Run this after `script/atlas_export.ipynb` and after `export_dysbiosis.py`.
 It reads what those wrote -- it never recomputes a layout -- and adds the
 things the site serves but the research notebooks have no reason to produce.
 
-    nbr_sne_sim.u8.bin      cosine similarity, quantised to one byte
-    nbr_phylo_sim.u8.bin    the same
+    nbr_sne_sim.f16.bin     cosine similarity, float16
+    nbr_phylo_sim.f16.bin   the same
     sne.f16.bin             the embedding matrix, float16
     download/*.tsv          vectors and metadata for the TF Projector
     download/*.txt.gz       word2vec text, for gensim
     download/manifest.json  sizes and checksums for the download page
 
-Why quantise: the two similarity arrays are 5.4 MB as float32 and compress
-badly, because a cosine to four decimals is close to incompressible. The card
-prints them to two decimals, so one byte per value -- 1/255 of the range --
-loses nothing a visitor can see, and saves about 3 MB over the wire.
+Why halve the similarities: the two arrays are 5.4 MB as float32 and compress
+badly, because a cosine to four decimals is close to incompressible. One byte
+per value was the first attempt and is not enough resolution -- see
+`quantise_similarity` for what that costs on these numbers.
 
 The write into `meta.json` is additive: every key the notebook put there is
 kept, and re-running this script replaces the two entries it owns rather than
@@ -186,9 +186,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--script-dir", default=os.path.join(REPO, "script"))
     parser.add_argument("--out", default=os.path.join(REPO, "data", "web"))
-    parser.add_argument("--site-url", default="https://microbial-embeddings.example.org",
+    parser.add_argument("--site-url", default=None,
                         help="public origin, used to build the Projector link")
     args = parser.parse_args()
+
+    # Required rather than defaulted: the origin is written into the manifest
+    # and into `download/projector_config.json`, and Google's server fetches
+    # the two TSVs from it. A placeholder left in those files is a dead link
+    # that nothing else on the site would notice.
+    if not args.site_url or not args.site_url.startswith(("http://", "https://")):
+        parser.error("--site-url is required and must be the public origin, "
+                     "e.g. --site-url https://microbiome.example.org")
 
     meta_path = os.path.join(args.out, "meta.json")
     with open(meta_path) as handle:
@@ -244,7 +252,7 @@ def main():
         path = os.path.join(args.out, name)
         if os.path.exists(path):
             os.unlink(path)
-            print(f"  removed {name} (superseded by its uint8 form)")
+            print(f"  removed {name} (superseded by its float16 form)")
 
     print("writing the embedding matrix")
     ids, matrix, download = write_embedding(args.script_dir, args.out)
