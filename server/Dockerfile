@@ -14,6 +14,11 @@ RUN micromamba install --yes --name base \
         "vsearch=2.28.1" "python=3.11" && \
     micromamba clean --all --yes
 
+# The image activates the environment only for CMD. RUN lines and the compose
+# healthcheck (which bypasses the entrypoint) need it on PATH, or `python` is
+# not found and the build stops here.
+ENV PATH=/opt/conda/bin:$PATH
+
 RUN python -m pip install --no-cache-dir -r /tmp/requirements.txt
 
 WORKDIR /srv
@@ -26,5 +31,11 @@ EXPOSE 8000
 
 # One worker on purpose: vsearch runs single-threaded and a second worker would
 # only contend with the first on a 1-2 core host.
+#
+# nginx reaches the container through Docker's bridge, not from 127.0.0.1, so
+# uvicorn would ignore X-Forwarded-For by default and every visitor would share
+# one rate-limit budget. Trusting it is safe: the port is published on the
+# host's loopback only, and nginx overwrites the header rather than appending.
 CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", \
-     "--port", "8000", "--workers", "1", "--no-access-log"]
+     "--port", "8000", "--workers", "1", "--no-access-log", \
+     "--forwarded-allow-ips", "*"]
