@@ -134,6 +134,17 @@ async function ensureModel() {
     (loaded, size) => status('Loading embedding table…', loaded / size));
   state.embedding = halfToFloat(new Uint16Array(embeddingBuffer));
   state.gather = makeGather(state.embedding, state.vocab.d_model);
+  // Vocabulary rows with a non-zero embedding. About 5,000 OTUs are in the
+  // model's vocabulary but not in the pretrained embedding; their rows are
+  // zero, the model knows nothing about them, and none has a SILVA 138.2
+  // lineage, so the attention list does not name them.
+  const d = state.vocab.d_model;
+  state.informative = new Uint8Array(state.embedding.length / d);
+  for (let row = 0; row < state.informative.length; row += 1) {
+    for (let j = 0; j < d; j += 1) {
+      if (state.embedding[row * d + j] !== 0) { state.informative[row] = 1; break; }
+    }
+  }
 
   // Lineages for the contributing taxa, keyed by OTU id.
   state.taxonomy = await (await fetch(`${DATA}/taxonomy.json`, { cache: 'no-cache' })).json();
@@ -293,11 +304,15 @@ function renderResult(scored) {
   const note = element('p', 'small muted');
   note.textContent = 'Attention weights are averaged over folds, heads and '
     + 'query positions. They describe what the model attends to and do not '
-    + 'imply a biological mechanism.';
+    + 'imply a biological mechanism. OTUs without a pretrained embedding carry '
+    + 'no information for the model and are not listed.';
   fragment.appendChild(note);
 
   const list = element('ol', 'attn-list');
-  for (const contributor of topContributors(attention, sample, 12)) {
+  const listed = topContributors(attention, sample, Infinity)
+    .filter((contributor) => state.informative[contributor.index])
+    .slice(0, 12);
+  for (const contributor of listed) {
     const item = element('li');
     // topContributors only returns positions the mask kept, so this is always
     // a real vocabulary index and the id is always present.
