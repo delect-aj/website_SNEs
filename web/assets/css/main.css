@@ -93,7 +93,9 @@ h1 { font-size: 36px; }
 h2 { font-size: 26px; }
 h3 { font-size: 18px; }
 
-p { margin: 0 0 16px; max-width: 72ch; }
+/* Wide measure: the content column is 1,112 px, and a narrower one left most
+   of every block empty on the right. */
+p { margin: 0 0 16px; max-width: 118ch; }
 
 section > h2 { padding-top: 8px; }
 
@@ -114,7 +116,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 32px 0; }
 
 main { padding: 40px 0 64px; }
 
-.lede { font-size: 18px; color: var(--ink); max-width: 70ch; }
+.lede { font-size: 18px; color: var(--ink); max-width: none; }
 
 .muted { color: var(--ink-2); }
 .small { font-size: 13px; }
@@ -392,9 +394,8 @@ main { padding: 40px 0 64px; }
   .hero-band h1 { font-size: 36px; }
 }
 
-/* Boxed and folded-out prose runs wider than body text, so a full-width block
-   is not half empty. */
-.note p, .cite-box p, details > .stack > p { max-width: 118ch; }
+/* One-line notices: a warning or disclaimer reads as a single statement. */
+.warn p, p.disclaimer { max-width: none; }
 
 /* Cards ------------------------------------------------------------------- */
 
