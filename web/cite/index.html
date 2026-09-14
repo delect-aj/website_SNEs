@@ -133,7 +133,18 @@
 <script type="module">
 document.getElementById("copy-bibtex").addEventListener("click", async (event) => {
   const text = document.getElementById("bibtex").textContent;
-  await navigator.clipboard.writeText(text);
+  if (navigator.clipboard) {
+    await navigator.clipboard.writeText(text);
+  } else {
+    // The Clipboard API exists only on HTTPS; a site served by IP over plain
+    // HTTP falls back to selecting the text and the legacy copy command.
+    const area = document.createElement("textarea");
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand("copy");
+    area.remove();
+  }
   event.target.textContent = "Copied";
   setTimeout(() => { event.target.textContent = "Copy BibTeX"; }, 2000);
 });
