@@ -6,7 +6,7 @@
 <title>Download — microbial social niches</title>
 <meta name="description" content="Download the SNE embedding matrix, trait tables, vocabulary and classifier in standard formats.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/assets/css/main.css?v=2">
+<link rel="stylesheet" href="/assets/css/main.css?v=3">
 </head>
 <body>
 
@@ -170,7 +170,7 @@ function human(bytes) {
   return `${(bytes / 1048576).toFixed(2)} MB`;
 }
 
-const response = await fetch("/data/manifest.json");
+const response = await fetch("/data/manifest.json", { cache: "no-cache" });
 const manifest = await response.json();
 
 document.getElementById("projector").href = manifest.projector_url;

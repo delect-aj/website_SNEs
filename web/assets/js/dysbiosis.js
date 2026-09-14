@@ -347,10 +347,10 @@ function renderResult(scored) {
 
 async function loadStatics() {
   const [vocab, metrics, refScores, examples] = await Promise.all([
-    fetch(`${DATA}/vocab.json`).then((r) => r.json()),
-    fetch(`${DATA}/metrics.json`).then((r) => r.json()),
-    fetch(`${DATA}/ref_scores.json`).then((r) => r.json()),
-    fetch(`${DATA}/examples.json`).then((r) => r.json()),
+    fetch(`${DATA}/vocab.json`, { cache: 'no-cache' }).then((r) => r.json()),
+    fetch(`${DATA}/metrics.json`, { cache: 'no-cache' }).then((r) => r.json()),
+    fetch(`${DATA}/ref_scores.json`, { cache: 'no-cache' }).then((r) => r.json()),
+    fetch(`${DATA}/examples.json`, { cache: 'no-cache' }).then((r) => r.json()),
   ]);
   state.vocab = vocab;
   state.metrics = metrics;
@@ -385,7 +385,7 @@ async function collectSamples() {
   if (mode === 'example') {
     const picked = elements.examples.querySelector('input:checked');
     if (!picked) throw new Error('Please select an example sample.');
-    const record = await (await fetch(`${DATA}/examples/${picked.value}`)).json();
+    const record = await (await fetch(`${DATA}/examples/${picked.value}`, { cache: 'no-cache' })).json();
     return [{
       name: `${record.label} (${record.sample_id})`,
       otuCounts: new Map(Object.entries(record.counts)),

@@ -321,7 +321,7 @@ function runSearch(query) {
 
 async function load() {
   setStatus('Loading manifest…');
-  const meta = await (await fetch('/data/meta.json')).json();
+  const meta = await (await fetch('/data/meta.json', { cache: 'no-cache' })).json();
   const spec = (name) => meta.arrays[name];
 
   const track = (label) => (loaded, size) =>
@@ -332,11 +332,11 @@ async function load() {
                                track('Loading map coordinates…'));
 
   setStatus('Loading taxonomy and trait predictions…');
-  const otus = await (await fetch('/data/otus.json')).json();
-  const traits = await (await fetch('/data/traits.json')).json();
+  const otus = await (await fetch('/data/otus.json', { cache: 'no-cache' })).json();
+  const traits = await (await fetch('/data/traits.json', { cache: 'no-cache' })).json();
   const probaBuffer = await fetchWithProgress('/data/traits_proba.f16.bin',
                                               track('Loading trait probabilities…'));
-  const bacdive = await (await fetch('/data/bacdive.json')).json();
+  const bacdive = await (await fetch('/data/bacdive.json', { cache: 'no-cache' })).json();
 
   setStatus('Loading neighbour lists…');
   const loadHalf = async (name) => halfToFloat(new Uint16Array(
@@ -411,7 +411,7 @@ async function load() {
     if (!button) return;
     let query = button.dataset.query;
     if (button.dataset.asv !== undefined) {
-      exampleReads ??= fetch('/data/examples/atlas_asv_example.fasta')
+      exampleReads ??= fetch('/data/examples/atlas_asv_example.fasta', { cache: 'no-cache' })
         .then((response) => response.text())
         .then((text) => text.split('>').slice(1)
           .map((record) => record.split('\n').slice(1).join('')));

@@ -6,7 +6,7 @@
 <title>Cite — microbial social niches</title>
 <meta name="description" content="Citation information, data availability and version details for the ecological embeddings.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/assets/css/main.css?v=2">
+<link rel="stylesheet" href="/assets/css/main.css?v=3">
 </head>
 <body>
 
@@ -149,7 +149,7 @@ document.getElementById("copy-bibtex").addEventListener("click", async (event) =
   setTimeout(() => { event.target.textContent = "Copy BibTeX"; }, 2000);
 });
 
-const metrics = await (await fetch("/data/metrics.json")).json();
+const metrics = await (await fetch("/data/metrics.json", { cache: "no-cache" })).json();
 document.getElementById("model-version").textContent =
   "13-fold ensemble (one model per held-out disease)";
 document.getElementById("cohort").textContent =

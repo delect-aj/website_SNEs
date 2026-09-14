@@ -19,7 +19,9 @@
  * @returns {Promise<ArrayBuffer>}
  */
 export async function fetchWithProgress(url, onProgress) {
-  const response = await fetch(url);
+  // Revalidate: /data/ is cached for days, and a re-export under the same name
+  // must not leave a visitor on the old arrays. Unchanged files cost a 304.
+  const response = await fetch(url, { cache: 'no-cache' });
   if (!response.ok) {
     throw new Error(`${url}: HTTP ${response.status}`);
   }
