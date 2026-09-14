@@ -53,15 +53,14 @@
   <section class="mt-32">
     <h2>File descriptions</h2>
     <details open>
-      <summary>disease_sample_metadata.tsv</summary>
+      <summary>Formats and layout</summary>
       <div class="stack mt-12">
         <p>
-          Sample-level metadata for the reference cohort of the dysbiosis
-          score: 10,276 human faecal 16S rRNA samples (4,386 controls and 5,890
-          cases) from 13 diseases. The file is tab-separated with one row per
-          sample; empty cells are values not reported by the original study.
-        </p>
-        <p>
+          <span class="mono">disease_sample_metadata.tsv</span>: sample-level
+          metadata for the reference cohort of the dysbiosis score, 10,276 human
+          faecal 16S rRNA samples (4,386 controls and 5,890 cases) from 13
+          diseases. The file is tab-separated with one row per sample; empty
+          cells are values not reported by the original study.
           <span class="mono">sample</span>: sequencing run accession;
           <span class="mono">study</span>: BioProject accession;
           <span class="mono">title</span>: title of the source study;
@@ -78,15 +77,39 @@
           <span class="mono">pcr_primers</span> and
           <span class="mono">platform</span>: amplified 16S region, primers
           and sequencing platform; <span class="mono">site</span>: sampling
-          site.
-        </p>
-        <p>
-          Disease abbreviations: AS, ankylosing spondylitis; ASD, autism
+          site. Disease abbreviations: AS, ankylosing spondylitis; ASD, autism
           spectrum disorder; BD, bipolar disorder; CAD, coronary artery disease;
           CRC, colorectal cancer; GD, Graves' disease; IBD, inflammatory bowel
           disease; IBS, irritable bowel syndrome; MS, multiple sclerosis; OB,
           obesity; PD, Parkinson's disease; SZ, schizophrenia; T2DM, type 2
           diabetes mellitus.
+        </p>
+        <p>
+          <span class="mono">sne_vectors.txt.gz</span>: the 14,093 × 100
+          embedding matrix in word2vec text format, with one OTU per line. OTU
+          identifiers are SILVA 138.2 accession numbers with the alignment
+          span, as used in the OTU tables.
+        </p>
+        <p>
+          <span class="mono">dysbiosis_encoder.onnx</span> and
+          <span class="mono">dysbiosis_embed.f16.bin</span>: the classifier.
+          The ONNX graph takes 100-dimensional embedding vectors as input
+          rather than token indices, because all 13 fold checkpoints share one
+          frozen embedding table, which is stored separately. To run the
+          model, select rows from the embedding table using the indices in
+          <span class="mono">vocab.json</span> and multiply them by the
+          rank-normalized abundances.
+        </p>
+        <p>
+          <span class="mono">traits_proba.f16.bin</span>: random forest
+          probabilities for all classes of every trait, for each labelled OTU,
+          in the layout described in <span class="mono">traits.json</span>.
+          These values are used to draw the distribution plots in the atlas.
+        </p>
+        <p>
+          <span class="mono">ref_scores.json</span>: sorted model scores of the
+          10,276 reference samples, split into controls and cases. Percentiles
+          are computed from this distribution.
         </p>
       </div>
     </details>
