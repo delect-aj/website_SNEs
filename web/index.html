@@ -3,50 +3,109 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Microbial social niches — social niche embeddings of the human gut</title>
+<title>SNEs — social niche embeddings of the human gut microbiome</title>
 <meta name="description" content="Social niche embeddings of 14,093 human gut OTUs, with an interactive atlas, trait predictions for uncultured taxa and a research-use dysbiosis score.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/main.css?v=5">
 </head>
 <body>
 
-<header class="masthead">
-  <div class="masthead__inner">
-    <a class="masthead__title" href="/">Microbial social niches</a>
-    <nav>
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="logo" href="/" aria-label="SNEs home">
+      <span class="logo__word">SNEs</span>
+      <svg class="logo__mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <g fill="#00a6d5"><circle cx="11" cy="10" r="1.6"/><circle cx="17" cy="5.6" r="1.8"/><circle cx="24" cy="3.8" r="2"/><circle cx="31" cy="4.6" r="2.2"/><circle cx="37.6" cy="8" r="2.4"/><circle cx="42.4" cy="13.6" r="2.6"/></g>
+        <g fill="#00639a"><circle cx="26" cy="22" r="5.2"/><circle cx="38" cy="25" r="4"/><circle cx="31" cy="34" r="4.6"/></g>
+        <g fill="#014371"><circle cx="19" cy="33" r="3.2"/><circle cx="41" cy="37" r="2.6"/></g>
+      </svg>
+    </a>
+    <nav class="site-nav" aria-label="Main">
       <a href="/atlas/">Atlas</a>
       <a href="/dysbiosis/">Dysbiosis score</a>
       <a href="/download/">Download</a>
+    </nav>
+    <nav class="site-nav site-nav--utility" aria-label="Project">
       <a href="/cite/">Cite</a>
+      <a href="https://github.com/xu-research-lab/microbial-embeddings">GitHub</a>
     </nav>
   </div>
 </header>
 
+<section class="hero-band">
+  <div class="hero-band__inner">
+    <h1>Explore microbial social niches</h1>
+    <form class="hero-search" action="/atlas/" method="get" role="search">
+      <span class="hero-search__scope">Atlas</span>
+      <input type="search" name="q" aria-label="Search the atlas"
+             placeholder="Genus, species, OTU identifier or 16S rRNA sequence">
+      <button type="submit">Search</button>
+    </form>
+    <p class="hero-band__examples">
+      Examples:
+      <a href="/atlas/?q=Faecalibacterium">Faecalibacterium</a>,
+      <a href="/atlas/?q=Faecalibacterium%20prausnitzii">Faecalibacterium prausnitzii</a>,
+      <a href="/atlas/?q=HM007585.1.1335">HM007585.1.1335</a>
+    </p>
+    <p class="hero-band__tagline">
+      <b>SNEs</b> is a resource of social niche embeddings for 14,093 human gut
+      OTUs, learned from co-occurrence in approximately 210,000 faecal samples.
+      <a href="/cite/">Cite SNEs</a>
+    </p>
+  </div>
+</section>
+
 <main class="wrap">
 
-  <p class="kicker">Resource · Human gut microbiome</p>
-  <h1>Social niche embeddings of the human gut microbiome</h1>
+  <div class="banner">
+    <span class="banner__icon" aria-hidden="true">&#9432;</span>
+    <p>
+      Manuscript in submission: <em>Ecological embeddings reveal microbial
+      social niches that generalize across diseases</em>. All results on this
+      site are for research use only and are not intended for diagnosis.
+    </p>
+  </div>
 
-  <div class="hero mt-16">
-    <div>
-      <p class="lede">
-        We represent each of 14,093 SILVA 138.2 OTUs (97% identity) as a
-        100-dimensional social niche embedding, learned from co-occurrence
-        patterns in approximately 210,000 human faecal samples. OTUs with
-        similar co-occurrence patterns have similar embeddings and thus occupy
-        similar social niches, independent of their phylogenetic relatedness.
-        This site provides an interactive atlas of the embeddings, trait
-        predictions for uncultured taxa, a research-use dysbiosis score and
-        the underlying data.
-      </p>
+  <div class="tiles mt-24">
+    <a class="tile tile--atlas" href="/atlas/">
+      <span class="tile__title">Atlas<small>Social niche map</small></span>
+      <p class="tile__text">Browse 14,093 OTUs, compare ecological and phylogenetic
+        neighbours, and view predicted traits</p>
+    </a>
+    <a class="tile tile--dysbiosis" href="/dysbiosis/">
+      <span class="tile__title">Dysbiosis<small>Score</small></span>
+      <p class="tile__text">Score a faecal 16S rRNA sample against a reference cohort
+        of 10,276 samples</p>
+    </a>
+    <a class="tile tile--data" href="/download/">
+      <span class="tile__title">Data<small>Download</small></span>
+      <p class="tile__text">Embedding matrix, trait tables and classifier in
+        standard formats</p>
+    </a>
+  </div>
 
-      <div class="figures mt-24">
-        <div><b>~210,000</b><span>human faecal samples</span></div>
-        <div><b>14,093</b><span>OTU embeddings</span></div>
-        <div><b>100</b><span>embedding dimensions</span></div>
-        <div><b>13</b><span>diseases in the reference cohort</span></div>
+  <section class="mt-32">
+    <h2>Social niche embeddings of the human gut microbiome</h2>
+    <div class="hero mt-16">
+      <div>
+        <p class="lede">
+          We represent each of 14,093 SILVA 138.2 OTUs (97% identity) as a
+          100-dimensional social niche embedding, learned from co-occurrence
+          patterns in approximately 210,000 human faecal samples. OTUs with
+          similar co-occurrence patterns have similar embeddings and thus occupy
+          similar social niches, independent of their phylogenetic relatedness.
+          This site provides an interactive atlas of the embeddings, trait
+          predictions for uncultured taxa, a research-use dysbiosis score and
+          the underlying data.
+        </p>
+
+        <div class="figures mt-24">
+          <div><b>~210,000</b><span>human faecal samples</span></div>
+          <div><b>14,093</b><span>OTU embeddings</span></div>
+          <div><b>100</b><span>embedding dimensions</span></div>
+          <div><b>13</b><span>diseases in the reference cohort</span></div>
+        </div>
       </div>
-    </div>
 
     <figure class="hero__figure">
       <a href="/atlas/"><img src="/assets/img/umap-phylum.png" width="920" height="800"
@@ -62,46 +121,12 @@
         </span>
       </figcaption>
     </figure>
-  </div>
-
-  <div class="grid grid--3 mt-32">
-
-    <div class="card">
-      <div class="card__title"><h2>Atlas</h2></div>
-      <p>Browse all 14,093 OTUs on a two-dimensional map. Search by taxon
-        name, OTU identifier or 16S rRNA sequence, and compare the ecological
-        and phylogenetic neighbours of each OTU.</p>
-      <p class="small muted">About 92% of OTUs have no representative
-        genome. Their traits are predicted from the embedding and reported
-        with leave-one-phylum-out AUCs.</p>
-      <p><a class="button" href="/atlas/">Explore the atlas</a></p>
     </div>
+  </section>
 
-    <div class="card">
-      <div class="card__title"><h2>Dysbiosis score</h2></div>
-      <p>Score a faecal 16S rRNA sample against a reference cohort of 10,276
-        samples. The model runs in the browser; only sequences submitted for
-        OTU mapping are sent to the server, and none are stored.</p>
-      <p class="small muted">The result is a percentile within the reference
-        cohort. It is not a disease probability, a risk estimate or a
-        diagnosis.</p>
-      <p><a class="button" href="/dysbiosis/">Compute a score</a></p>
-    </div>
-
-    <div class="card">
-      <div class="card__title"><h2>Data and code</h2></div>
-      <p>Download the embedding matrix, trait tables, classifier and
-        cross-validation checkpoints, in formats that can be loaded directly
-        with gensim, the TensorFlow Embedding Projector or Python.</p>
-      <p class="small muted">Research use only. Not a medical device.</p>
-      <p><a class="button" href="/download/">Download data</a></p>
-    </div>
-
-  </div>
-
-  <section class="mt-32">
+  <section class="grey-band mt-32" id="scope">
     <h2>Scope and limitations</h2>
-    <div class="note mt-16">
+    <div class="ruled">
       <p>
         The embeddings describe <strong>realized niches</strong>: the ecological
         role of a taxon within the gut community, inferred from the taxa it
@@ -133,18 +158,53 @@
 
 </main>
 
-<footer class="footer">
-  <div class="wrap">
-    <p>
-      For research use only. Not a medical device; not intended for the
-      diagnosis, treatment or prevention of any disease. Predictions are
-      statistical inferences from co-occurrence data, not experimental
-      measurements.
-    </p>
-    <p>
-      <a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a>
-      · <a href="/cite/">Citation</a>
-    </p>
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="logo logo--large" href="/" aria-label="SNEs home">
+        <span class="logo__word">SNEs</span>
+        <svg class="logo__mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <g fill="#00a6d5"><circle cx="11" cy="10" r="1.6"/><circle cx="17" cy="5.6" r="1.8"/><circle cx="24" cy="3.8" r="2"/><circle cx="31" cy="4.6" r="2.2"/><circle cx="37.6" cy="8" r="2.4"/><circle cx="42.4" cy="13.6" r="2.6"/></g>
+          <g fill="#00639a"><circle cx="26" cy="22" r="5.2"/><circle cx="38" cy="25" r="4"/><circle cx="31" cy="34" r="4.6"/></g>
+          <g fill="#014371"><circle cx="19" cy="33" r="3.2"/><circle cx="41" cy="37" r="2.6"/></g>
+        </svg>
+      </a>
+      <p>Social niche embeddings of the human gut microbiome.</p>
+      <p>&copy; 2026 SNEs &middot; <a href="/cite/">Cite</a> &middot; <a href="https://github.com/xu-research-lab/microbial-embeddings">GitHub</a></p>
+    </div>
+    <div>
+      <h2>Resources</h2>
+      <ul>
+        <li><a href="/atlas/">Atlas</a></li>
+        <li><a href="/dysbiosis/">Dysbiosis score</a></li>
+        <li><a href="/download/">Download</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Data and code</h2>
+      <ul>
+        <li><a href="https://github.com/xu-research-lab/microbial-embeddings">GitHub repository</a></li>
+        <li><a href="https://colab.research.google.com/github/xu-research-lab/microbial-embeddings/blob/main/script/quickstart_colab.ipynb">Colab notebook</a></li>
+        <li><a href="/download/#files">Files and checksums</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Information</h2>
+      <ul>
+        <li><a href="/cite/">Cite SNEs</a></li>
+        <li><a href="/#scope">Scope and limitations</a></li>
+        <li><a href="/atlas/#methods">Methods</a></li>
+      </ul>
+    </div>
+    <div class="site-footer__notice">
+      <h2>Research use only</h2>
+      <p>Not a medical device; not intended for the diagnosis, treatment or prevention of any disease.</p>
+        <p>Predictions are statistical inferences from co-occurrence data, not experimental measurements.</p>
+    </div>
+  </div>
+  <div class="site-footer__bottom">
+    <span>SILVA 138.2 &middot; 14,093 OTUs &middot; ~210,000 human faecal samples</span>
+    <span>Manuscript in submission</span>
   </div>
 </footer>
 

@@ -3,21 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Download — microbial social niches</title>
+<title>Download — SNEs</title>
 <meta name="description" content="Download the SNE embedding matrix, trait tables, vocabulary and classifier in standard formats.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/main.css?v=5">
 </head>
 <body>
 
-<header class="masthead">
-  <div class="masthead__inner">
-    <a class="masthead__title" href="/">Microbial social niches</a>
-    <nav>
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="logo" href="/" aria-label="SNEs home">
+      <span class="logo__word">SNEs</span>
+      <svg class="logo__mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <g fill="#00a6d5"><circle cx="11" cy="10" r="1.6"/><circle cx="17" cy="5.6" r="1.8"/><circle cx="24" cy="3.8" r="2"/><circle cx="31" cy="4.6" r="2.2"/><circle cx="37.6" cy="8" r="2.4"/><circle cx="42.4" cy="13.6" r="2.6"/></g>
+        <g fill="#00639a"><circle cx="26" cy="22" r="5.2"/><circle cx="38" cy="25" r="4"/><circle cx="31" cy="34" r="4.6"/></g>
+        <g fill="#014371"><circle cx="19" cy="33" r="3.2"/><circle cx="41" cy="37" r="2.6"/></g>
+      </svg>
+    </a>
+    <nav class="site-nav" aria-label="Main">
       <a href="/atlas/">Atlas</a>
       <a href="/dysbiosis/">Dysbiosis score</a>
       <a href="/download/" aria-current="page">Download</a>
+    </nav>
+    <nav class="site-nav site-nav--utility" aria-label="Project">
       <a href="/cite/">Cite</a>
+      <a href="https://github.com/xu-research-lab/microbial-embeddings">GitHub</a>
     </nav>
   </div>
 </header>
@@ -123,13 +133,52 @@ vectors.most_similar("AB002518.1.1416", topn=10)</pre>
 
 </main>
 
-<footer class="footer">
-  <div class="wrap">
-    <p>
-      For research use only. Not a medical device; not intended for the
-      diagnosis, treatment or prevention of any disease.
-    </p>
-    <p><a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a></p>
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="logo logo--large" href="/" aria-label="SNEs home">
+        <span class="logo__word">SNEs</span>
+        <svg class="logo__mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <g fill="#00a6d5"><circle cx="11" cy="10" r="1.6"/><circle cx="17" cy="5.6" r="1.8"/><circle cx="24" cy="3.8" r="2"/><circle cx="31" cy="4.6" r="2.2"/><circle cx="37.6" cy="8" r="2.4"/><circle cx="42.4" cy="13.6" r="2.6"/></g>
+          <g fill="#00639a"><circle cx="26" cy="22" r="5.2"/><circle cx="38" cy="25" r="4"/><circle cx="31" cy="34" r="4.6"/></g>
+          <g fill="#014371"><circle cx="19" cy="33" r="3.2"/><circle cx="41" cy="37" r="2.6"/></g>
+        </svg>
+      </a>
+      <p>Social niche embeddings of the human gut microbiome.</p>
+      <p>&copy; 2026 SNEs &middot; <a href="/cite/">Cite</a> &middot; <a href="https://github.com/xu-research-lab/microbial-embeddings">GitHub</a></p>
+    </div>
+    <div>
+      <h2>Resources</h2>
+      <ul>
+        <li><a href="/atlas/">Atlas</a></li>
+        <li><a href="/dysbiosis/">Dysbiosis score</a></li>
+        <li><a href="/download/">Download</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Data and code</h2>
+      <ul>
+        <li><a href="https://github.com/xu-research-lab/microbial-embeddings">GitHub repository</a></li>
+        <li><a href="https://colab.research.google.com/github/xu-research-lab/microbial-embeddings/blob/main/script/quickstart_colab.ipynb">Colab notebook</a></li>
+        <li><a href="/download/#files">Files and checksums</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Information</h2>
+      <ul>
+        <li><a href="/cite/">Cite SNEs</a></li>
+        <li><a href="/#scope">Scope and limitations</a></li>
+        <li><a href="/atlas/#methods">Methods</a></li>
+      </ul>
+    </div>
+    <div class="site-footer__notice">
+      <h2>Research use only</h2>
+      <p>Not a medical device; not intended for the diagnosis, treatment or prevention of any disease.</p>
+    </div>
+  </div>
+  <div class="site-footer__bottom">
+    <span>SILVA 138.2 &middot; 14,093 OTUs &middot; ~210,000 human faecal samples</span>
+    <span>Manuscript in submission</span>
   </div>
 </footer>
 
