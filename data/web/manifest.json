@@ -6,6 +6,11 @@
    "sha256": "00ba0e8887e2d345ba982996be436a4bd49df103047cb03831d7bc502b0dcac2"
   },
   {
+   "file": "download/disease_sample_metadata.tsv",
+   "bytes": 1618839,
+   "sha256": "80c9141ebdbc3f169b8bb57c261e9419413f1a73b340240dce53f5cb79f6b32f"
+  },
+  {
    "file": "download/projector_config.json",
    "bytes": 313,
    "sha256": "6d66fd616feb8a25723200b679350322d4a3b684c801b5c88d6c8db574cbf6f2"
