@@ -16,6 +16,10 @@
  * Python derived from them, so a failure names the step rather than only the
  * final number.
  *
+ * The fixture holds the reference-cohort picks and the six one-click examples
+ * the dysbiosis page offers, so the samples a visitor can actually run are
+ * covered by the same comparison rather than by nothing at all.
+ *
  * Run:
  *   cd tests/js && npm install && node preprocess.test.mjs
  */
@@ -102,7 +106,11 @@ function gather(features) {
   return out;
 }
 
-console.log(`${fixture.samples.length} samples from the reference cohort`);
+const exampleCount = fixture.samples
+  .filter((sample) => sample.name.startsWith('example/')).length;
+console.log(`${fixture.samples.length} samples: `
+  + `${fixture.samples.length - exampleCount} reference-cohort picks and `
+  + `${exampleCount} one-click examples`);
 
 let worstLogit = 0;
 let worstAbundance = 0;
