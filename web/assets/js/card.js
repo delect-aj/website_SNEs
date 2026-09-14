@@ -73,9 +73,12 @@ function renderNeighbours(container, index, data) {
       const record = data.otus[neighbour];
       const row = element('li');
       if (list.other.has(neighbour)) row.classList.add('overlap');
-      const name = element('span', 'taxon', taxonName(record));
-      name.title = record.id;
-      row.appendChild(name);
+      // The id is shown, not only the name: two OTUs of one genus read the
+      // same, and shading marks the same OTU, not the same name.
+      const label = element('span');
+      label.appendChild(element('span', 'taxon', taxonName(record)));
+      label.appendChild(element('span', 'otu-id', record.id));
+      row.appendChild(label);
       // Three decimals, not two: a phylogenetic neighbour list can sit
       // entirely between 0.992 and 1.000, and two decimals turns that into a
       // column of identical numbers.
@@ -88,9 +91,18 @@ function renderNeighbours(container, index, data) {
   }
 
   const overlap = [...ecological].filter((neighbour) => phylogenetic.has(neighbour)).length;
+  // Placeholder names are not genera, so they cannot count as shared ones.
+  const genusOf = (i) => {
+    const genus = data.otus[i].genus;
+    return genus && !/incertae sedis|uncultured|unclassified/i.test(genus) ? genus : null;
+  };
+  const phylogeneticGenera = new Set([...phylogenetic].map(genusOf).filter(Boolean));
+  const sameGenus = [...ecological].filter((i) => phylogeneticGenera.has(genusOf(i))).length;
   const note = element('p', 'small muted');
   note.textContent = `Top ${NEIGHBOURS_SHOWN} by cosine similarity. ${overlap} of `
-    + `${NEIGHBOURS_SHOWN} OTUs appear in both lists (shaded).`;
+    + `${NEIGHBOURS_SHOWN} OTUs appear in both lists (shaded); ${sameGenus} of the `
+    + `${NEIGHBOURS_SHOWN} ecological neighbours belong to a genus that also appears `
+    + `among the phylogenetic neighbours.`;
   wrapper.appendChild(note);
 
   container.replaceChildren(wrapper);
@@ -315,7 +327,7 @@ export function renderCard(container, index, data) {
   fragment.appendChild(title);
 
   const lineage = RANKS.map((rank) => record[rank]).filter(Boolean);
-  const lineageNode = element('p', 'small muted');
+  const lineageNode = element('p', 'small muted lineage');
   lineageNode.style.margin = '0 0 4px';
   lineageNode.textContent = lineage.join(' › ');
   fragment.appendChild(lineageNode);

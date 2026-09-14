@@ -450,16 +450,10 @@ details > summary::marker { color: var(--ink-3); }
 
 .card-panel { padding: 24px; }
 
-/* On a wide screen the card puts neighbours and traits side by side. */
-.card-body {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap: 24px 40px;
-  align-items: start;
-}
-@media (max-width: 520px) {
-  .card-body { grid-template-columns: 1fr; }
-}
+/* Neighbours first, then traits below them. */
+.card-body { display: grid; gap: 28px; }
+/* Taxon names at every rank are italic, as in the nomenclature codes. */
+.lineage { font-style: italic; }
 
 /* Neighbour columns ------------------------------------------------------- */
 
@@ -485,6 +479,7 @@ details > summary::marker { color: var(--ink-3); }
 .trait details > summary { font-size: 13px; font-weight: 400; color: var(--accent); }
 
 .taxon { color: var(--ink-2); font-style: italic; }
+.neighbours li .otu-id { display: block; font-size: 11px; line-height: 1.3; }
 .otu-id { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
 
 /* Tables ------------------------------------------------------------------ */

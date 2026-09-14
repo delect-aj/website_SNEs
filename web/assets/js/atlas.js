@@ -137,8 +137,9 @@ function displayName(record) {
 }
 
 function otuButton(record, detail = '') {
-  const button = element('button', 'button--quiet',
-    `${displayName(record)} — ${record.id}${detail}`);
+  const button = element('button', 'button--quiet');
+  button.appendChild(element('i', null, displayName(record)));
+  button.appendChild(document.createTextNode(` — ${record.id}${detail}`));
   button.type = 'button';
   button.style.display = 'block';
   button.style.width = '100%';
@@ -306,7 +307,7 @@ function runSearch(query) {
       + `${record.family ?? ''}`;
     if (haystack.toLowerCase().includes(needle)) {
       matches.push(record);
-      if (matches.length >= 12) break;
+      if (matches.length >= 5) break;
     }
   }
 
