@@ -359,7 +359,26 @@ details > summary::marker { color: var(--ink-3); }
 .band__axis { stroke: var(--line); stroke-width: 1; }
 .band__tick { stroke: var(--line); stroke-width: 1; }
 .band__label { fill: var(--ink-2); font-size: 11px; font-family: var(--font); }
-.band__count { fill: var(--ink-2); font-size: 11px; font-family: var(--font); }
+/* Group names and the marker's label are HTML under the plot, so a long
+   label wraps instead of running into the one beside it. */
+.band__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.band__key {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.band__key--ctrl { background: var(--ctrl); }
+.band__key--case { background: var(--case); }
+.band__key--you { color: var(--you); margin-right: 4px; }
 .band__dot--ctrl { fill: var(--ctrl); opacity: .55; }
 .band__dot--case { fill: var(--case); opacity: .55; }
 .band__you { fill: var(--you); }
@@ -456,9 +475,7 @@ details > summary::marker { color: var(--ink-3); }
 }
 .neighbours li:last-child { border-bottom: 0; }
 .neighbours .overlap { background: var(--accent-bg); }
-.neighbours:not(.is-expanded) li.more { display: none; }
-.neighbours > .link { grid-column: 1 / -1; justify-self: start; font-size: 13px; }
-.neighbours > p { grid-column: 1 / -1; margin-bottom: 0; }
+.neighbours > p { grid-column: 1 / -1; margin: 0; max-width: none; }
 
 .card__taxon { font-style: italic; }
 

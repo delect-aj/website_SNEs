@@ -14,7 +14,7 @@
  * purpose is to show evidence.
  */
 
-import { svgElement } from './dom.js';
+import { element, svgElement } from './dom.js';
 
 /**
  * Deterministic vertical jitter.
@@ -46,14 +46,14 @@ function jitter(index, rows) {
  *   (0, 1]; the cohort's model scores are logits and span whatever they span.
  * @param {number[]} [spec.ticks] - Tick positions, defaulting to the quartiles
  *   of the domain.
- * @param {string} [spec.axisFormat='.1f'] - Fixed decimals per tick.
+ * @param {string} [spec.axisFormat='.2f'] - Fixed decimals per tick.
  * @param {number} [spec.bins=26] - Columns the dots are bucketed into. Without
  *   bucketing, a thousand points at the same probability stack into one
  *   unreadable pillar; bucketing makes the group read as a density.
  */
 export function renderBand(container, spec) {
   const width = spec.width || 380;
-  const pad = { left: 12, right: 12, top: 22, bottom: 40 };
+  const pad = { left: 12, right: 12, top: 14, bottom: 4 };
   const plot = width - pad.left - pad.right;
   const laneHeight = 22;
   const rows = 7;
@@ -66,7 +66,9 @@ export function renderBand(container, spec) {
   // value here is a NaN in every circle's cx, which the browser reports once
   // per point.
   const bins = spec.bins || 26;
-  const format = spec.axisFormat || '.1f';
+  // Two decimals by default: the quartile ticks are 0.25 and 0.75, which one
+  // decimal would print as 0.3 and 0.8.
+  const format = spec.axisFormat || '.2f';
   const decimals = Number(String(format).replace('.', '').replace('f', '')) || 1;
   const ticks = spec.ticks
     || [0, 0.25, 0.5, 0.75, 1].map((t) => domain[0] + t * span);
@@ -137,14 +139,6 @@ export function renderBand(container, spec) {
         svg.appendChild(dot);
       }
     }
-
-    const caption = svgElement('text');
-    caption.setAttribute('x', group.lane === 0 ? pad.left : pad.left + plot);
-    caption.setAttribute('y', height - pad.bottom + 20);
-    caption.setAttribute('text-anchor', group.lane === 0 ? 'start' : 'end');
-    caption.setAttribute('class', 'band__count');
-    caption.textContent = `${group.label} (n=${group.values.length})`;
-    svg.appendChild(caption);
   }
 
   // The query: a solid triangle rising from below the axis, heavier than
@@ -157,23 +151,18 @@ export function renderBand(container, spec) {
   marker.setAttribute('class', 'band__you');
   svg.appendChild(marker);
 
-  const callout = svgElement('text');
-  callout.setAttribute('x', Math.min(Math.max(at, pad.left + 40),
-                                     pad.left + plot - 40));
-  callout.setAttribute('y', pad.top - 8);
-  callout.setAttribute('text-anchor', 'middle');
-  callout.setAttribute('class', 'band__label');
-  callout.textContent = `${spec.youLabel} · ${spec.you.toFixed(decimals)}`;
-  svg.appendChild(callout);
-
-  if (spec.axisLabel) {
-    const label = svgElement('text');
-    label.setAttribute('x', pad.left);
-    label.setAttribute('y', pad.top - 8);
-    label.setAttribute('class', 'band__label');
-    label.textContent = spec.axisLabel;
-    svg.appendChild(label);
+  const legend = element('div', 'band__legend');
+  for (const group of groups) {
+    const item = element('span');
+    item.appendChild(element('span', `band__key band__key--${group.name}`));
+    item.appendChild(document.createTextNode(`${group.label} (n=${group.values.length})`));
+    legend.appendChild(item);
   }
+  const you = element('span');
+  you.appendChild(element('span', 'band__key--you', '▲'));
+  you.appendChild(document.createTextNode(`${spec.youLabel}: ${spec.you.toFixed(decimals)}`));
+  legend.appendChild(you);
+  if (spec.axisLabel) legend.appendChild(element('span', null, `x-axis: ${spec.axisLabel}`));
 
-  container.replaceChildren(svg);
+  container.replaceChildren(svg, legend);
 }
