@@ -310,9 +310,9 @@ function renderResult(scored) {
         `vocabulary index ${contributor.index}`));
     }
     item.appendChild(document.createTextNode(
-      `abundance ${contributor.abundance.toFixed(2)}`));
+      `percentile abundance ${contributor.abundance.toFixed(2)}`));
     const weight = element('span', 'weight');
-    weight.textContent = `attention ${contributor.weight.toFixed(4)}`;
+    weight.textContent = `attention weight ${contributor.weight.toFixed(4)}`;
     item.appendChild(weight);
     list.appendChild(item);
   }
