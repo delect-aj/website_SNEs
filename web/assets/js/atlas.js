@@ -89,8 +89,8 @@ function renderLegend(field) {
   const heading = element('div');
   heading.style.marginBottom = '6px';
   heading.textContent = data.meta.color_by[field].length > MAX_CATEGORIES
-    ? `${data.meta.color_by[field].length} levels, the smallest folded into one colour`
-    : `${levels.length} levels`;
+    ? `${data.meta.color_by[field].length} categories; the smallest are grouped as one colour`
+    : `${levels.length} categories`;
   legend.appendChild(heading);
 
   for (const level of levels) {
@@ -169,12 +169,12 @@ async function mapReads(file) {
   try {
     response = await fetch('/map?db=atlas', { method: 'POST', body });
   } catch {
-    throw new Error('The sequence search service could not be reached.');
+    throw new Error('The sequence search service is unavailable.');
   }
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(typeof payload.detail === 'string' ? payload.detail
-      : `The sequence search service answered ${response.status}.`);
+      : `The sequence search service returned an error (${response.status}).`);
   }
   return payload;
 }
@@ -184,8 +184,8 @@ async function searchRead(read, token) {
   lastRead = read;
   if (read.length < MIN_READ) {
     lastRead = '';
-    showNote(`That looks like a sequence of ${read.length} bases. At least `
-      + `${MIN_READ} are needed to place it at 97% identity.`);
+    showNote(`The sequence has ${read.length} bases. At least ${MIN_READ} `
+      + `bases are required for matching at 97% identity.`);
     return;
   }
 
@@ -203,21 +203,21 @@ async function searchRead(read, token) {
 
   const records = recordsFor(payload.hits.read);
   if (!records.length) {
-    showNote('No atlas OTU is within 97% identity of this sequence. The atlas '
-      + 'holds human gut OTUs from SILVA 138.2 only.');
+    showNote('No atlas OTU matches this sequence at 97% identity or higher. '
+      + 'The atlas contains only human gut OTUs from SILVA 138.2.');
     return;
   }
   const identity = payload.identity.read.toFixed(1);
   if (records.length === 1) {
-    showNote(`The closest atlas OTU, ${identity}% identical:`);
+    showNote(`Best-matching atlas OTU (${identity}% identity):`);
     results.appendChild(otuButton(records[0]));
     select(records[0].i, true);
     return;
   }
   // Not opened: picking the first of equals would present one of them as the
   // answer, and their trait cards need not agree.
-  showNote(`${describeTie(records)} are equally close, ${identity}% identical. `
-    + 'A read this short cannot tell them apart; pick one to see its card.');
+  showNote(`${describeTie(records)} match equally well (${identity}% identity). `
+    + 'The sequence is too short to distinguish them; select one to view its details.');
   const list = element('div');
   list.style.maxHeight = '320px';
   list.style.overflowY = 'auto';
@@ -235,7 +235,7 @@ function readRow(name, records, identity) {
   row.appendChild(label);
 
   if (!records.length) {
-    row.appendChild(element('div', 'small muted', 'no atlas OTU within 97% identity'));
+    row.appendChild(element('div', 'small muted', 'no atlas OTU at ≥97% identity'));
   } else if (records.length === 1) {
     row.appendChild(otuButton(records[0], ` · ${identity.toFixed(1)}%`));
   } else {
@@ -243,7 +243,7 @@ function readRow(name, records, identity) {
     details.style.padding = '4px 0 0';
     details.style.borderTop = '0';
     details.appendChild(element('summary', 'small',
-      `${describeTie(records)}, equally close · ${identity.toFixed(1)}%`));
+      `${describeTie(records)}, equal matches · ${identity.toFixed(1)}%`));
     for (const record of records) details.appendChild(otuButton(record));
     row.appendChild(details);
   }
@@ -270,7 +270,7 @@ async function searchFasta(file) {
   if (token !== searchToken) return;
 
   showNote(`${payload.mapped} of ${payload.total} sequences matched an atlas `
-    + 'OTU at 97% identity or better.', 'small');
+    + 'OTU at 97% identity or higher.', 'small');
   const list = element('div');
   list.style.maxHeight = '420px';
   list.style.overflowY = 'auto';
@@ -304,7 +304,7 @@ function runSearch(query) {
   }
 
   if (!matches.length) {
-    const empty = element('p', 'small muted', 'No OTU matches that. Try a genus, or paste an OTU id.');
+    const empty = element('p', 'small muted', 'No matching OTU. Try a genus name or an OTU identifier.');
     results.appendChild(empty);
     return;
   }
@@ -313,7 +313,7 @@ function runSearch(query) {
 }
 
 async function load() {
-  setStatus('Reading the manifest…');
+  setStatus('Loading manifest…');
   const meta = await (await fetch('/data/meta.json')).json();
   const spec = (name) => meta.arrays[name];
 
@@ -322,7 +322,7 @@ async function load() {
       + `${(size / 1048576).toFixed(1)} MB`, loaded / size);
 
   const umap = await loadArray('/data/umap.f32.bin', spec('umap.f32.bin'),
-                               track('Loading the map…'));
+                               track('Loading map coordinates…'));
 
   setStatus('Loading taxonomy and trait predictions…');
   const otus = await (await fetch('/data/otus.json')).json();
@@ -396,6 +396,25 @@ async function load() {
     timer = setTimeout(() => runSearch(searchInput.value), read ? 600 : 120);
   });
 
+  // Example queries under the search box. The two reads live in the same
+  // example FASTA the page offers for download, so there is one copy of them.
+  let exampleReads = null;
+  document.getElementById('search-examples').addEventListener('click', async (event) => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    let query = button.dataset.query;
+    if (button.dataset.asv !== undefined) {
+      exampleReads ??= fetch('/data/examples/atlas_asv_example.fasta')
+        .then((response) => response.text())
+        .then((text) => text.split('>').slice(1)
+          .map((record) => record.split('\n').slice(1).join('')));
+      query = (await exampleReads)[Number(button.dataset.asv)];
+    }
+    searchInput.value = query;
+    clearTimeout(timer);
+    runSearch(query);
+  });
+
   readsInput.addEventListener('change', () => {
     const file = readsInput.files[0];
     readsInput.value = '';          // so choosing the same file again reruns it
@@ -415,6 +434,6 @@ async function load() {
 }
 
 load().catch((error) => {
-  setStatus('The atlas could not be loaded.', String(error.message || error));
+  setStatus('The atlas failed to load.', String(error.message || error));
   console.error(error);
 });

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Atlas — microbial social niches</title>
-<meta name="description" content="An interactive map of 14,093 human gut OTUs from ecological embeddings, with inferred traits and their cross-validated accuracy.">
+<meta name="description" content="An interactive map of 14,093 human gut OTUs based on ecological embeddings, with predicted traits and their cross-validated performance.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/main.css">
 </head>
@@ -25,28 +25,39 @@
 <main class="wrap--wide">
 
   <div class="wrap" style="padding-bottom:16px">
+    <p class="kicker">Interactive atlas</p>
     <h1>Atlas of gut microbial niches</h1>
     <p class="lede mt-12">
-      Each point is one OTU, placed by who it appears with. Nearby points
-      co-occur; that is not the same as being related, and the card makes the
-      difference visible by listing both neighbourhoods side by side.
+      Each point represents one OTU, positioned according to its ecological
+      embedding. OTUs that lie close together tend to co-occur, which does not
+      imply phylogenetic relatedness. Select an OTU to compare its ecological
+      and phylogenetic neighbours side by side.
     </p>
   </div>
 
   <div class="wrap" style="padding-bottom:16px">
     <div class="spread" style="gap:24px; align-items:flex-end">
       <div style="flex:1 1 320px; min-width:280px">
-        <label for="search">Find a taxon</label>
-        <input type="text" id="search" placeholder="genus, species, OTU id or a 16S sequence"
+        <label for="search">Search</label>
+        <input type="text" id="search" placeholder="Genus, species, OTU identifier or 16S rRNA sequence"
                autocomplete="off" style="width:100%; margin-top:4px">
+        <p class="small muted mt-8 examples" id="search-examples" style="margin-bottom:0">
+          Examples:
+          <button type="button" class="link" data-query="Faecalibacterium"><i>Faecalibacterium</i></button> (genus) ·
+          <button type="button" class="link" data-query="Bifidobacterium longum"><i>Bifidobacterium longum</i></button> (species) ·
+          <button type="button" class="link" data-query="HM007585.1.1335">HM007585.1.1335</button> (OTU) ·
+          <button type="button" class="link" data-asv="0">ASV 1</button>,
+          <button type="button" class="link" data-asv="1">ASV 2</button> (300-bp V4 reads)
+        </p>
         <p class="small muted mt-8" style="margin-bottom:0">
-          <label for="reads" style="font-weight:400">Several ASVs? Upload their rep-seqs FASTA:</label>
+          <label for="reads" style="font-weight:400">Or upload representative sequences (FASTA) for multiple ASVs
+            (<a href="/data/examples/atlas_asv_example.fasta" download>example file</a>):</label>
           <input type="file" id="reads" accept=".fasta,.fa,.fna,.fas,.txt" style="margin-top:4px; max-width:100%">
         </p>
         <div id="results" class="stack mt-8"></div>
       </div>
       <div>
-        <label for="color-by">Colour by</label>
+        <label for="color-by">Colour by</label><br>
         <select id="color-by" class="mt-4"></select>
       </div>
       <div>
@@ -61,45 +72,47 @@
               aria-label="Scatter plot of 14,093 OTUs. Use the arrow keys to pan, plus and minus to zoom, zero to reset. The search box above reaches any taxon directly."></canvas>
       <div class="well__legend" id="legend" hidden></div>
       <div class="well__status" id="status">
-        <p style="margin:0">Loading the atlas…</p>
+        <p style="margin:0">Loading atlas data…</p>
         <div class="progress mt-8"><div class="progress__bar" id="bar"></div></div>
         <p class="small" id="progress-text" style="margin:8px 0 0"></p>
       </div>
     </div>
 
     <aside class="card-panel" id="panel" aria-live="polite">
-      <p class="muted">Pick a point, or search for a taxon, to see its card.</p>
+      <p class="muted">Select a point on the map, or search for a taxon, to view its details.</p>
     </aside>
   </div>
 
   <div class="wrap" style="padding-top:24px">
     <details>
-      <summary>About this map, and what the numbers on a card mean</summary>
+      <summary>Methods and interpretation</summary>
       <div class="stack mt-12">
         <p>
-          Positions come from a UMAP of the 100-dimensional ecological
-          embedding, computed once and shipped as a binary. Distances on
-          screen are a two-dimensional approximation and should not be read
-          quantitatively; use the neighbour lists on a card for that.
+          <strong>Layout.</strong> Point positions are a UMAP projection of the
+          100-dimensional ecological embeddings. Distances in two dimensions
+          are approximate and should not be interpreted quantitatively; the
+          neighbour lists give cosine similarities in the full embedding space.
         </p>
         <p>
-          Trait values are the output of a random forest fitted on SNE vectors,
-          trained on Traitar genome labels. Their accuracy is estimated by
-          holding out a whole phylum at a time: the model never sees any
-          member of the phylum it is scored on. That is a harder test than a
-          random split, and it is the number shown beside every value.
+          <strong>Trait prediction.</strong> Traits are predicted by random
+          forest classifiers trained on SNE vectors, with Traitar genome
+          annotations as labels. Performance is estimated by
+          leave-one-phylum-out cross-validation, in which all members of the
+          test phylum are excluded from training. This is stricter than random
+          splitting, and the resulting AUC is shown next to every prediction.
         </p>
         <p>
-          A pasted sequence, or each one in an uploaded FASTA, is aligned by
-          the site's server against the representative sequences of all
-          14,093 OTUs and matched at 97% identity; nothing is kept afterwards.
-          A short amplicon is often identical to several OTUs over its length,
-          and when it is, every one of them is listed rather than one picked.
+          <strong>Sequence search.</strong> Pasted or uploaded sequences are
+          aligned on the server against the representative sequences of all
+          14,093 OTUs at 97% identity, and are deleted after the search. A short
+          amplicon may be equally similar to several OTUs; in that case, all
+          matching OTUs are listed.
         </p>
         <p>
-          Traits whose held-out AUC falls below 0.65 are collapsed by default.
-          They are still there — the fold-out at the bottom of a card has
-          them — but they are not presented as if they were knowledge.
+          <strong>Hidden traits.</strong> Traits with a cross-validated AUC
+          below 0.65 are hidden by default because their predictive
+          performance is low. They can be shown at the bottom of each OTU
+          panel.
         </p>
       </div>
     </details>
@@ -110,9 +123,10 @@
 <footer class="footer">
   <div class="wrap">
     <p>
-      Research use only. Not a medical device; not for diagnosis, treatment or
-      prevention of any disease. Trait values are statistical inferences from
-      co-occurrence, not experimental measurements.
+      For research use only. Not a medical device; not intended for the
+      diagnosis, treatment or prevention of any disease. Trait values are
+      statistical inferences from co-occurrence data, not experimental
+      measurements.
     </p>
     <p><a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a></p>
   </div>

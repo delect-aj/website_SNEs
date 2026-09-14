@@ -269,22 +269,25 @@ POST /map   multipart: rep_seqs.fasta
    分布图同屏。视觉层级上 AUC 不是脚注字号。
 2. **颜色不承载唯一信息。** 色盲、截图转灰度、投影仪都会毁掉纯颜色编码。置信
    度靠 ● ◐ ○ 字形 + 填充密度，实测/预测靠边框实虚，颜色只做锦上添花。
-3. **零字体下载。** 页面预算 2.8 MB 全给 SNE 矩阵，不给 webfont。系统字体栈，
-   首屏立即可读。
+3. **零字体下载。** 页面预算 2.8 MB 全给 SNE 矩阵，不给 webfont。标题用系统自带
+   衬线字体栈（Palatino / Georgia），正文用系统无衬线字体，首屏立即可读，国内
+   访问也不受 Google Fonts 影响。
 
 ## Design tokens
 
 ```css
 :root {
-  /* 纸与墨 */
-  --paper:    #FBFAF8;   /* 页面底色，暖白，长时间阅读不刺眼 */
+  /* 纸与墨（参照 Nature 系期刊站点） */
+  --paper:    #FFFFFF;   /* 页面底色 */
   --surface:  #FFFFFF;   /* 卡片 */
-  --ink:      #16181C;   /* 正文 */
-  --ink-2:    #5A6068;   /* 次要文字、单位、注释 */
+  --tint:     #F5F6F7;   /* 注释框、代码块底色 */
+  --ink:      #222222;   /* 正文 */
+  --ink-2:    #626262;   /* 次要文字、单位、注释 */
   --ink-3:    #9AA0A6;   /* 禁用、占位 */
-  --line:     #E4E2DD;   /* 分隔线，1px */
-  --accent:   #1F5F8B;   /* 链接、主按钮、选中态 */
-  --accent-bg:#E8F0F5;
+  --line:     #D4D4D4;   /* 分隔线，1px */
+  --accent:   #025E8D;   /* 链接、选中态 */
+  --accent-bg:#EBF6FF;
+  --brand:    #29303B;   /* 顶栏、页脚、主按钮 */
 
   /* 图谱画布：唯一的深色区域 */
   --well:     #12161B;
@@ -308,15 +311,17 @@ POST /map   multipart: rep_seqs.fasta
 ## 字体与数字
 
 ```css
---font: system-ui, -apple-system, "Segoe UI", "PingFang SC",
-        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+--font:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+         "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+--serif: "Palatino Linotype", Palatino, "Book Antiqua", Georgia,
+         "Songti SC", SimSun, serif;   /* h1、h2、顶栏站名、首页关键数字 */
 --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Consolas, monospace;
 ```
 
-- 正文 15px / 1.55，密度偏紧——这是工具不是落地页；
+- 正文 16px / 1.6；
 - **所有 OTU id、序列、AUC、概率、分位数用 `--mono` + `font-variant-numeric:
   tabular-nums`**。等宽是让一列 AUC 能被竖着扫读的唯一办法；
-- 标题只用三级：28 / 19 / 15，全部 600 字重，不用 700 以上；
+- 标题只用三级：h1 34 / h2 24 用 `--serif` 常规字重，h3 17 无衬线 600；
 - 中文不做斜体，强调用 `--ink` 加粗或 `--accent-bg` 底色。
 
 ## 布局
@@ -324,7 +329,8 @@ POST /map   multipart: rep_seqs.fasta
 - 内容区 `max-width: 1120px`，单栏，左对齐（不居中正文——长行居中读起来累）；
 - `/atlas` 例外：全幅两栏，左边 WebGL 画布自适应，右边微生物卡片固定 400px，
   <1024px 时卡片变为覆盖式底部抽屉；
-- 卡片：`--surface` + 1px `--line`，圆角 6px，**不用阴影**。阴影是 App 语言，
+- 顶栏与页脚为 `--brand` 深蓝底白字，与 Nature 期刊站点一致；
+- 卡片：`--surface` + 1px `--line`，圆角 2px，**不用阴影**。阴影是 App 语言，
   细边框是文献语言；
 - 所有间距取 4 的倍数，段落之间 16，区块之间 32。
 

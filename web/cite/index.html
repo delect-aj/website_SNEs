@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cite — microbial social niches</title>
-<meta name="description" content="How to cite the ecological embeddings, and what to check before you do.">
+<meta name="description" content="Citation information, data availability and version details for the ecological embeddings.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/main.css">
 </head>
@@ -24,12 +24,13 @@
 
 <main class="wrap">
 
+  <p class="kicker">Citation</p>
   <h1>Cite this work</h1>
 
   <p class="lede mt-12">
-    If you use the embeddings, the trait table or the model, cite the paper.
-    If you use this site specifically, the version number below pins exactly
-    which export you were looking at.
+    If you use the embeddings, trait tables or model, please cite the paper
+    below. If you use results from this website, please also report the version
+    information listed below.
   </p>
 
   <section class="mt-32">
@@ -40,9 +41,9 @@
         across diseases.
       </p>
       <p class="small muted" style="margin-bottom:16px">
-        Manuscript in submission. The DOI and the final author list will be
-        added here once the paper is accepted — until then, cite the
-        repository and the version number below.
+        Manuscript in submission. The DOI and author list will be added upon
+        publication. Until then, please cite the code repository and the
+        version information below.
       </p>
 
       <h3 style="margin-bottom:8px">BibTeX</h3>
@@ -57,21 +58,17 @@
   </section>
 
   <section class="mt-32">
-    <h2>Data and code</h2>
+    <h2>Data and code availability</h2>
     <div class="card mt-12">
       <table>
         <thead><tr><th>Resource</th><th>Where</th></tr></thead>
         <tbody>
           <tr>
-            <td>Analysis code, embeddings, trait tables</td>
+            <td>Analysis code, website and export scripts</td>
             <td><a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a></td>
           </tr>
           <tr>
-            <td>This website, including every export script</td>
-            <td><a href="https://github.com/delect-aj/website_SNEs">delect-aj/website_SNEs</a></td>
-          </tr>
-          <tr>
-            <td>Vectors, model and trait tables as served here</td>
+            <td>Embeddings, model and trait tables used on this site</td>
             <td><a href="/download/">/download</a></td>
           </tr>
         </tbody>
@@ -88,34 +85,35 @@
           <tr><td>Reference cohort</td><td class="mono" id="cohort">—</td></tr>
           <tr><td>Leave-one-disease-out AUC</td><td class="mono" id="lodo">—</td></tr>
           <tr><td>Vocabulary</td><td class="mono" id="vocab-size">—</td></tr>
-          <tr><td>Embedded OTUs with a trained vector</td><td class="mono" id="informative">—</td></tr>
-          <tr><td>Sequence length the model reads</td><td class="mono" id="steps">—</td></tr>
+          <tr><td>OTUs with a trained embedding</td><td class="mono" id="informative">—</td></tr>
+          <tr><td>Maximum input length (OTUs per sample)</td><td class="mono" id="steps">—</td></tr>
         </tbody>
       </table>
       <p class="small muted mt-12">
-        The fold checkpoints behind each number are listed in
-        <a href="/data/metrics.json" class="mono">metrics.json</a>, along with
-        the per-disease AUCs and the validation AUC each fold was chosen on.
+        Fold checkpoints, per-disease AUCs and the validation AUC used to select
+        each fold are listed in
+        <a href="/data/metrics.json" class="mono">metrics.json</a>.
       </p>
     </div>
   </section>
 
   <section class="mt-32">
-    <h2>Before you cite a number from this site</h2>
+    <h2>Notes on reporting results</h2>
     <div class="note mt-12">
       <p>
-        Trait values on the atlas are inferences, not measurements, and each
-        one is shown with the cross-validated AUC it earned. That AUC is a
-        leave-one-phylum-out estimate: the model is scored on a phylum it has
-        never seen any member of, which is a harder test than a random split
-        and is the appropriate one here, since the OTUs being predicted are
-        mostly uncultured and sit outside the training distribution.
+        Trait values in the atlas are predictions, not measurements, and each
+        is reported with its cross-validated AUC. The AUC is estimated by
+        leave-one-phylum-out cross-validation, in which the model is evaluated
+        on a phylum excluded from training. This is stricter than a random
+        split and is appropriate here, because most predicted OTUs are
+        uncultured and lie outside the training distribution.
       </p>
       <p>
-        The dysbiosis score places a sample in a reference cohort. It is not a
-        probability and the model's accuracy on a disease outside the thirteen
-        in the cohort is lower than its accuracy inside it — AUC 0.64 against
-        0.80. Quote the first number.
+        The dysbiosis score is a percentile within a reference cohort, not a
+        probability. Performance on diseases outside the 13 in the cohort is
+        lower than within it (AUC 0.64 compared with 0.80). When reporting
+        generalization to new diseases, please use the leave-one-disease-out
+        AUC (0.64).
       </p>
     </div>
   </section>
@@ -125,9 +123,10 @@
 <footer class="footer">
   <div class="wrap">
     <p>
-      Research use only. Not a medical device; not for diagnosis, treatment or
-      prevention of any disease.
+      For research use only. Not a medical device; not intended for the
+      diagnosis, treatment or prevention of any disease.
     </p>
+    <p><a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a></p>
   </div>
 </footer>
 
@@ -141,7 +140,7 @@ document.getElementById("copy-bibtex").addEventListener("click", async (event) =
 
 const metrics = await (await fetch("/data/metrics.json")).json();
 document.getElementById("model-version").textContent =
-  "13-fold ensemble, one member per disease";
+  "13-fold ensemble (one model per held-out disease)";
 document.getElementById("cohort").textContent =
   `${metrics.n_reference} samples (${metrics.n_controls} controls, ${metrics.n_cases} cases)`;
 document.getElementById("lodo").textContent = metrics.lodo_auc.toFixed(4);

@@ -33,6 +33,10 @@ jupyter nbconvert --execute script/atlas_export.ipynb
 
 # 5. The fixture the browser regression test compares against.
 .venv-export/bin/python script/web_export/export_golden.py
+
+# 6. Downloadable example inputs for the atlas search and the dysbiosis
+#    uploads. Standard library only; refreshes manifest.json.
+python3 script/web_export/export_examples.py
 ```
 
 The dysbiosis export takes about 35 minutes, almost all of it scoring the
@@ -48,6 +52,7 @@ the AUC on the site the honest one.
 | `export_traits.py` | `traits_proba.f16.bin`, `traits.json`, `bacdive.json` |
 | `export_assets.py` | `nbr_*_sim.f16.bin`, `sne.f16.bin`, `download/*`, `manifest.json`, and the rewrite of `meta.json` |
 | `export_golden.py` | `tests/fixtures/golden.json` |
+| `export_examples.py` | `examples/atlas_asv_example.fasta`, `otu_table_example.tsv`, `rep_seqs_example.fasta`, `asv_table_example.tsv`, and the refresh of `manifest.json` |
 | `export_assets.py` | `data/server/otu_refseqs.fasta` and `atlas_refseqs.fasta` (outside the web root) |
 
 ## Two things that are easy to get wrong

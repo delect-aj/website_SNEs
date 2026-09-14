@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dysbiosis score — microbial social niches</title>
-<meta name="description" content="Score one faecal 16S sample against a reference cohort of 10,276, with the model running entirely in your browser.">
+<meta name="description" content="Score a faecal 16S rRNA sample against a reference cohort of 10,276 samples. The model runs in the browser.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/main.css">
 <script src="/assets/vendor/ort/ort.min.js"></script>
@@ -26,46 +26,55 @@
 
 <main class="wrap">
 
+  <p class="kicker">Research tool</p>
   <h1>Ecological dysbiosis score</h1>
 
   <p class="lede mt-12">
-    One number, placed against 10,276 reference samples. It says how unusual a
-    community is in the direction this model associates with disease — not what
-    disease, not how likely, and not whether anyone is ill.
+    The score ranks a faecal 16S rRNA sample against a reference cohort of
+    10,276 samples, including controls and cases from 13 diseases. It indicates
+    how far the community deviates in the direction the model associates with
+    disease. It does not identify a specific disease, estimate a probability,
+    or indicate whether an individual is ill.
   </p>
 
   <div class="warn mt-16">
     <p style="margin:0">
-      <strong>Research use only.</strong> This is not a medical device and it
-      does not diagnose anything. If you have a health concern, see a clinician;
-      nothing here is a substitute for one.
+      <strong>For research use only.</strong> This tool is not a medical device
+      and is not intended for diagnosis. For health concerns, please consult a
+      clinician.
     </p>
   </div>
 
   <section class="mt-32">
-    <h2>1 · Choose an input</h2>
+    <h2>1. Select input data</h2>
 
     <div class="radio-row mt-12" id="modes">
-      <label><input type="radio" name="mode" value="example" checked><span>Run an example sample</span></label>
-      <label><input type="radio" name="mode" value="table"><span>OTU table with SILVA 138.2 ids</span></label>
-      <label><input type="radio" name="mode" value="fasta"><span>Rep-seqs FASTA + counts</span></label>
+      <label><input type="radio" name="mode" value="example" checked><span>Example sample</span></label>
+      <label><input type="radio" name="mode" value="table"><span>OTU table (SILVA 138.2 identifiers)</span></label>
+      <label><input type="radio" name="mode" value="fasta"><span>Representative sequences (FASTA) and count table</span></label>
     </div>
 
     <div class="card mt-16">
       <div id="mode-example">
         <p class="muted" style="margin-bottom:12px">
-          Six real samples from the reference cohort, already reduced to the
-          counts the model reads. Pick one; the page runs the same code the
-          uploads go through.
+          Six samples from the reference cohort, provided as OTU count tables.
+          Example samples are processed by the same pipeline as uploaded
+          data.
         </p>
         <div id="examples" class="radio-row"></div>
       </div>
 
       <div id="mode-table" hidden>
         <p class="muted">
-          A tab-separated table whose rows are SILVA 138.2 97% OTU ids of the
-          form <span class="mono">accession.start.stop</span>, with one column
-          per sample. QIIME2 and DADA2 both export this.
+          A tab-separated table with SILVA 138.2 OTU identifiers (97% identity)
+          as rows, in the form <span class="mono">accession.start.stop</span>,
+          and one column per sample. This format can be exported from QIIME 2
+          and DADA2.
+        </p>
+        <p class="small">
+          Example file:
+          <a href="/data/examples/otu_table_example.tsv" download>otu_table_example.tsv</a>
+          (two samples: a CRC control and a CRC case).
         </p>
         <p><input type="file" id="table-file" accept=".tsv,.txt,.csv,.biom"></p>
         <div id="table-samples"></div>
@@ -73,16 +82,23 @@
 
       <div id="mode-fasta" hidden>
         <p class="muted">
-          Amplicon sequences and their counts. The sequences are mapped to the
-          reference OTUs by the site's server — the only part of this page that
-          is not done in your browser — and nothing is stored afterwards.
+          Amplicon sequences and their counts. Sequences are mapped to the
+          reference OTUs on the server; this is the only step not performed in
+          the browser, and no data are stored.
+        </p>
+        <p class="small">
+          Example files:
+          <a href="/data/examples/rep_seqs_example.fasta" download>rep_seqs_example.fasta</a>
+          and
+          <a href="/data/examples/asv_table_example.tsv" download>asv_table_example.tsv</a>
+          (the same two samples as 300-bp V4 amplicon sequence variants).
         </p>
         <p>
-          <label for="fasta-file">Rep-seqs FASTA</label><br>
+          <label for="fasta-file">Representative sequences (FASTA)</label><br>
           <input type="file" id="fasta-file" accept=".fasta,.fa,.fna,.fq">
         </p>
         <p>
-          <label for="counts-file">Count table (features as rows)</label><br>
+          <label for="counts-file">Count table (features in rows, samples in columns)</label><br>
           <input type="file" id="counts-file" accept=".tsv,.txt,.csv">
         </p>
         <div id="fasta-samples"></div>
@@ -91,41 +107,43 @@
   </section>
 
   <section id="run-section" class="mt-32">
-    <h2>2 · Run</h2>
+    <h2>2. Run</h2>
     <p class="mt-12">
-      <button id="run" type="button">Score this sample</button>
+      <button id="run" type="button">Compute score</button>
       <span class="small muted" id="run-note" style="margin-left:12px"></span>
     </p>
     <div id="run-status"></div>
   </section>
 
   <section id="result-section" class="mt-32" hidden>
-    <h2>3 · Result</h2>
+    <h2>3. Result</h2>
     <div class="card mt-12" id="result"></div>
   </section>
 
   <section class="mt-32">
-    <h2>What this score is not</h2>
+    <h2>Limitations</h2>
     <details open>
-      <summary>Read this before using the number</summary>
+      <summary>Please read before interpreting the score</summary>
       <div class="stack mt-12">
         <p>
-          The model is trained on human faecal 16S data only. It has no meaning
-          for soil, water, oral, skin or vaginal communities, and it has no
-          meaning for a sample that is not 16S.
+          The model was trained only on human faecal 16S rRNA data. The score is
+          not valid for soil, water, oral, skin or vaginal communities, or for
+          data other than 16S rRNA amplicon sequencing.
         </p>
         <p>
-          The reference cohort spans thirteen diseases. The model was trained
-          across them, so its accuracy on a disease it has never seen is lower
-          than its accuracy on this cohort — AUC 0.64 by leave-one-disease-out,
-          against 0.80 within the cohort. A community from a condition outside
-          the thirteen will therefore sit closer to the middle than it should.
+          The reference cohort covers 13 diseases, and the model was trained on
+          all of them. Performance on unseen diseases is therefore lower than
+          within the cohort (AUC 0.64 by leave-one-disease-out validation,
+          compared with 0.80 within the cohort). Samples from conditions not
+          represented in the cohort are likely to receive scores closer to the
+          middle of the distribution.
         </p>
         <p>
-          It is one number from one model on one sample. Gut communities vary
-          far more within a person over a month than the difference this score
-          is trying to detect, so a single sample cannot support a conclusion
-          about an individual.
+          The score is derived from a single sample using a single model.
+          Within-individual variation in gut communities over a month can
+          exceed the differences the score is designed to detect. A single
+          sample is therefore not sufficient to draw conclusions about an
+          individual.
         </p>
       </div>
     </details>
@@ -136,9 +154,9 @@
 <footer class="footer">
   <div class="wrap">
     <p>
-      Research use only. Not a medical device; not for diagnosis, treatment or
-      prevention of any disease. No sample data is stored: uploads are processed
-      in memory and discarded.
+      For research use only. Not a medical device; not intended for the
+      diagnosis, treatment or prevention of any disease. No sample data are
+      stored: uploads are processed in memory and then discarded.
     </p>
     <p><a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a></p>
   </div>
