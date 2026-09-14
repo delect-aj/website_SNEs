@@ -367,8 +367,22 @@ async function load() {
   };
 
   setStatus('Drawing…');
+  const tip = element('div', 'well__tip');
+  tip.hidden = true;
+  document.getElementById('well').appendChild(tip);
   scatter = new Scatter(document.getElementById('canvas'), {
     onSelect: (index) => select(index, false),
+    // Name the point under the cursor, so it is plain which one a click picks.
+    onHover: (index, event) => {
+      tip.hidden = index < 0 || !event;
+      if (tip.hidden) return;
+      const record = data.otus[index];
+      const box = event.currentTarget.getBoundingClientRect();
+      tip.style.left = `${event.clientX - box.left}px`;
+      tip.style.top = `${event.clientY - box.top}px`;
+      tip.replaceChildren(element('i', null, displayName(record)),
+        document.createTextNode(` · ${record.id}`));
+    },
   });
   scatter.setPoints(umap.data);
   currentColors = colorsFor('phylum');
