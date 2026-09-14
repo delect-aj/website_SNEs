@@ -6,7 +6,7 @@
 <title>Atlas — microbial social niches</title>
 <meta name="description" content="An interactive map of 14,093 human gut OTUs based on ecological embeddings, with predicted traits and their cross-validated performance.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/main.css?v=2">
 </head>
 <body>
 
@@ -22,9 +22,9 @@
   </div>
 </header>
 
-<main class="wrap--wide">
+<main class="wrap">
 
-  <div class="wrap" style="padding-bottom:16px">
+  <div>
     <p class="kicker">Interactive atlas</p>
     <h1>Atlas of gut microbial niches</h1>
     <p class="lede mt-12">
@@ -35,7 +35,7 @@
     </p>
   </div>
 
-  <div class="wrap" style="padding-bottom:16px">
+  <div class="mt-24">
     <div class="spread" style="gap:24px; align-items:flex-end">
       <div style="flex:1 1 320px; min-width:280px">
         <label for="search">Search</label>
@@ -66,8 +66,7 @@
     </div>
   </div>
 
-  <div class="atlas">
-    <div class="well" id="well">
+  <div class="well mt-16" id="well">
       <canvas id="canvas" tabindex="0"
               aria-label="Scatter plot of 14,093 OTUs. Use the arrow keys to pan, plus and minus to zoom, zero to reset. The search box above reaches any taxon directly."></canvas>
       <div class="well__legend" id="legend" hidden></div>
@@ -76,14 +75,13 @@
         <div class="progress mt-8"><div class="progress__bar" id="bar"></div></div>
         <p class="small" id="progress-text" style="margin:8px 0 0"></p>
       </div>
-    </div>
-
-    <aside class="card-panel" id="panel" aria-live="polite">
-      <p class="muted">Select a point on the map, or search for a taxon, to view its details.</p>
-    </aside>
   </div>
 
-  <div class="wrap" style="padding-top:24px">
+  <aside class="card card-panel mt-16" id="panel" aria-live="polite">
+    <p class="muted" style="margin:0">Select a point on the map, or search for a taxon, to view its details here.</p>
+  </aside>
+
+  <div class="mt-24">
     <details>
       <summary>Methods and interpretation</summary>
       <div class="stack mt-12">
@@ -132,7 +130,7 @@
   </div>
 </footer>
 
-<script type="module" src="/assets/js/atlas.js"></script>
+<script type="module" src="/assets/js/atlas.js?v=2"></script>
 
 </body>
 </html>
