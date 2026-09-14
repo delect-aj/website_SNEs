@@ -24,7 +24,7 @@ const RANKS = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'specie
 /** Confidence glyph and wording for a cross-validated AUC. */
 function confidence(auc, thresholds) {
   if (!Number.isFinite(auc)) return { glyph: '?', label: 'not scored', level: 'weak' };
-  if (auc >= thresholds.trusted) return { glyph: '●', label: 'trusted', level: 'strong' };
+  if (auc >= thresholds.trusted) return { glyph: '●', label: 'high', level: 'strong' };
   if (auc >= thresholds.hidden_below) return { glyph: '◐', label: 'moderate', level: 'medium' };
   return { glyph: '○', label: 'weak', level: 'weak' };
 }
@@ -83,7 +83,7 @@ function renderNeighbours(container, index, data) {
   const note = element('p', 'small muted');
   note.style.marginTop = '12px';
   note.textContent = `${overlap} of ${data.k} ecological neighbours are also `
-    + `phylogenetic neighbours. Highlighted rows appear in both lists.`;
+    + `phylogenetic neighbours. Shaded rows appear in both lists.`;
   wrapper.appendChild(note);
 
   container.replaceChildren(wrapper);
@@ -191,10 +191,10 @@ function renderBandFor(trait, record, data) {
   return {
     ctrl, case: cases, you,
     className: meta.value_labels[queryValue] || queryValue,
-    ctrlLabel: `labelled ${otherValues.join(' / ')}`,
-    caseLabel: `labelled ${meta.value_labels[queryValue] || queryValue}`,
-    youLabel: measured ? `${record.id} (BacDive measured)`
-      : labelled ? `${record.id} (genome label)` : `${record.id} (inferred)`,
+    ctrlLabel: `labelled as ${otherValues.join(' / ')}`,
+    caseLabel: `labelled as ${meta.value_labels[queryValue] || queryValue}`,
+    youLabel: measured ? `${record.id} (BacDive measurement)`
+      : labelled ? `${record.id} (genome annotation)` : `${record.id} (predicted)`,
   };
 }
 
@@ -202,7 +202,7 @@ function renderBandFor(trait, record, data) {
 function bandDetails(trait, record, data) {
   if (!renderBandFor(trait, record, data)) return null;
   const details = element('details');
-  details.appendChild(element('summary', null, 'Show the labelled distribution'));
+  details.appendChild(element('summary', null, 'Show distribution in labelled OTUs'));
   const body = element('div', 'band');
   details.appendChild(body);
   details.addEventListener('toggle', () => {
@@ -229,7 +229,7 @@ function renderTrait(trait, record, data, thresholds) {
   const value = element('span', 'trait__value', valueText);
   if (curated || labelled) {
     const badge = element('span', 'badge',
-      curated ? 'BacDive measured' : 'Traitar genome label');
+      curated ? 'BacDive measurement' : 'Traitar genome annotation');
     badge.style.marginLeft = '8px';
     value.appendChild(badge);
   }
@@ -239,8 +239,8 @@ function renderTrait(trait, record, data, thresholds) {
   if (curated) {
     const note = element('p', 'small muted');
     note.style.margin = '4px 0 0';
-    note.textContent = 'A curated wet-lab record, shown instead of the '
-      + 'inference for this OTU.';
+    note.textContent = 'Experimentally measured value from BacDive; shown in '
+      + 'place of the prediction.';
     row.appendChild(note);
     const details = bandDetails(trait, record, data);
     if (details) row.appendChild(details);
@@ -261,7 +261,7 @@ function renderTrait(trait, record, data, thresholds) {
     line.appendChild(element('span', `conf conf--${level.level}`,
       `${level.glyph} ${level.label}`));
     line.appendChild(element('span', 'trait__auc',
-      `trait-wide leave-one-phylum AUC ${meta.auc.toFixed(2)}`));
+      `trait-level leave-one-phylum-out AUC ${meta.auc.toFixed(2)}`));
   } else {
     if (Number.isFinite(probability)) {
       const bar = element('span', 'bar');
@@ -275,7 +275,7 @@ function renderTrait(trait, record, data, thresholds) {
     line.appendChild(element('span', `conf conf--${level.level}`,
       `${level.glyph} ${level.label}`));
     line.appendChild(element('span', 'trait__auc',
-      `leave-one-phylum AUC ${Number.isFinite(entry.auc) ? entry.auc.toFixed(2) : '—'}`));
+      `leave-one-phylum-out AUC ${Number.isFinite(entry.auc) ? entry.auc.toFixed(2) : '—'}`));
   }
   row.appendChild(line);
 
@@ -300,7 +300,7 @@ export function renderCard(container, index, data) {
   const title = element('div', 'card__title');
   title.appendChild(element('h2', 'otu-id', record.id));
   if (!record.genome_linked) {
-    title.appendChild(element('span', 'badge', 'no genome'));
+    title.appendChild(element('span', 'badge', 'no reference genome'));
   }
   fragment.appendChild(title);
 
@@ -313,8 +313,8 @@ export function renderCard(container, index, data) {
   const provenance = element('p', 'small muted');
   provenance.style.margin = '0 0 16px';
   provenance.textContent = record.genome_linked
-    ? 'Maps to a representative genome; its trait values below are genome-based labels.'
-    : 'Uncultured: no representative genome, so every trait value below is inferred from the embedding.';
+    ? 'Linked to a representative genome; trait values below are genome-based annotations.'
+    : 'Uncultured: no representative genome is available, so all trait values below are predicted from the embedding.';
   fragment.appendChild(provenance);
 
   const neighbourBlock = element('div');
@@ -327,9 +327,9 @@ export function renderCard(container, index, data) {
   fragment.appendChild(heading);
 
   const caveat = element('p', 'small muted');
-  caveat.textContent = 'Inferred from co-occurrence, not measured. These describe '
-    + 'the role a taxon plays in the gut community, which is not the same as its '
-    + 'physiology in pure culture.';
+  caveat.textContent = 'Predicted from co-occurrence data, not measured. The values '
+    + 'describe the ecological role of a taxon in the gut community, which may '
+    + 'differ from its physiology in pure culture.';
   fragment.appendChild(caveat);
 
   const shown = [];
@@ -346,8 +346,8 @@ export function renderCard(container, index, data) {
   if (hidden.length) {
     const details = element('details');
     const summary = element('summary', null,
-      `${hidden.length} traits withheld — cross-validated AUC below `
-      + `${thresholds.hidden_below}`);
+      `${hidden.length} traits with cross-validated AUC < `
+      + `${thresholds.hidden_below} (hidden by default)`);
     details.appendChild(summary);
     const body = element('div');
     body.style.marginTop = '12px';

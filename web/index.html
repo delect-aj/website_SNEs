@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Microbial social niches — ecological embeddings of the human gut</title>
-<meta name="description" content="Ecological embeddings for 14,093 human gut OTUs: an interactive atlas, trait inference for uncultured taxa, and a research-use dysbiosis score.">
+<meta name="description" content="Ecological embeddings of 14,093 human gut OTUs, with an interactive atlas, trait predictions for uncultured taxa and a research-use dysbiosis score.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/main.css">
 </head>
@@ -24,63 +24,89 @@
 
 <main class="wrap">
 
+  <p class="kicker">Resource · Human gut microbiome</p>
   <h1>Ecological embeddings of the human gut microbiome</h1>
 
   <p class="lede mt-16">
-    Every one of 14,093 SILVA 97% OTUs is placed in a 100-dimensional space by
-    the company it keeps, learned from co-occurrence across roughly 210,000
-    human faecal samples. Two OTUs sit close together if they tend to appear in
-    the same communities — not because they are related.
+    We represent each of 14,093 SILVA 138.2 OTUs (97% identity) as a
+    100-dimensional ecological embedding, learned from co-occurrence patterns
+    in approximately 210,000 human faecal samples. OTUs that frequently occur
+    in the same communities have similar embeddings, independent of their
+    phylogenetic relatedness. This site provides an interactive atlas of the
+    embeddings, trait predictions for uncultured taxa, a research-use
+    dysbiosis score and the underlying data.
   </p>
+
+  <div class="figures mt-32">
+    <div><b>14,093</b><span>OTUs embedded</span></div>
+    <div><b>~210,000</b><span>human faecal samples</span></div>
+    <div><b>100</b><span>embedding dimensions</span></div>
+    <div><b>13</b><span>diseases in the reference cohort</span></div>
+  </div>
 
   <div class="grid grid--3 mt-32">
 
     <div class="card">
       <div class="card__title"><h2>Atlas</h2></div>
-      <p>Browse the 14,093 OTUs as a map. Look up any taxon and see its
-        ecological neighbours beside its phylogenetic ones — the two lists
-        overlap less than you would expect.</p>
-      <p class="small muted">Uncultured OTUs outnumber cultured ones twelve to
-        one here, and most of them have no genome. Their trait values on the
-        card are inferred, each carrying the cross-validated AUC it earned.</p>
-      <p><a class="button" href="/atlas/">Open the atlas</a></p>
+      <p>Browse all 14,093 OTUs on a two-dimensional map. Search by taxon
+        name, OTU identifier or 16S rRNA sequence, and compare the ecological
+        and phylogenetic neighbours of each OTU.</p>
+      <p class="small muted">About 92% of OTUs have no representative
+        genome. Their traits are predicted from the embedding and reported
+        with leave-one-phylum-out AUCs.</p>
+      <p><a class="button" href="/atlas/">Explore the atlas</a></p>
     </div>
 
     <div class="card">
       <div class="card__title"><h2>Dysbiosis score</h2></div>
-      <p>Score one faecal sample against a reference cohort of 10,276. The
-        model runs entirely in your browser; nothing you upload leaves it.</p>
-      <p class="small muted">The result is a percentile, not a probability, not
-        a risk, and not a diagnosis. See the page for what it does and does not
-        support.</p>
-      <p><a class="button" href="/dysbiosis/">Score a sample</a></p>
+      <p>Score a faecal 16S rRNA sample against a reference cohort of 10,276
+        samples. The model runs in the browser; only sequences submitted for
+        OTU mapping are sent to the server, and none are stored.</p>
+      <p class="small muted">The result is a percentile within the reference
+        cohort. It is not a disease probability, a risk estimate or a
+        diagnosis.</p>
+      <p><a class="button" href="/dysbiosis/">Compute a score</a></p>
     </div>
 
     <div class="card">
       <div class="card__title"><h2>Data and code</h2></div>
-      <p>The embedding matrix, the trait tables, the model and its fold
-        checkpoints, in formats you can load directly into gensim, the
-        TensorFlow Embedding Projector, or Python.</p>
+      <p>Download the embedding matrix, trait tables, classifier and
+        cross-validation checkpoints, in formats that can be loaded directly
+        with gensim, the TensorFlow Embedding Projector or Python.</p>
       <p class="small muted">Research use only. Not a medical device.</p>
-      <p><a class="button" href="/download/">Download</a></p>
+      <p><a class="button" href="/download/">Download data</a></p>
     </div>
 
   </div>
 
   <section class="mt-32">
-    <h2>What this is, and what it is not</h2>
+    <h2>Scope and limitations</h2>
     <div class="note mt-16">
       <p>
-        These embeddings describe <strong>realized niches</strong>: the role a
-        taxon plays inside the gut community, inferred from who it co-occurs
-        with. That is not the same as its physiology in pure culture. An OTU
-        whose inferred trait is "anaerobic" is one that behaves like an
-        anaerobe in the gut, partly because it keeps anaerobic company.
+        The embeddings describe <strong>realized niches</strong>: the ecological
+        role of a taxon within the gut community, inferred from the taxa it
+        co-occurs with. This is not equivalent to its physiology in pure
+        culture. For example, an OTU predicted to be anaerobic behaves like an
+        anaerobe in the gut, in part because it co-occurs with anaerobic taxa.
       </p>
       <p>
-        Every model here was trained on human faecal 16S data. Nothing on this
-        site applies to soil, marine, oral or skin communities, and nothing on
-        it is a diagnostic.
+        All models were trained on human faecal 16S rRNA data. The results do
+        not apply to soil, marine, oral or skin communities, and none of the
+        outputs are intended for diagnosis.
+      </p>
+    </div>
+  </section>
+
+  <section class="mt-32">
+    <h2>How to cite</h2>
+    <div class="cite-box mt-16">
+      <p>
+        Ecological embeddings reveal microbial social niches that generalize
+        across diseases. <em>Manuscript in submission.</em>
+      </p>
+      <p class="small">
+        BibTeX and version information are available on the
+        <a href="/cite/">citation page</a>.
       </p>
     </div>
   </section>
@@ -90,9 +116,10 @@
 <footer class="footer">
   <div class="wrap">
     <p>
-      Research use only. Not a medical device; not for diagnosis, treatment or
-      prevention of any disease. Predictions are statistical inferences from
-      co-occurrence, not experimental measurements.
+      For research use only. Not a medical device; not intended for the
+      diagnosis, treatment or prevention of any disease. Predictions are
+      statistical inferences from co-occurrence data, not experimental
+      measurements.
     </p>
     <p>
       <a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a>

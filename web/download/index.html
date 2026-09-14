@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Download — microbial social niches</title>
-<meta name="description" content="The SNE embedding matrix, trait tables, vocabulary and model, in formats you can load directly.">
+<meta name="description" content="Download the SNE embedding matrix, trait tables, vocabulary and classifier in standard formats.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/main.css">
 </head>
@@ -24,21 +24,22 @@
 
 <main class="wrap">
 
+  <p class="kicker">Data availability</p>
   <h1>Download</h1>
 
   <p class="lede mt-12">
-    Everything the site serves is static and public. Load the embeddings into
-    Python, open them in the TensorFlow Embedding Projector, or take the raw
-    arrays and build something else.
+    All data used by this site are static and publicly available. The
+    embeddings can be loaded in Python, viewed in the TensorFlow Embedding
+    Projector, or used directly as raw arrays.
   </p>
 
   <section class="mt-32">
-    <h2>Look at the embedding in 3D</h2>
+    <h2>Explore the embeddings in 3D</h2>
     <div class="card mt-12">
       <p>
-        The TensorFlow Embedding Projector reads the same vectors this site
-        uses, and does the 3D work for free. The link below opens it with the
-        table already loaded and the SILVA taxonomy attached.
+        The TensorFlow Embedding Projector provides interactive 3D views of the
+        same vectors used by this site. The link below opens the Projector with
+        the embeddings and SILVA taxonomy preloaded.
       </p>
       <p>
         <a class="button" id="projector" href="https://projector.tensorflow.org/"
@@ -49,10 +50,11 @@
   </section>
 
   <section class="mt-32">
-    <h2>Load it in Python</h2>
+    <h2>Load the embeddings in Python</h2>
     <div class="card mt-12">
       <p>
-        The vector file is word2vec text, which gensim reads directly:
+        The vectors are provided in word2vec text format and can be loaded
+        with gensim:
       </p>
       <pre class="code">import gzip
 from gensim.models import KeyedVectors
@@ -62,12 +64,12 @@ with gzip.open("sne_vectors.txt.gz", "rb") as raw:
 
 vectors.most_similar("AB002518.1.1416", topn=10)</pre>
       <p>
-        <a class="button" id="colab" rel="noopener">Open a Colab notebook</a>
+        <a class="button" id="colab" rel="noopener">Open in Colab</a>
       </p>
       <p class="small muted">
-        The notebook installs what it needs, downloads the vectors, and scores
-        a sample with the same model this site runs, so you can check the two
-        agree before building on either.
+        The notebook installs the required packages, downloads the vectors and
+        scores a sample with the same model used on this site, so that results
+        from the two can be compared.
       </p>
     </div>
   </section>
@@ -75,7 +77,7 @@ vectors.most_similar("AB002518.1.1416", topn=10)</pre>
   <section class="mt-32">
     <h2>Files</h2>
     <p class="muted mt-12">
-      Sizes are as served, before compression. Checksums are in
+      File sizes are uncompressed. SHA-256 checksums are listed in
       <a href="/data/manifest.json" class="mono">manifest.json</a>.
     </p>
     <div id="files" class="mt-12">
@@ -84,36 +86,36 @@ vectors.most_similar("AB002518.1.1416", topn=10)</pre>
   </section>
 
   <section class="mt-32">
-    <h2>What these files are</h2>
+    <h2>File descriptions</h2>
     <details open>
       <summary>Formats and layout</summary>
       <div class="stack mt-12">
         <p>
-          <span class="mono">sne_vectors.txt.gz</span> — the 14,093 × 100
-          embedding, word2vec text, one OTU id per line. The ids are SILVA
-          138.2 accession numbers with the alignment span, the same form the
-          OTU tables use.
+          <span class="mono">sne_vectors.txt.gz</span>: the 14,093 × 100
+          embedding matrix in word2vec text format, with one OTU per line. OTU
+          identifiers are SILVA 138.2 accession numbers with the alignment
+          span, as used in the OTU tables.
         </p>
         <p>
           <span class="mono">dysbiosis_encoder.onnx</span> and
-          <span class="mono">dysbiosis_embed.f16.bin</span> — the classifier.
-          The graph takes already-gathered 100-dimensional vectors, not token
-          indices, because all thirteen fold checkpoints share one frozen
-          embedding table and baking it into the graph would ship it thirteen
-          times. Gather rows from the embedding blob with the indices in
-          <span class="mono">vocab.json</span>, multiply by the rank-normalized
-          abundance, and the graph does the rest.
+          <span class="mono">dysbiosis_embed.f16.bin</span>: the classifier.
+          The ONNX graph takes 100-dimensional embedding vectors as input
+          rather than token indices, because all 13 fold checkpoints share one
+          frozen embedding table, which is stored separately. To run the
+          model, select rows from the embedding table using the indices in
+          <span class="mono">vocab.json</span> and multiply them by the
+          rank-normalized abundances.
         </p>
         <p>
-          <span class="mono">traits_proba.f16.bin</span> — the random forest's
-          probability for every labelled OTU, on all classes of every trait,
-          laid out as described in <span class="mono">traits.json</span>. This
-          is what the confidence bands on the atlas are drawn from.
+          <span class="mono">traits_proba.f16.bin</span>: random forest
+          probabilities for all classes of every trait, for each labelled OTU,
+          in the layout described in <span class="mono">traits.json</span>.
+          These values are used to draw the distribution plots in the atlas.
         </p>
         <p>
-          <span class="mono">ref_scores.json</span> — the 10,276 reference
-          samples' model scores, split into controls and cases, sorted. This is
-          the distribution the percentile is read from.
+          <span class="mono">ref_scores.json</span>: sorted model scores of the
+          10,276 reference samples, split into controls and cases. Percentiles
+          are computed from this distribution.
         </p>
       </div>
     </details>
@@ -124,38 +126,42 @@ vectors.most_similar("AB002518.1.1416", topn=10)</pre>
 <footer class="footer">
   <div class="wrap">
     <p>
-      Research use only. Not a medical device; not for diagnosis, treatment or
-      prevention of any disease.
+      For research use only. Not a medical device; not intended for the
+      diagnosis, treatment or prevention of any disease.
     </p>
     <p><a href="https://github.com/xu-research-lab/microbial-embeddings">xu-research-lab/microbial-embeddings</a></p>
   </div>
 </footer>
 
 <script type="module">
-const COLAB = "https://colab.research.google.com/github/delect-aj/website_SNEs/blob/main/script/quickstart_colab.ipynb";
+const COLAB = "https://colab.research.google.com/github/xu-research-lab/microbial-embeddings/blob/main/script/quickstart_colab.ipynb";
 
 const DESCRIPTIONS = {
-  "sne_vectors.txt.gz": "The embedding matrix, word2vec text",
-  "projector_vectors.tsv": "The same values for the Embedding Projector",
-  "projector_metadata.tsv": "One row per OTU: id and seven SILVA ranks",
-  "projector_config.json": "The Projector's manifest for the two files above",
-  "sne.f16.bin": "The embedding matrix, float16, row-major (14093 × 100)",
-  "vocab.json": "OTU id to model index, in the order the model expects",
-  "dysbiosis_encoder.onnx": "The thirteen-fold ensemble classifier",
-  "dysbiosis_embed.f16.bin": "The frozen embedding table the graph reads",
-  "traits_proba.f16.bin": "Forest probabilities for every labelled OTU",
-  "traits.json": "Trait order, class order, offsets and AUCs",
-  "bacdive.json": "Curated measurements, which override predictions",
-  "ref_scores.json": "Reference cohort scores, controls and cases",
-  "metrics.json": "The AUCs, fold choices and reference cohort counts",
-  "manifest.json": "Sizes and SHA-256 of everything above",
-  "umap.f32.bin": "Two-dimensional layout of the embedding (14093 × 2)",
-  "otus.json": "Taxonomy, genome linkage and trait values per OTU",
-  "nbr_sne_idx.i16.bin": "Each OTU's 50 nearest ecological neighbours",
-  "nbr_phylo_idx.i16.bin": "The same, from the phylogenetic embedding",
-  "nbr_sne_sim.f16.bin": "Ecological neighbour cosine similarities, float16",
-  "nbr_phylo_sim.f16.bin": "The same for the phylogenetic neighbours",
-  "meta.json": "Array shapes, dtypes and colour-by levels",
+  "sne_vectors.txt.gz": "Embedding matrix (word2vec text format)",
+  "projector_vectors.tsv": "Embedding matrix for the Embedding Projector",
+  "projector_metadata.tsv": "OTU identifiers and SILVA taxonomy (seven ranks)",
+  "projector_config.json": "Embedding Projector configuration",
+  "sne.f16.bin": "Embedding matrix, float16, row-major (14,093 × 100)",
+  "vocab.json": "Mapping from OTU identifier to model index",
+  "dysbiosis_encoder.onnx": "13-fold ensemble classifier (ONNX)",
+  "dysbiosis_embed.f16.bin": "Frozen embedding table used by the classifier",
+  "traits_proba.f16.bin": "Random forest probabilities for labelled OTUs",
+  "traits.json": "Trait metadata: class order, offsets and AUCs",
+  "bacdive.json": "BacDive experimental measurements",
+  "ref_scores.json": "Reference cohort scores (controls and cases)",
+  "metrics.json": "Model performance, fold selection and cohort sizes",
+  "manifest.json": "File sizes and SHA-256 checksums",
+  "umap.f32.bin": "UMAP coordinates (14,093 × 2)",
+  "otus.json": "Taxonomy, genome linkage and trait values for each OTU",
+  "nbr_sne_idx.i16.bin": "50 nearest ecological neighbours of each OTU",
+  "nbr_phylo_idx.i16.bin": "50 nearest phylogenetic neighbours of each OTU",
+  "nbr_sne_sim.f16.bin": "Cosine similarities of ecological neighbours, float16",
+  "nbr_phylo_sim.f16.bin": "Cosine similarities of phylogenetic neighbours, float16",
+  "meta.json": "Array shapes, data types and colour categories",
+  "examples/atlas_asv_example.fasta": "Example input: two 16S V4 reads for the atlas search",
+  "examples/otu_table_example.tsv": "Example input: OTU count table (two samples)",
+  "examples/rep_seqs_example.fasta": "Example input: ASV sequences for the same two samples",
+  "examples/asv_table_example.tsv": "Example input: ASV count table for the same two samples",
 };
 
 function human(bytes) {
@@ -169,8 +175,8 @@ const manifest = await response.json();
 
 document.getElementById("projector").href = manifest.projector_url;
 document.getElementById("projector-note").textContent =
-  "The Projector fetches the two TSVs from this site, so it only works once "
-  + "this site is reachable at a public address.";
+  "The Projector loads the TSV files from this site and therefore requires "
+  + "the site to be publicly accessible.";
 document.getElementById("colab").href = COLAB;
 
 const table = document.createElement("table");

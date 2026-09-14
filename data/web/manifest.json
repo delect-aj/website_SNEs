@@ -41,6 +41,16 @@
    "sha256": "33040a4b6779deb2e3ac9b4524cbe97b287b763811f5f3d6642a98580c34112a"
   },
   {
+   "file": "examples/asv_table_example.tsv",
+   "bytes": 3571,
+   "sha256": "62dbd3987d3879233d1c94e7d32c83d35907d92bf2ddb3d9b3a9557228d0ab7d"
+  },
+  {
+   "file": "examples/atlas_asv_example.fasta",
+   "bytes": 674,
+   "sha256": "b76add9c6473c33db522e199d23885d162557ed284e3ac06df2f73f6efa50ec9"
+  },
+  {
    "file": "examples/crc_case.json",
    "bytes": 4548,
    "sha256": "9fdd6fa8bb8788e0420b9a859a523ff3f0412d7c7183644541e9b24f0ecd685a"
@@ -59,6 +69,16 @@
    "file": "examples/ibd_control.json",
    "bytes": 3849,
    "sha256": "0624e59ee1490b2a9ae6c02de5f53a357fce5f1f309fbe4b50359dd6397d8cd4"
+  },
+  {
+   "file": "examples/otu_table_example.tsv",
+   "bytes": 7418,
+   "sha256": "457bdfcbf37ab812ff5256b2b4a8cdc69264f8a995c355802da6407ff9475917"
+  },
+  {
+   "file": "examples/rep_seqs_example.fasta",
+   "bytes": 80910,
+   "sha256": "3cb91d97dcfd30a9d5e1967db6d64653f8ce2f74f0b538f789755ff998b42b3d"
   },
   {
    "file": "examples/t2dm_case.json",
@@ -102,8 +122,8 @@
   },
   {
    "file": "otus.json",
-   "bytes": 16109738,
-   "sha256": "74d558fe406b844c74b88f5c11aa16d0204716f527c64c30d076f79413e64c7f"
+   "bytes": 16137273,
+   "sha256": "92389925504ab2396e400eaa8db5eb8291bab77233f36c038df5f8414535ec82"
   },
   {
    "file": "ref_scores.json",

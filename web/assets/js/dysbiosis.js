@@ -106,7 +106,7 @@ function renderSamplePicker(container, samples, onPick) {
     return;
   }
   const label = element('label');
-  label.textContent = `${samples.length} samples found`;
+  label.textContent = `${samples.length} samples detected`;
   const select = element('select');
   select.style.marginLeft = '8px';
   samples.forEach((sample, index) => {
@@ -129,15 +129,15 @@ function renderSamplePicker(container, samples, onPick) {
 async function ensureModel() {
   if (state.loaded) return;
 
-  status('Loading the embedding table…', 0);
+  status('Loading embedding table…', 0);
   const embeddingBuffer = await fetchWithProgress(`${DATA}/dysbiosis_embed.f16.bin`,
-    (loaded, size) => status('Loading the embedding table…', loaded / size));
+    (loaded, size) => status('Loading embedding table…', loaded / size));
   state.embedding = halfToFloat(new Uint16Array(embeddingBuffer));
   state.gather = makeGather(state.embedding, state.vocab.d_model);
 
-  status('Loading the model…', 0);
+  status('Loading model…', 0);
   const modelBuffer = await fetchWithProgress(`${DATA}/dysbiosis_encoder.onnx`,
-    (loaded, size) => status('Loading the model…', loaded / size));
+    (loaded, size) => status('Loading model…', loaded / size));
 
   ort.env.wasm.wasmPaths = WASM_PATH;
   // One thread: the multi-threaded build wants COOP/COEP headers, and a
@@ -188,11 +188,12 @@ async function score(otuCounts) {
   // rather than let the number through.
   if (known === 0) {
     throw new Error(
-      `The model read ${unknown} of this sample's ${sample.nOtus} taxa and `
-      + `none of them are in its vocabulary, so every position was masked and `
-      + `there is nothing to score. The model reads SILVA 138.2 97% OTU ids of `
-      + `the form accession.start.stop; a table of ASV or exact-sequence ids `
-      + `has to go through the FASTA route first, which maps them.`);
+      `None of the ${unknown} taxa read from this sample (${sample.nOtus} in `
+      + `total) are in the model vocabulary, so all positions were masked and `
+      + `no score can be computed. The model requires SILVA 138.2 OTU `
+      + `identifiers (97% identity) of the form accession.start.stop. Tables `
+      + `with ASV or exact-sequence identifiers must be submitted through the `
+      + `FASTA option, which maps them to OTUs.`);
   }
 
   const scored = await scoreSample(state.session, ort, sample,
@@ -227,22 +228,23 @@ function renderResult(scored) {
     warning.style.marginBottom = '16px';
     const line = element('p');
     line.style.margin = '0';
-    line.textContent = `Only ${known} of this sample's ${sample.nOtus} taxa `
-      + `are in the model's vocabulary. The score below comes from those `
-      + `${known}; the rest were masked out. Treat it as indicative at best.`;
+    line.textContent = `Only ${known} of the ${sample.nOtus} taxa in this `
+      + `sample are in the model vocabulary. The score below is based on these `
+      + `${known} taxa; the remainder were masked. Interpret the score with `
+      + `caution.`;
     warning.appendChild(line);
     fragment.appendChild(warning);
   }
 
   const sentence = element('p', 'result__sentence');
   sentence.style.margin = '0 0 4px';
-  sentence.appendChild(document.createTextNode('This sample sits at the '));
+  sentence.appendChild(document.createTextNode('This sample is at the '));
   const number = element('span', 'result__number');
   number.textContent = String(Math.round(percentile));
   sentence.appendChild(number);
   sentence.appendChild(document.createTextNode(
-    `${ordinalSuffix(percentile)} percentile of the reference cohort of `
-    + `${all.length} samples.`));
+    `${ordinalSuffix(percentile)} percentile of the reference cohort `
+    + `(n = ${all.length}).`));
   fragment.appendChild(sentence);
 
   // The two groups are not the same size and do not sit in the same place, so
@@ -251,9 +253,9 @@ function renderResult(scored) {
   const controlMedian = percentileOf(all, controls[Math.floor(controls.length / 2)]);
   const caseMedian = percentileOf(all, cases[Math.floor(cases.length / 2)]);
   const sub = element('p', 'small muted');
-  sub.textContent = `${Math.round(percentile)}% of reference samples score `
-    + `below this one. The cohort is ${controls.length} controls and `
-    + `${cases.length} cases; their medians sit at the `
+  sub.textContent = `${Math.round(percentile)}% of reference samples have `
+    + `a lower score. The cohort comprises ${controls.length} controls and `
+    + `${cases.length} cases, with medians at the `
     + `${Math.round(controlMedian)}${ordinalSuffix(controlMedian)} and `
     + `${Math.round(caseMedian)}${ordinalSuffix(caseMedian)} percentile.`;
   fragment.appendChild(sub);
@@ -269,26 +271,26 @@ function renderResult(scored) {
     ctrl: controls,
     case: cases,
     you: logit,
-    className: 'the model score',
+    className: 'model scores',
     ctrlLabel: 'reference controls',
     caseLabel: 'reference cases',
     youLabel: 'this sample',
     domain: [low - pad, high + pad],
     ticks: [all[0], all[Math.floor(all.length / 2)], all[all.length - 1]],
     axisFormat: '.1f',
-    axisLabel: 'model score (logit) → more case-like',
+    axisLabel: 'Model score (logit) → more case-like',
     width: 720,
   });
 
   const heading = element('h3');
-  heading.textContent = 'Taxa this score leaned on';
+  heading.textContent = 'Taxa with the highest attention weights';
   heading.style.margin = '24px 0 4px';
   fragment.appendChild(heading);
 
   const note = element('p', 'small muted');
-  note.textContent = 'Attention averaged over folds, heads and query '
-    + 'positions, so a taxon ranks high when the sample as a whole attended '
-    + 'to it. This describes the model, not a biological mechanism.';
+  note.textContent = 'Attention weights are averaged over folds, heads and '
+    + 'query positions. They describe what the model attends to and do not '
+    + 'imply a biological mechanism.';
   fragment.appendChild(note);
 
   const list = element('ol', 'attn-list');
@@ -318,22 +320,22 @@ function renderResult(scored) {
 
   const coverage = element('p', 'small muted');
   coverage.style.marginTop = '16px';
-  coverage.textContent = `${sample.nOtus} non-zero taxa in this sample; the `
-    + `model reads at most ${state.vocab.num_steps} of them.`;
+  coverage.textContent = `This sample contains ${sample.nOtus} taxa with `
+    + `non-zero counts; the model uses at most ${state.vocab.num_steps}.`;
   if (unknown > 0) {
-    coverage.textContent += ` ${unknown} of the positions the model read are `
-      + `OTUs absent from its vocabulary, which the attention mask hides — `
-      + `their abundance still counted towards the ranking but contributed no `
-      + `embedding.`;
+    coverage.textContent += ` ${unknown} of these positions are OTUs not `
+      + `in the vocabulary. They are masked: their abundances contribute to `
+      + `rank normalization but not to the embedding.`;
   }
   fragment.appendChild(coverage);
 
   const disclaimer = element('p', 'disclaimer');
   disclaimer.style.marginTop = '20px';
-  disclaimer.textContent = 'Research use only. Not a medical device, not a '
-    + 'diagnosis, and not a probability of disease. This is one model\'s '
-    + 'relative placement of one sample; gut communities vary more within a '
-    + 'person over a month than this score measures between people.';
+  disclaimer.textContent = 'For research use only. This score is not a '
+    + 'diagnosis or a probability of disease, and the tool is not a medical '
+    + 'device. It is the relative position of one sample under one model; '
+    + 'within-individual variation over a month can exceed the between-'
+    + 'individual differences the score measures.';
   fragment.appendChild(disclaimer);
 
   elements.result.replaceChildren(fragment);
@@ -372,7 +374,7 @@ async function loadStatics() {
   if (examples.length) elements.examples.querySelector('input').checked = true;
   elements.examples.addEventListener('change', () => { state.selection = 0; });
 
-  elements.runNote.textContent = `${vocab.ids.length} OTUs in the vocabulary, `
+  elements.runNote.textContent = `Vocabulary: ${vocab.ids.length} OTUs, `
     + `${metrics.n_informative_otus} with a trained embedding.`;
 }
 
@@ -382,7 +384,7 @@ async function collectSamples() {
 
   if (mode === 'example') {
     const picked = elements.examples.querySelector('input:checked');
-    if (!picked) throw new Error('Pick an example first.');
+    if (!picked) throw new Error('Please select an example sample.');
     const record = await (await fetch(`${DATA}/examples/${picked.value}`)).json();
     return [{
       name: `${record.label} (${record.sample_id})`,
@@ -392,27 +394,27 @@ async function collectSamples() {
 
   if (mode === 'table') {
     const file = elements.tableFile.files[0];
-    if (!file) throw new Error('Choose a table file first.');
+    if (!file) throw new Error('Please select a table file.');
     const text = await file.text();
     if (text.slice(0, 4) === '\x89HDF') {
-      throw new Error('That is an HDF5 BIOM file, which this page cannot read '
-        + 'in the browser. Convert it to TSV first '
+      throw new Error('HDF5 BIOM files cannot be read in the browser. Please '
+        + 'convert the file to TSV '
         + '(biom convert -i table.biom -o table.tsv --to-tsv), or use the '
-        + 'FASTA route, which the server maps for you.');
+        + 'FASTA option.');
     }
     if (text.trim().startsWith('{')) {
-      throw new Error('That looks like classic JSON BIOM. Export it as TSV '
-        + 'instead (biom convert).');
+      throw new Error('This appears to be a JSON BIOM file. Please convert '
+        + 'it to TSV (biom convert).');
     }
     const samples = readTable(text, file.name);
-    if (!samples.length) throw new Error(`${file.name}: no non-zero counts.`);
+    if (!samples.length) throw new Error(`${file.name}: no non-zero counts found.`);
     return samples;
   }
 
   const fasta = elements.fastaFile.files[0];
   const countsFile = elements.countsFile.files[0];
   if (!fasta || !countsFile) {
-    throw new Error('This route needs both the FASTA and the count table.');
+    throw new Error('This option requires both a FASTA file and a count table.');
   }
 
   status('Mapping sequences to reference OTUs…');
@@ -429,7 +431,7 @@ async function collectSamples() {
 
   const mapping = payload.mapping || {};
   const samples = readTable(await countsFile.text(), countsFile.name);
-  if (!samples.length) throw new Error(`${countsFile.name}: no non-zero counts.`);
+  if (!samples.length) throw new Error(`${countsFile.name}: no non-zero counts found.`);
 
   for (const sample of samples) {
     const translated = new Map();
@@ -443,9 +445,9 @@ async function collectSamples() {
   // its container, so appending here would be wiped a moment later and the
   // mapping rate -- the one number that says whether the FASTA was comparable
   // to the cohort at all -- would never be seen.
-  state.mappingNote = `${payload.mapped} of ${payload.total} sequences mapped `
-    + `to reference OTUs at 97% identity. Unmapped sequences are kept and `
-    + `masked, the same way a held-out cohort was.`;
+  state.mappingNote = `${payload.mapped} of ${payload.total} sequences were `
+    + `mapped to reference OTUs at 97% identity. Unmapped sequences are `
+    + `retained and masked, as in the held-out cohort analysis.`;
 
   return samples;
 }
