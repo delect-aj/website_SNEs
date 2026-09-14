@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 130" fill="none">
+  <!-- Ecological traits, after panel b of the workflow figure: one wheel,
+       three kinds of trait. Left: carbohydrate utilization; right:
+       morphology; bottom: environmental adaptation. -->
+  <path d="M110 66 L59.8 95 A58 58 0 0 1 110 8 Z" fill="#fff" fill-opacity=".22"/>
+  <path d="M110 66 L110 8 A58 58 0 0 1 160.2 95 Z" fill="#fff" fill-opacity=".13"/>
+  <path d="M110 66 L160.2 95 A58 58 0 0 1 59.8 95 Z" fill="#fff" fill-opacity=".3"/>
+  <path d="M110 66 L110 8 M110 66 L160.2 95 M110 66 L59.8 95" stroke="#fff" stroke-opacity=".7" stroke-width="2"/>
+  <circle cx="110" cy="66" r="58" stroke="#fff" stroke-opacity=".7" stroke-width="2"/>
+  <!-- sugar chain -->
+  <path d="M70 70 L78 60 L88 64 L96 54 L92 43 L100 34 M78 60 L74 48" stroke="#fff" stroke-width="2"/>
+  <g fill="#fff"><circle cx="70" cy="70" r="3.6"/><circle cx="78" cy="60" r="3.6"/><circle cx="88" cy="64" r="3.6"/><circle cx="96" cy="54" r="3.6"/><circle cx="92" cy="43" r="3.6"/><circle cx="100" cy="34" r="3.6"/><circle cx="74" cy="48" r="3.6"/></g>
+  <!-- rod with a flagellum, and a pair of cocci -->
+  <rect x="118" y="29" width="30" height="12" rx="6" fill="#fff" transform="rotate(-28 133 35)"/>
+  <path d="M146 26 q6 -6 12 -2 t12 -2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="134" cy="60" r="6" fill="#fff"/><circle cx="146" cy="62" r="6" fill="#fff" fill-opacity=".85"/>
+  <!-- oxygen bubbles -->
+  <g stroke="#fff" stroke-width="2.4"><circle cx="92" cy="90" r="9"/><circle cx="114" cy="102" r="7"/><circle cx="131" cy="87" r="10"/></g>
+  <g fill="#fff"><circle cx="89" cy="87" r="2.2"/><circle cx="112" cy="100" r="1.8"/><circle cx="127" cy="83" r="2.4"/></g>
+</svg>

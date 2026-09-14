@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 130" fill="none">
+  <!-- Disease diagnosis, after panel b of the workflow figure: a monitor of
+       scores, a magnifying glass over a microbe, and a stethoscope. -->
+  <rect x="48" y="10" width="124" height="80" rx="6" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-width="4"/>
+  <g fill="#fff">
+    <rect x="62" y="24" width="84" height="8" rx="4"/>
+    <rect x="62" y="39" width="66" height="8" rx="4" fill-opacity=".8"/>
+    <rect x="62" y="54" width="46" height="8" rx="4" fill-opacity=".6"/>
+    <rect x="62" y="69" width="30" height="8" rx="4" fill-opacity=".45"/>
+  </g>
+  <path d="M110 90 V104" stroke="#fff" stroke-width="5"/>
+  <rect x="88" y="103" width="44" height="6" rx="3" fill="#fff"/>
+  <!-- magnifier with a microbe -->
+  <circle cx="160" cy="80" r="21" fill="#fff" fill-opacity=".28" stroke="#fff" stroke-width="5"/>
+  <path d="M175 95 L192 112" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+  <rect x="150" y="75" width="20" height="10" rx="5" fill="#fff" transform="rotate(-35 160 80)"/>
+  <!-- stethoscope -->
+  <path d="M34 20 C24 56 26 96 50 108 C62 114 74 112 80 108" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M26 18 h16" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="84" cy="106" r="7" fill="#fff"/>
+</svg>

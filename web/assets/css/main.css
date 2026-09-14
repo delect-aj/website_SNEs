@@ -290,20 +290,14 @@ main { padding: 40px 0 64px; }
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 230px;
+  min-height: 290px;
   color: #fff;
   overflow: hidden;
 }
 .tile:hover { color: #fff; text-decoration: none; filter: brightness(1.06); }
-.tile::before {
-  /* A field of dots: the scatter the site is built on. */
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, .22) 2px, transparent 2.5px);
-  background-size: 22px 22px;
-  mask-image: linear-gradient(160deg, transparent 35%, #000 100%);
-}
+/* Illustrations after panel b of the paper's workflow figure, drawn in white
+   so the three tiles share one look whatever their colour. */
+.tile__art { display: block; width: 190px; height: auto; margin: 8px auto 12px; }
 .tile--atlas { background: linear-gradient(160deg, #0a73ad, var(--sapphire)); }
 .tile--dysbiosis { background: linear-gradient(160deg, #e9776c, #9d4a4d); }
 .tile--data { background: linear-gradient(160deg, #6fb389, #2d7a4f); }
@@ -372,15 +366,17 @@ main { padding: 40px 0 64px; }
 /* Text and a figure side by side; the figure drops below on narrow screens. */
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
-  gap: 24px 48px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 24px 40px;
 }
 .hero .lede { max-width: none; }
-.hero__figure { margin: 0; }
-.hero__figure img { display: block; width: 100%; height: auto; }
+/* The text column sets the row height and the figure fills it: the image
+   takes whatever the caption leaves, scaled to fit. */
+.hero__figure { margin: 0; display: flex; flex-direction: column; }
+.hero__figure > a { flex: 1 1 0; min-height: 0; display: block; }
+.hero__figure img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .hero__figure figcaption { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
-.swatches { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 4px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 2px 12px; }
 .swatches i {
   display: inline-block;
   width: 8px;
@@ -391,6 +387,8 @@ main { padding: 40px 0 64px; }
 @media (max-width: 860px) {
   .hero { grid-template-columns: 1fr; }
   .hero__figure { max-width: 420px; }
+  .hero__figure > a { flex: none; }
+  .hero__figure img { height: auto; }
   .hero-band h1 { font-size: 36px; }
 }
 
