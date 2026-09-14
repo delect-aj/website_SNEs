@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Microbial social niches — ecological embeddings of the human gut</title>
-<meta name="description" content="Ecological embeddings of 14,093 human gut OTUs, with an interactive atlas, trait predictions for uncultured taxa and a research-use dysbiosis score.">
+<title>Microbial social niches — social niche embeddings of the human gut</title>
+<meta name="description" content="Social niche embeddings of 14,093 human gut OTUs, with an interactive atlas, trait predictions for uncultured taxa and a research-use dysbiosis score.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/main.css?v=5">
 </head>
@@ -25,23 +25,43 @@
 <main class="wrap">
 
   <p class="kicker">Resource · Human gut microbiome</p>
-  <h1>Ecological embeddings of the human gut microbiome</h1>
+  <h1>Social niche embeddings of the human gut microbiome</h1>
 
-  <p class="lede mt-16">
-    We represent each of 14,093 SILVA 138.2 OTUs (97% identity) as a
-    100-dimensional ecological embedding, learned from co-occurrence patterns
-    in approximately 210,000 human faecal samples. OTUs with similar
-    co-occurrence patterns have similar embeddings and thus occupy similar
-    ecological niches, independent of their phylogenetic relatedness. This site provides an interactive atlas of the
-    embeddings, trait predictions for uncultured taxa, a research-use
-    dysbiosis score and the underlying data.
-  </p>
+  <div class="hero mt-16">
+    <div>
+      <p class="lede">
+        We represent each of 14,093 SILVA 138.2 OTUs (97% identity) as a
+        100-dimensional social niche embedding, learned from co-occurrence
+        patterns in approximately 210,000 human faecal samples. OTUs with
+        similar co-occurrence patterns have similar embeddings and thus occupy
+        similar social niches, independent of their phylogenetic relatedness.
+        This site provides an interactive atlas of the embeddings, trait
+        predictions for uncultured taxa, a research-use dysbiosis score and
+        the underlying data.
+      </p>
 
-  <div class="figures mt-32">
-    <div><b>14,093</b><span>OTUs embedded</span></div>
-    <div><b>~210,000</b><span>human faecal samples</span></div>
-    <div><b>100</b><span>embedding dimensions</span></div>
-    <div><b>13</b><span>diseases in the reference cohort</span></div>
+      <div class="figures mt-24">
+        <div><b>~210,000</b><span>human faecal samples</span></div>
+        <div><b>14,093</b><span>OTU embeddings</span></div>
+        <div><b>100</b><span>embedding dimensions</span></div>
+        <div><b>13</b><span>diseases in the reference cohort</span></div>
+      </div>
+    </div>
+
+    <figure class="hero__figure">
+      <a href="/atlas/"><img src="/assets/img/umap-phylum.png" width="920" height="800"
+        alt="UMAP projection of the 14,093 social niche embeddings, coloured by phylum"></a>
+      <figcaption>
+        UMAP of the 14,093 social niche embeddings, coloured by phylum.
+        <span class="swatches">
+          <span><i style="background:#0072B2"></i>Bacillota</span>
+          <span><i style="background:#D55E00"></i>Bacteroidota</span>
+          <span><i style="background:#009E73"></i>Pseudomonadota</span>
+          <span><i style="background:#CC79A7"></i>Actinomycetota</span>
+          <span><i style="background:#999999"></i>others</span>
+        </span>
+      </figcaption>
+    </figure>
   </div>
 
   <div class="grid grid--3 mt-32">
