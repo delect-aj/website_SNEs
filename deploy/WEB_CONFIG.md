@@ -19,7 +19,8 @@ Two pieces, and only one of them is a running service.
    ├─ /, /atlas, /dysbiosis, /download, /cite      static files
    ├─ /data/*                                      static files
    └─ /map ──────────────► map service (localhost:8000)
-                           └─ vsearch against data/otu_refseqs.fasta
+                           └─ vsearch against data/otu_refseqs.fasta,
+                              or data/atlas_refseqs.fasta for ?db=atlas
 ```
 
 The split is what makes a 1-core host enough. The browser pays for the neural
@@ -103,12 +104,13 @@ Projector config, so it must match the domain the site is served from.
 web/                        ->  /srv/microbial/site
 data/web/                   ->  /srv/microbial/site/data
 data/server/otu_refseqs.fasta ->  /srv/microbial/data/otu_refseqs.fasta
+data/server/atlas_refseqs.fasta -> /srv/microbial/data/atlas_refseqs.fasta
 server/                     ->  /srv/microbial/server   (for the container build)
 deploy/                     ->  configuration
 ```
 
 `web/` is the document root. `data/web/` sits inside it under `/data/`. The
-reference FASTA deliberately sits outside it — it is 13 MB that no browser
+reference FASTAs deliberately sit outside it — 12 MB and 20 MB that no browser
 ever needs.
 
 ```bash
@@ -163,8 +165,10 @@ sudo systemctl enable --now microbial-map
 curl -s localhost:8000/health | python3 -m json.tool
 ```
 
-Check `/health` says `"database_present": true`. If it does not, the bind
-mount or `OTU_REFSEQS` path is wrong, and `/map` will return 503.
+Check `/health` says `"database_present": true` and
+`"atlas_database_present": true`. If either does not, the bind mount, the
+`OTU_REFSEQS` path, or (for the atlas, which defaults to the same directory)
+`ATLAS_REFSEQS` is wrong, and `/map` will return 503 for that database.
 
 ---
 
@@ -277,7 +281,9 @@ curl -s -o /dev/null -w '%{http_code}\n' \
 Then open the site and walk the golden path by hand:
 
 1. `/atlas` loads, the scatter draws 14,093 points, the colour-by selector
-   changes them, and searching a genus fills the card.
+   changes them, and searching a genus fills the card. Pasting a 16S sequence
+   goes through `/map?db=atlas`: one match opens its card, several equally
+   close OTUs are listed instead.
 2. On a card, "Show the labelled distribution" draws two groups of dots and a
    marker, and a trait with AUC below 0.65 sits folded at the bottom.
 3. `/dysbiosis` → *Run an example sample* → a percentile appears with the
@@ -321,7 +327,7 @@ measured and why the tolerance is set where it is.
 cd website_SNEs
 git pull
 script/check_vendor.sh          # the wasm files are fetched, not committed
-rsync -av --delete web/ server:/srv/microbial/site/
+rsync -av --delete --exclude=/data web/ server:/srv/microbial/site/
 rsync -av --delete data/web/ server:/srv/microbial/site/data/
 sudo systemctl reload nginx     # only needed if the config changed
 ```
@@ -338,11 +344,12 @@ Never point it at `data/server/`.
 
 ### Rebuilding the reference database
 
-Only needed if the vocabulary changes:
+Only needed if the vocabulary or the atlas OTUs change:
 
 ```bash
 .venv-export/bin/python script/web_export/export_assets.py
-rsync -av data/server/otu_refseqs.fasta server:/srv/microbial/data/
+rsync -av data/server/otu_refseqs.fasta data/server/atlas_refseqs.fasta \
+  server:/srv/microbial/data/
 curl -s localhost:8000/health    # on the server
 ```
 

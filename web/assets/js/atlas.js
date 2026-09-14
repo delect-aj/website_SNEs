@@ -22,6 +22,14 @@ const OKABE_ITO = [
 ];
 const MAX_CATEGORIES = 8;
 
+// A pasted 16S read rather than a name: nucleotide letters only, and longer
+// than any genus or OTU id that happens to spell one.
+const NUCLEOTIDES = /^[ACGTUN]{20,}$/i;
+// The mapping service refuses anything shorter, so say it without a request.
+const MIN_READ = 100;
+// `ATLAS_MAX_HITS` in server/app/main.py: a list this long may be truncated.
+const MAX_HITS = 64;
+
 const status = document.getElementById('status');
 const progressBar = document.getElementById('bar');
 const progressText = document.getElementById('progress-text');
@@ -29,10 +37,15 @@ const panel = document.getElementById('panel');
 const legend = document.getElementById('legend');
 const results = document.getElementById('results');
 const searchInput = document.getElementById('search');
+const readsInput = document.getElementById('reads');
 
 let data = null;
 let scatter = null;
 let currentColors = null;
+// Bumped by every search, so a sequence search that answers after the visitor
+// has moved on cannot overwrite what they are looking at now.
+let searchToken = 0;
+let lastRead = '';
 
 function setStatus(title, detail, fraction) {
   status.hidden = false;
@@ -107,7 +120,175 @@ function clearResults() {
   results.replaceChildren();
 }
 
+function showNote(text, className = 'small muted') {
+  clearResults();
+  results.appendChild(element('p', className, text));
+}
+
+function displayName(record) {
+  return record.species || record.genus || record.family || record.id;
+}
+
+function otuButton(record, detail = '') {
+  const button = element('button', 'button--quiet',
+    `${displayName(record)} — ${record.id}${detail}`);
+  button.type = 'button';
+  button.style.display = 'block';
+  button.style.width = '100%';
+  button.style.textAlign = 'left';
+  button.addEventListener('click', () => select(record.i, true));
+  return button;
+}
+
+/** Atlas records for the OTU ids the mapping service returned. */
+function recordsFor(ids) {
+  return (ids || []).map((id) => data.otus[data.byId.get(id)]).filter(Boolean);
+}
+
+/** "3 OTUs, all Bacteroides" -- whether a tie matters for the traits. */
+function describeTie(records) {
+  const genera = new Set(records.map((record) => record.genus || 'unclassified'));
+  const count = records.length >= MAX_HITS ? `${MAX_HITS} or more` : records.length;
+  return genera.size === 1
+    ? `${count} OTUs, all ${[...genera][0]}`
+    : `${count} OTUs across ${genera.size} genera`;
+}
+
+/**
+ * Send reads to the mapping service's atlas database.
+ *
+ * @param {File} file - FASTA.
+ * @returns {Promise<{hits: Object<string, string[]>,
+ *   identity: Object<string, number>, mapped: number, total: number}>}
+ * @throws {Error} With the service's own explanation when it has one.
+ */
+async function mapReads(file) {
+  const body = new FormData();
+  body.append('rep_seqs', file);
+  let response;
+  try {
+    response = await fetch('/map?db=atlas', { method: 'POST', body });
+  } catch {
+    throw new Error('The sequence search service could not be reached.');
+  }
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(typeof payload.detail === 'string' ? payload.detail
+      : `The sequence search service answered ${response.status}.`);
+  }
+  return payload;
+}
+
+/** One pasted read: open its OTU, or list the OTUs it cannot tell apart. */
+async function searchRead(read, token) {
+  lastRead = read;
+  if (read.length < MIN_READ) {
+    lastRead = '';
+    showNote(`That looks like a sequence of ${read.length} bases. At least `
+      + `${MIN_READ} are needed to place it at 97% identity.`);
+    return;
+  }
+
+  showNote('Searching 14,093 reference sequences…');
+  let payload;
+  try {
+    payload = await mapReads(new File([`>read\n${read}\n`], 'read.fasta'));
+  } catch (error) {
+    if (token !== searchToken) return;
+    lastRead = '';
+    showNote(error.message);
+    return;
+  }
+  if (token !== searchToken) return;
+
+  const records = recordsFor(payload.hits.read);
+  if (!records.length) {
+    showNote('No atlas OTU is within 97% identity of this sequence. The atlas '
+      + 'holds human gut OTUs from SILVA 138.2 only.');
+    return;
+  }
+  const identity = payload.identity.read.toFixed(1);
+  if (records.length === 1) {
+    showNote(`The closest atlas OTU, ${identity}% identical:`);
+    results.appendChild(otuButton(records[0]));
+    select(records[0].i, true);
+    return;
+  }
+  // Not opened: picking the first of equals would present one of them as the
+  // answer, and their trait cards need not agree.
+  showNote(`${describeTie(records)} are equally close, ${identity}% identical. `
+    + 'A read this short cannot tell them apart; pick one to see its card.');
+  const list = element('div');
+  list.style.maxHeight = '320px';
+  list.style.overflowY = 'auto';
+  for (const record of records) list.appendChild(otuButton(record));
+  results.appendChild(list);
+}
+
+/** One row of a FASTA upload's result list. */
+function readRow(name, records, identity) {
+  const row = element('div');
+  row.style.padding = '8px 0';
+  row.style.borderTop = '1px solid var(--line)';
+  const label = element('div', 'small mono', name || '(unnamed)');
+  label.style.overflowWrap = 'anywhere';
+  row.appendChild(label);
+
+  if (!records.length) {
+    row.appendChild(element('div', 'small muted', 'no atlas OTU within 97% identity'));
+  } else if (records.length === 1) {
+    row.appendChild(otuButton(records[0], ` · ${identity.toFixed(1)}%`));
+  } else {
+    const details = element('details');
+    details.style.padding = '4px 0 0';
+    details.style.borderTop = '0';
+    details.appendChild(element('summary', 'small',
+      `${describeTie(records)}, equally close · ${identity.toFixed(1)}%`));
+    for (const record of records) details.appendChild(otuButton(record));
+    row.appendChild(details);
+  }
+  return row;
+}
+
+async function searchFasta(file) {
+  const token = ++searchToken;
+  lastRead = '';
+  showNote(`Searching ${file.name} against 14,093 reference sequences…`);
+  // The service answers by header, and leaves out the reads it could not
+  // place; the headers are read here so those rows can still be listed.
+  const names = (await file.text()).split('\n')
+    .filter((line) => line.startsWith('>'))
+    .map((line) => line.slice(1).trim().split(/\s+/)[0]);
+
+  let payload;
+  try {
+    payload = await mapReads(file);
+  } catch (error) {
+    if (token === searchToken) showNote(error.message);
+    return;
+  }
+  if (token !== searchToken) return;
+
+  showNote(`${payload.mapped} of ${payload.total} sequences matched an atlas `
+    + 'OTU at 97% identity or better.', 'small');
+  const list = element('div');
+  list.style.maxHeight = '420px';
+  list.style.overflowY = 'auto';
+  for (const name of names) {
+    list.appendChild(readRow(name, recordsFor(payload.hits[name]),
+      payload.identity[name]));
+  }
+  results.appendChild(list);
+}
+
 function runSearch(query) {
+  const read = query.replace(/\s+/g, '');
+  if (NUCLEOTIDES.test(read)) {
+    if (read !== lastRead) searchRead(read, ++searchToken);
+    return;
+  }
+  searchToken += 1;
+  lastRead = '';
   clearResults();
   const needle = query.trim().toLowerCase();
   if (needle.length < 2) return;
@@ -128,18 +309,7 @@ function runSearch(query) {
     return;
   }
 
-  for (const record of matches) {
-    const button = element('button');
-    button.type = 'button';
-    button.className = 'button--quiet';
-    button.style.display = 'block';
-    button.style.width = '100%';
-    button.style.textAlign = 'left';
-    const name = record.species || record.genus || record.family || record.id;
-    button.textContent = `${name} — ${record.id}`;
-    button.addEventListener('click', () => select(record.i, true));
-    results.appendChild(button);
-  }
+  for (const record of matches) results.appendChild(otuButton(record));
 }
 
 async function load() {
@@ -174,6 +344,7 @@ async function load() {
   data = {
     meta,
     otus,
+    byId: new Map(otus.map((record) => [record.id, record.i])),
     traits,
     // Every table on the wire that is not a raw index is float16: three
     // significant digits is more than a bar chart, a percentile or a cosine
@@ -219,7 +390,16 @@ async function load() {
   let timer = null;
   searchInput.addEventListener('input', () => {
     clearTimeout(timer);
-    timer = setTimeout(() => runSearch(searchInput.value), 120);
+    // A sequence search spends one of ten requests a minute, so it waits for
+    // the paste or the typing to settle; a name search is free.
+    const read = NUCLEOTIDES.test(searchInput.value.replace(/\s+/g, ''));
+    timer = setTimeout(() => runSearch(searchInput.value), read ? 600 : 120);
+  });
+
+  readsInput.addEventListener('change', () => {
+    const file = readsInput.files[0];
+    readsInput.value = '';          // so choosing the same file again reruns it
+    if (file) searchFasta(file);
   });
 
   status.hidden = true;

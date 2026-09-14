@@ -24,6 +24,7 @@ Group=microbial
 WorkingDirectory=/srv/microbial/server
 
 Environment=OTU_REFSEQS=/srv/microbial/data/otu_refseqs.fasta
+Environment=ATLAS_REFSEQS=/srv/microbial/data/atlas_refseqs.fasta
 Environment=VSEARCH_BINARY=/usr/local/bin/vsearch
 Environment=PYTHONUNBUFFERED=1
 
