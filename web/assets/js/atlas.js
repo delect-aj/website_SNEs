@@ -112,6 +112,13 @@ function select(index, focus) {
   scatter.setSelected(index);
   renderCard(panel, index, data);
   if (focus) scatter.focus(index);
+  // The card sits under the map. If its top is off screen, scroll just far
+  // enough to show its heading, so a click visibly did something while most
+  // of the map stays in view.
+  const top = panel.getBoundingClientRect().top;
+  if (top > window.innerHeight - 160) {
+    window.scrollBy({ top: top - window.innerHeight + 240, behavior: 'smooth' });
+  }
   const summary = cardSummary(index, data);
   history.replaceState(null, '', `?otu=${encodeURIComponent(summary.id)}`);
 }

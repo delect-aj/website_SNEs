@@ -46,6 +46,9 @@ function taxonName(record) {
  * weakens the point the pair is making, so the only difference is the heading
  * and a background tint on rows present in both.
  */
+// Rows shown before "Show all"; the overlap count still covers all K.
+const NEIGHBOURS_SHOWN = 15;
+
 function renderNeighbours(container, index, data) {
   const wrapper = element('div', 'neighbours');
   const lists = [
@@ -64,7 +67,8 @@ function renderNeighbours(container, index, data) {
       const neighbour = list.idx[start + k];
       const record = data.otus[neighbour];
       const row = element('li');
-      if (list.other.has(neighbour)) row.className = 'overlap';
+      if (list.other.has(neighbour)) row.classList.add('overlap');
+      if (k >= NEIGHBOURS_SHOWN) row.classList.add('more');
       const name = element('span', 'taxon', taxonName(record));
       name.title = record.id;
       row.appendChild(name);
@@ -85,6 +89,14 @@ function renderNeighbours(container, index, data) {
   note.textContent = `${overlap} of ${data.k} ecological neighbours are also `
     + `phylogenetic neighbours. Shaded rows appear in both lists.`;
   wrapper.appendChild(note);
+
+  const toggle = element('button', 'link small', `Show all ${data.k} neighbours`);
+  toggle.type = 'button';
+  toggle.addEventListener('click', () => {
+    const expanded = wrapper.classList.toggle('is-expanded');
+    toggle.textContent = expanded ? `Show top ${NEIGHBOURS_SHOWN}` : `Show all ${data.k} neighbours`;
+  });
+  wrapper.appendChild(toggle);
 
   container.replaceChildren(wrapper);
 }
@@ -298,7 +310,10 @@ export function renderCard(container, index, data) {
   const fragment = document.createDocumentFragment();
 
   const title = element('div', 'card__title');
-  title.appendChild(element('h2', 'otu-id', record.id));
+  const heading = element('div');
+  heading.appendChild(element('h2', 'card__taxon', taxonName(record)));
+  heading.appendChild(element('div', 'otu-id', record.id));
+  title.appendChild(heading);
   if (!record.genome_linked) {
     title.appendChild(element('span', 'badge', 'no reference genome'));
   }
@@ -317,20 +332,26 @@ export function renderCard(container, index, data) {
     : 'Uncultured: no representative genome is available, so all trait values below are predicted from the embedding.';
   fragment.appendChild(provenance);
 
-  const neighbourBlock = element('div');
-  neighbourBlock.style.marginBottom = '20px';
-  renderNeighbours(neighbourBlock, index, data);
-  fragment.appendChild(neighbourBlock);
+  // Neighbours and traits side by side when the card is wide enough.
+  const body = element('div', 'card-body');
+  fragment.appendChild(body);
 
-  const heading = element('h3', null, 'Ecological traits');
-  heading.style.marginBottom = '4px';
-  fragment.appendChild(heading);
+  const neighbourBlock = element('div');
+  renderNeighbours(neighbourBlock, index, data);
+  body.appendChild(neighbourBlock);
+
+  const traitBlock = element('div');
+  body.appendChild(traitBlock);
+
+  const traitHeading = element('h3', null, 'Ecological traits');
+  traitHeading.style.marginBottom = '4px';
+  traitBlock.appendChild(traitHeading);
 
   const caveat = element('p', 'small muted');
   caveat.textContent = 'Predicted from co-occurrence data, not measured. The values '
     + 'describe the ecological role of a taxon in the gut community, which may '
     + 'differ from its physiology in pure culture.';
-  fragment.appendChild(caveat);
+  traitBlock.appendChild(caveat);
 
   const shown = [];
   const hidden = [];
@@ -340,7 +361,7 @@ export function renderCard(container, index, data) {
   }
 
   for (const trait of shown) {
-    fragment.appendChild(renderTrait(trait, record, data, thresholds));
+    traitBlock.appendChild(renderTrait(trait, record, data, thresholds));
   }
 
   if (hidden.length) {
@@ -349,13 +370,13 @@ export function renderCard(container, index, data) {
       `${hidden.length} traits with cross-validated AUC < `
       + `${thresholds.hidden_below} (hidden by default)`);
     details.appendChild(summary);
-    const body = element('div');
-    body.style.marginTop = '12px';
+    const hiddenBody = element('div');
+    hiddenBody.style.marginTop = '12px';
     for (const trait of hidden) {
-      body.appendChild(renderTrait(trait, record, data, thresholds));
+      hiddenBody.appendChild(renderTrait(trait, record, data, thresholds));
     }
-    details.appendChild(body);
-    fragment.appendChild(details);
+    details.appendChild(hiddenBody);
+    traitBlock.appendChild(details);
   }
 
   container.replaceChildren(fragment);

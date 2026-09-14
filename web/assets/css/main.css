@@ -87,7 +87,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 32px 0; }
   padding-inline: 24px;
 }
 
-.wrap--wide { max-width: none; padding-inline: 24px; }
 
 main { padding: 40px 0 64px; }
 
@@ -341,7 +340,7 @@ details > summary::marker { color: var(--ink-3); }
   background: var(--surface);
   flex: none;
 }
-.bar__fill { height: 100%; background: var(--accent); }
+.bar__fill { display: block; height: 100%; background: var(--accent); }
 
 /* Confidence is a glyph plus fill density, never a colour of its own. All
    three steps keep text at 4.5:1 or better: --ink-3 is for disabled and
@@ -367,20 +366,15 @@ details > summary::marker { color: var(--ink-3); }
 
 /* Scatter (well) ---------------------------------------------------------- */
 
-.atlas {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 400px;
-  gap: 0;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--surface);
-}
-
+/* The map and, below it, the card: both in the content column, so the page
+   has one left and one right edge. */
 .well {
   position: relative;
   background: var(--well);
-  min-height: 560px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: min(620px, 70vh);
+  min-height: 420px;
 }
 /* The canvas has to be told to fill the well. Without this it lays out at its
    intrinsic 300x150 default, and the scatter draws into a letterbox in the
@@ -434,22 +428,17 @@ details > summary::marker { color: var(--ink-3); }
   flex: none;
 }
 
-.card-panel {
-  border-left: 1px solid var(--line);
-  overflow-y: auto;
-  max-height: 80vh;
-  padding: 20px;
-  background: var(--surface);
-}
+.card-panel { padding: 24px; }
 
-@media (max-width: 1024px) {
-  .atlas { grid-template-columns: 1fr; }
-  .card-panel {
-    border-left: 0;
-    border-top: 1px solid var(--line);
-    max-height: none;
-  }
-  .well { min-height: 420px; }
+/* On a wide screen the card puts neighbours and traits side by side. */
+.card-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 24px 40px;
+  align-items: start;
+}
+@media (max-width: 520px) {
+  .card-body { grid-template-columns: 1fr; }
 }
 
 /* Neighbour columns ------------------------------------------------------- */
@@ -467,6 +456,15 @@ details > summary::marker { color: var(--ink-3); }
 }
 .neighbours li:last-child { border-bottom: 0; }
 .neighbours .overlap { background: var(--accent-bg); }
+.neighbours:not(.is-expanded) li.more { display: none; }
+.neighbours > .link { grid-column: 1 / -1; justify-self: start; font-size: 13px; }
+.neighbours > p { grid-column: 1 / -1; margin-bottom: 0; }
+
+.card__taxon { font-style: italic; }
+
+/* The per-trait fold-out is secondary: a small link, no rule of its own. */
+.trait details { border-top: 0; padding: 4px 0 0; }
+.trait details > summary { font-size: 13px; font-weight: 400; color: var(--accent); }
 
 .taxon { color: var(--ink-2); font-style: italic; }
 .otu-id { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
