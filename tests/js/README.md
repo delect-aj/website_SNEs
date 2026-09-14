@@ -38,6 +38,21 @@ vocabulary lookup is responsible. The fixture therefore records the raw counts
 that go in and the token, abundance and mask arrays that come out, so a failure
 says which step drifted.
 
+## What is in the fixture
+
+Thirty samples picked across ten reference-cohort folds, and the six one-click
+examples from `data/web/`. The examples are the ones this is really for: they
+are what a visitor can run without having a file of their own, they exercise
+`examples.json` and `examples/*.json` as the page reads them, and the
+`expected_logit` those files carry is not checked anywhere else.
+
+That field is a float32-era number — `export_dysbiosis.py` scores the examples
+against the unquantised embedding table, while the page gathers from the
+float16 blob — so the fixture recomputes each example's expectation through the
+same float16 table both sides of this test read. The two agree to the
+quantisation error, about 1e-3, and it is the fixture's number the test holds
+the browser to.
+
 ## What is asserted, and how
 
 For a sample that fits within `numSteps`, every check is exact or near-exact,
