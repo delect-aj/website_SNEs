@@ -727,19 +727,28 @@ td.num, th.num { text-align: right; font-family: var(--mono); }
 }
 
 .attn-list { list-style: none; margin: 0; padding: 0; }
+/* Three columns: taxon and lineage, then the two numbers in fixed columns so
+   they line up down the list however long a lineage runs. */
 .attn-list li {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px 200px;
   align-items: baseline;
-  gap: 10px;
+  gap: 4px 16px;
   padding: 6px 0;
   border-bottom: 1px solid var(--line);
 }
+@media (max-width: 720px) {
+  .attn-list li { grid-template-columns: 1fr auto; }
+  .attn-list__taxon { grid-column: 1 / -1; }
+}
 .attn-list li:last-child { border-bottom: 0; }
+.attn-list__taxon { min-width: 0; }
+.attn-list__taxon .lineage { line-height: 1.4; }
 .attn-list .weight {
   font-family: var(--mono);
   font-size: 12px;
   color: var(--ink-2);
-  margin-left: auto;
+  text-align: right;
 }
 
 .disclaimer {

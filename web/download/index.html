@@ -39,8 +39,8 @@
 
   <p class="lede mt-12">
     Data files used by this site: the sample-level metadata of the reference
-    cohort, the social niche embedding matrix, the dysbiosis classifier, the
-    trait probabilities and the reference cohort scores.
+    cohort, the social niche embedding matrix, the trait probabilities and the
+    reference cohort scores.
   </p>
 
   <section class="mt-32" id="files">
@@ -155,15 +155,12 @@
 
 <script type="module">
 // Only the files named here are listed, in this order: the ones File
-// descriptions explains, plus vocab.json and traits.json, which those
-// descriptions say are needed to read the classifier and the trait block.
+// descriptions explains, plus traits.json, which the trait block's description
+// says is needed to read it.
 const DESCRIPTIONS = {
   "download/disease_sample_metadata.tsv":
     "Sample-level metadata for the 13-disease reference cohort (10,276 samples)",
   "download/sne_vectors.txt.gz": "Embedding matrix, 14,093 × 100 (GloVe text format)",
-  "dysbiosis_encoder.onnx": "13-fold ensemble classifier (ONNX)",
-  "dysbiosis_embed.f16.bin": "Frozen embedding table used by the classifier (float16)",
-  "vocab.json": "Mapping from OTU identifier to model index",
   "traits_proba.f16.bin": "Random forest probabilities for labelled OTUs (float16)",
   "traits.json": "Trait metadata: class order, offsets and AUCs",
   "ref_scores.json": "Model scores of the 10,276 reference samples (controls and cases)",

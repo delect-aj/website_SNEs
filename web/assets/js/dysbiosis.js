@@ -135,6 +135,9 @@ async function ensureModel() {
   state.embedding = halfToFloat(new Uint16Array(embeddingBuffer));
   state.gather = makeGather(state.embedding, state.vocab.d_model);
 
+  // Lineages for the contributing taxa, keyed by OTU id.
+  state.taxonomy = await (await fetch(`${DATA}/taxonomy.json`, { cache: 'no-cache' })).json();
+
   status('Loading model…', 0);
   const modelBuffer = await fetchWithProgress(`${DATA}/dysbiosis_encoder.onnx`,
     (loaded, size) => status('Loading model…', loaded / size));
@@ -299,17 +302,23 @@ function renderResult(scored) {
     // topContributors only returns positions the mask kept, so this is always
     // a real vocabulary index and the id is always present.
     const id = state.vocab.ids[contributor.index - 2];
+    const taxon = element('div', 'attn-list__taxon');
     if (id) {
       const link = element('a');
       link.href = `/atlas/?otu=${encodeURIComponent(id)}`;
       link.textContent = id;
       link.className = 'mono';
-      item.appendChild(link);
+      taxon.appendChild(link);
+      const lineage = state.taxonomy[id];
+      taxon.appendChild(element('div', 'lineage small muted', lineage
+        ? lineage.split(';').filter(Boolean).join(' › ')
+        : 'taxonomy not available in SILVA 138.2'));
     } else {
-      item.appendChild(element('span', 'mono muted',
+      taxon.appendChild(element('span', 'mono muted',
         `vocabulary index ${contributor.index}`));
     }
-    item.appendChild(document.createTextNode(
+    item.appendChild(taxon);
+    item.appendChild(element('span', 'attn-list__abundance',
       `percentile abundance ${contributor.abundance.toFixed(2)}`));
     const weight = element('span', 'weight');
     weight.textContent = `attention weight ${contributor.weight.toFixed(4)}`;
