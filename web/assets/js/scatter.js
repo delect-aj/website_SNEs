@@ -281,21 +281,31 @@ export class Scatter {
       if (index !== this.hovered) {
         this.hovered = index;
         canvas.style.cursor = index >= 0 ? 'pointer' : 'grab';
-        this.onHover(index);
       }
+      this.onHover(index, event);
     });
 
-    canvas.addEventListener('pointerup', (event) => {
+    const release = (event) => {
       dragging = false;
-      canvas.releasePointerCapture(event.pointerId);
-      if (moved) return;
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+    };
+    canvas.addEventListener('pointerup', release);
+    canvas.addEventListener('pointercancel', release);
+
+    // Selection rides on the browser's own click, which every mouse, trackpad
+    // and touch screen produces, rather than on pointerup, which some of them
+    // replace with a cancel. A click that ended a drag is ignored.
+    canvas.addEventListener('click', (event) => {
+      if (Math.hypot(event.clientX - start.x, event.clientY - start.y) >= 6) return;
       const index = this._nearest(event);
       if (index >= 0) this.onSelect(index);
     });
 
     canvas.addEventListener('pointerleave', () => {
       this.hovered = -1;
-      this.onHover(-1);
+      this.onHover(-1, null);
     });
 
     canvas.addEventListener('wheel', (event) => {

@@ -239,7 +239,8 @@ function renderTrait(trait, record, data, thresholds) {
   const measurement = (data.bacdive[record.id] || {})[trait];
   const curated = measurement !== undefined;
   const labelled = entry.source === 'Traitar';
-  const row = element('div', curated ? 'trait trait--measured' : 'trait');
+  // Solid rule for a database value, dashed for a prediction.
+  const row = element('div', curated || labelled ? 'trait trait--measured' : 'trait');
 
   const head = element('div', 'trait__head');
   head.appendChild(element('span', 'trait__name', meta.label));
@@ -255,47 +256,27 @@ function renderTrait(trait, record, data, thresholds) {
   head.appendChild(value);
   row.appendChild(head);
 
-  if (curated) {
-    const note = element('p', 'small muted');
-    note.style.margin = '4px 0 0';
-    note.textContent = 'Experimentally measured value from BacDive; shown in '
-      + 'place of the prediction.';
-    row.appendChild(note);
-    const details = bandDetails(trait, record, data);
-    if (details) row.appendChild(details);
-    return row;
-  }
+  // A value a database supplies -- a BacDive measurement or a Traitar genome
+  // annotation -- is shown as that and nothing more: no probability, AUC or
+  // distribution, all of which describe the SNE predictor, not the database.
+  if (curated || labelled) return row;
 
   const line = element('div', 'trait__row');
   const probability = probabilityFor(trait, record, data);
 
-  if (labelled) {
-    // The value is a genome prediction, so there is no probability of *this
-    // OTU* to show. What the row can carry is the trait's own discrimination:
-    // how well anyone can call this trait from the embedding. Showing the
-    // trait-wide AUC keeps the row informative without dressing a label up as
-    // an inference, and the band below still places the OTU among the
-    // labelled members of each class.
-    const level = confidence(meta.auc, thresholds);
-    line.appendChild(element('span', `conf conf--${level.level}`,
-      `${level.glyph} ${level.label}`));
-    line.appendChild(element('span', 'trait__auc',
-      `trait-level leave-one-phylum-out AUC ${meta.auc.toFixed(2)}`));
-  } else {
-    if (Number.isFinite(probability)) {
-      const bar = element('span', 'bar');
-      const fill = element('span', 'bar__fill');
-      fill.style.width = `${Math.round(probability * 100)}%`;
-      bar.appendChild(fill);
-      line.appendChild(bar);
-      line.appendChild(element('span', 'num', probability.toFixed(2)));
-    }
-    const level = confidence(entry.auc, thresholds);
-    line.appendChild(element('span', `conf conf--${level.level}`,
-      `${level.glyph} ${level.label}`));
-    line.appendChild(element('span', 'trait__auc',
-      `leave-one-phylum-out AUC ${Number.isFinite(entry.auc) ? entry.auc.toFixed(2) : '—'}`));
+  if (Number.isFinite(probability)) {
+    const bar = element('span', 'bar');
+    const fill = element('span', 'bar__fill');
+    fill.style.width = `${Math.round(probability * 100)}%`;
+    bar.appendChild(fill);
+    line.appendChild(bar);
+    line.appendChild(element('span', 'num', probability.toFixed(2)));
   }
+  const level = confidence(entry.auc, thresholds);
+  line.appendChild(element('span', `conf conf--${level.level}`,
+    `${level.glyph} ${level.label}`));
+  line.appendChild(element('span', 'trait__auc',
+    `leave-one-phylum-out AUC ${Number.isFinite(entry.auc) ? entry.auc.toFixed(2) : '—'}`));
   row.appendChild(line);
 
   const details = bandDetails(trait, record, data);
@@ -332,7 +313,7 @@ export function renderCard(container, index, data) {
   lineageNode.textContent = lineage.join(' › ');
   fragment.appendChild(lineageNode);
 
-  const provenance = element('p', 'small muted');
+  const provenance = element('p', 'small provenance');
   provenance.style.margin = '0 0 16px';
   provenance.textContent = record.genome_linked
     ? 'Linked to a representative genome; trait values below are genome-based annotations.'
@@ -354,17 +335,23 @@ export function renderCard(container, index, data) {
   traitHeading.style.marginBottom = '4px';
   traitBlock.appendChild(traitHeading);
 
-  const caveat = element('p', 'small muted');
-  caveat.textContent = 'Predicted from co-occurrence data, not measured. The values '
-    + 'describe the ecological role of a taxon in the gut community, which may '
-    + 'differ from its physiology in pure culture.';
-  traitBlock.appendChild(caveat);
-
+  // A trait is withheld for weak prediction, which says nothing about a value
+  // a database supplies: annotated traits are always listed.
+  const annotated = (trait) => record.traits[trait].source === 'Traitar'
+    || (data.bacdive[record.id] || {})[trait] !== undefined;
   const shown = [];
   const hidden = [];
   for (const trait of data.traits.order) {
-    if (data.traits.traits[trait].displayed) shown.push(trait);
+    if (data.traits.traits[trait].displayed || annotated(trait)) shown.push(trait);
     else hidden.push(trait);
+  }
+
+  if (data.traits.order.some((trait) => !annotated(trait))) {
+    const caveat = element('p', 'small muted');
+    caveat.textContent = 'Predicted from SNEs, not measured. The values '
+      + 'describe the ecological role of a taxon in the gut community, which may '
+      + 'differ from its physiology in pure culture.';
+    traitBlock.appendChild(caveat);
   }
 
   for (const trait of shown) {
