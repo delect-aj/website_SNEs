@@ -19,7 +19,7 @@ deploy/               nginx, Docker, systemd, and WEB_CONFIG.md
 
 | Page | What it does |
 |---|---|
-| `/atlas` | 14,093 gut OTUs on a map, searched by taxon. Each card shows the ecological neighbours and the phylogenetic ones side by side, then the inferred traits with the cross-validated AUC each one earned |
+| `/atlas` | 14,093 gut OTUs on a map, searched by taxon, OTU id, or a 16S sequence (one pasted, or a FASTA of many). Each card shows the ecological neighbours and the phylogenetic ones side by side, then the inferred traits with the cross-validated AUC each one earned |
 | `/dysbiosis` | Scores one faecal sample against a reference cohort of 10,276, in the visitor's browser. Three inputs: a ready-made example, an OTU table, or rep-seqs plus counts |
 | `/download` | The vectors, the model, the trait tables, and a link that opens the TensorFlow Embedding Projector with this data loaded |
 | `/cite` | Citation, version, and the numbers you are allowed to quote |
@@ -40,7 +40,8 @@ deploy/               nginx, Docker, systemd, and WEB_CONFIG.md
   ├─ /, /atlas, /dysbiosis, …    static files from site/
   ├─ /data/*                     static files from site/data/
   └─ /map ───────────► map service on 127.0.0.1:8000
-                       └─ vsearch against data/otu_refseqs.fasta
+                       └─ vsearch against data/otu_refseqs.fasta (dysbiosis)
+                          or data/atlas_refseqs.fasta (atlas search)
 ```
 
 Only one process runs. The classifier is not on the server: it ships to the
@@ -106,21 +107,27 @@ The layout the configuration expects:
 ├── site/                       <- web/            (nginx document root)
 │   └── data/                   <- data/web/
 ├── data/
-│   └── otu_refseqs.fasta       <- data/server/    (deliberately outside site/)
+│   ├── otu_refseqs.fasta       <- data/server/    (deliberately outside site/)
+│   └── atlas_refseqs.fasta     <- data/server/
 ├── server/                     <- server/
 └── deploy/                     <- deploy/
 ```
 
-The reference FASTA is 12 MB that no browser ever requests, so it stays out of
-the document root.
+The two reference FASTAs, 12 MB and 20 MB, are files no browser ever requests,
+so they stay out of the document root.
 
 ```bash
 ssh you@server 'sudo mkdir -p /srv/microbial && sudo chown $USER /srv/microbial'
-rsync -av --delete web/                    you@server:/srv/microbial/site/
+rsync -av --delete --exclude=/data web/    you@server:/srv/microbial/site/
 rsync -av --delete data/web/               you@server:/srv/microbial/site/data/
 rsync -av --delete data/server/            you@server:/srv/microbial/data/
-rsync -av --delete server/ deploy/         you@server:/srv/microbial/
+rsync -av --delete server/                 you@server:/srv/microbial/server/
+rsync -av --delete deploy/                 you@server:/srv/microbial/deploy/
 ```
+
+One source per command: with a trailing slash rsync copies a directory's
+contents, so `server/ deploy/ …:/srv/microbial/` would spill both into the top
+level and `--delete` would then remove `site/` and `data/`.
 
 Both `--delete` targets are build output, which is what makes re-deploying
 idempotent. Never point one at a directory holding anything else.
@@ -166,8 +173,8 @@ Either way, confirm the service can see its database before going further:
 
 ```bash
 curl -s localhost:8000/health
-# expect "database_present": true — if not, the path or the bind mount is wrong
-# and /map will answer 503
+# expect "database_present": true and "atlas_database_present": true — if not,
+# the path or the bind mount is wrong and /map will answer 503
 ```
 
 ### Step 4 — nginx and TLS
@@ -270,7 +277,8 @@ curl -s -o /dev/null -w '%{http_code}\n' -F "rep_seqs=@/tmp/bad.txt" \
 Then walk the golden path by hand:
 
 1. `/atlas` draws 14,093 points; the colour-by selector changes them; searching
-   a genus fills the card beside the map.
+   a genus fills the card beside the map; pasting a line of a reference
+   sequence from `atlas_refseqs.fasta` (300 bases or so) opens that OTU's card.
 2. On a card, "Show the labelled distribution" draws two groups of dots and a
    marker, and a trait with AUC below 0.65 sits folded at the bottom.
 3. `/dysbiosis` → *Run an example sample* → a percentile appears with the
@@ -284,10 +292,12 @@ Then walk the golden path by hand:
 ```bash
 git pull
 script/check_vendor.sh           # after a pull: the wasm files are not in git
-rsync -av --delete web/          server:/srv/microbial/site/
+rsync -av --delete --exclude=/data web/  server:/srv/microbial/site/
 rsync -av --delete data/web/     server:/srv/microbial/site/data/
-# only when the model or the vocabulary changed:
+# only when the model, the vocabulary or the atlas changed:
 rsync -av --delete data/server/  server:/srv/microbial/data/
+# only when server/ changed; then restart the service (or rebuild the container):
+rsync -av --delete server/       server:/srv/microbial/server/
 ```
 
 `ort.min.js` is committed but the two `.wasm` files beside it are not, so a

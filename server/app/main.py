@@ -23,6 +23,7 @@ import threading
 import time
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
+from typing import Literal
 
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,6 +55,26 @@ DATABASE = os.environ.get(
     "OTU_REFSEQS",
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "data",
                  "otu_refseqs.fasta"))
+# The atlas searches every OTU on the map, not just the model's vocabulary:
+# 14,093 sequences against the 8,850 above. Mapping an ASV for the dysbiosis
+# score against this one would hand the model ids it has no embedding for, so
+# the two stay separate and the caller picks. It sits beside the model's
+# database unless told otherwise, so a deployment that sets only OTU_REFSEQS
+# finds it without a second variable.
+ATLAS_DATABASE = os.environ.get(
+    "ATLAS_REFSEQS",
+    os.path.join(os.path.dirname(DATABASE), "atlas_refseqs.fasta"))
+DATABASES = {"model": DATABASE, "atlas": ATLAS_DATABASE}
+
+# How many equally close references one query may report. The model takes one
+# id per ASV, so its database keeps vsearch's first accepted hit. The atlas is
+# answering "which OTU is this", and a 250-base V4 read is identical to more
+# than one full-length 97% OTU a third of the time; returning only the first
+# would name one of them as if it were the answer. Every hit at the top
+# identity is reported instead, up to this cap. Measured on 479 V4 fragments of
+# atlas sequences: the true source is among the hits for 473 (65% with one
+# hit), at about 12 ms a query; exhaustive search finds all 479 at 1.2 s each.
+ATLAS_MAX_HITS = 64
 VSEARCH = os.environ.get("VSEARCH_BINARY", "vsearch")
 
 
@@ -66,8 +87,9 @@ async def lifespan(_: FastAPI):
     uploads something.
     """
     print(f"[map] vsearch: {shutil.which(VSEARCH) or 'NOT FOUND'}")
-    print(f"[map] database: {DATABASE} "
-          f"({'present' if os.path.exists(DATABASE) else 'MISSING'})")
+    for name, path in DATABASES.items():
+        print(f"[map] {name} database: {path} "
+              f"({'present' if os.path.exists(path) else 'MISSING'})")
     yield
 
 
@@ -211,8 +233,11 @@ def parse_fasta(text):
     return records
 
 
-def run_vsearch(query_path, database):
-    """Run vsearch and return ``{query_id: subject_id}``.
+def run_vsearch(query_path, database, max_hits=1):
+    """Run vsearch and return ``{query_id: ([subject_id, ...], percent_identity)}``.
+
+    With ``max_hits`` above one, every subject tied at the best identity is
+    listed, in the order vsearch reports them.
 
     Raises
     ------
@@ -227,8 +252,10 @@ def run_vsearch(query_path, database):
 
     command = [VSEARCH, "--usearch_global", query_path,
                "--db", database, "--id", IDENTITY,
-               "--maxaccepts", "1", "--maxhits", "1",
+               "--maxaccepts", str(max_hits), "--maxhits", str(max_hits),
                "--threads", "1", "--blast6out", "-"]
+    if max_hits > 1:
+        command[-2:-2] = ["--maxrejects", str(max_hits), "--top_hits_only"]
 
     try:
         completed = subprocess.run(
@@ -249,8 +276,9 @@ def run_vsearch(query_path, database):
     mapping = {}
     for line in completed.stdout.splitlines():
         fields = line.split("\t")
-        if len(fields) >= 2:
-            mapping[fields[0]] = fields[1]
+        if len(fields) >= 3:
+            subjects, _ = mapping.setdefault(fields[0], ([], float(fields[2])))
+            subjects.append(fields[1])
     return mapping
 
 
@@ -267,6 +295,8 @@ async def health():
         "status": "ok" if installed else "degraded",
         "database": DATABASE,
         "database_present": installed,
+        "atlas_database": ATLAS_DATABASE,
+        "atlas_database_present": os.path.exists(ATLAS_DATABASE),
         "identity": IDENTITY,
         "limits": {"max_bytes": MAX_BYTES, "max_sequences": MAX_SEQUENCES,
                    "requests_per_minute": RATE_MAX_REQUESTS},
@@ -275,8 +305,12 @@ async def health():
 
 @app.post("/map")
 def map_sequences(request: Request,
-                  rep_seqs: UploadFile = File(...)):
+                  rep_seqs: UploadFile = File(...),
+                  db: Literal["model", "atlas"] = "model"):
     """Map rep-seqs headers to reference OTU ids at 97% identity.
+
+    ``db=model`` (the default) searches the dysbiosis model's vocabulary;
+    ``db=atlas`` searches every OTU in the atlas.
 
     Sync on purpose: reading the upload and running vsearch are both blocking,
     and a `def` endpoint is run in the threadpool, so a slow alignment does not
@@ -298,13 +332,16 @@ def map_sequences(request: Request,
             for name, sequence in records:
                 temporary.write(f">{name}\n{sequence}\n")
         with _vsearch_lock:
-            mapping = run_vsearch(path, DATABASE)
+            hits = run_vsearch(path, DATABASES[db],
+                               ATLAS_MAX_HITS if db == "atlas" else 1)
     finally:
         # Removed whether or not vsearch succeeded; nothing is kept.
         os.unlink(path)
 
     return JSONResponse({
-        "mapping": mapping,
-        "mapped": len(mapping),
+        "mapping": {query: otus[0] for query, (otus, _) in hits.items()},
+        "hits": {query: otus for query, (otus, _) in hits.items()},
+        "identity": {query: identity for query, (_, identity) in hits.items()},
+        "mapped": len(hits),
         "total": len(records),
     })

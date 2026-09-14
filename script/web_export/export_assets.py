@@ -133,8 +133,9 @@ def digest(path):
     return sha.hexdigest()
 
 
-def write_reference_sequences(web_dir, fasta_path, out_dir):
-    """Write the vsearch database, restricted to the model's vocabulary.
+def write_reference_sequences(web_dir, fasta_path, out_dir,
+                              name="otu_refseqs.fasta", wanted=None):
+    """Write a vsearch database, restricted by default to the model's vocabulary.
 
     The source FASTA holds 14,093 sequences, but the model's vocabulary is a
     different 14,019 ids and the two overlap in only 8,850. Keeping the rest
@@ -144,18 +145,21 @@ def write_reference_sequences(web_dir, fasta_path, out_dir):
     them would silently score a sample as if those OTUs were absent, which is
     true but only by accident.
 
+    The atlas passes ``wanted`` as every OTU on the map instead, because an
+    ASV search there is after a card, not a model input.
+
     Returns
     -------
     tuple
-        ``(written, missing)`` -- sequences written, and vocabulary ids with
-        no sequence available.
+        ``(written, missing)`` -- sequences written, and wanted ids with no
+        sequence available.
     """
-    with open(os.path.join(web_dir, "vocab.json")) as handle:
-        vocabulary = json.load(handle)
-    wanted = set(vocabulary["ids"])
+    if wanted is None:
+        with open(os.path.join(web_dir, "vocab.json")) as handle:
+            wanted = set(json.load(handle)["ids"])
 
     os.makedirs(out_dir, exist_ok=True)
-    target = os.path.join(out_dir, "otu_refseqs.fasta")
+    target = os.path.join(out_dir, name)
 
     written = 0
     seen = set()
@@ -281,6 +285,14 @@ def main():
     print(f"  {written} sequences to {server_dir}/otu_refseqs.fasta; "
           f"{missing} vocabulary OTUs have no sequence in the source FASTA "
           f"and are unreachable through /map")
+
+    with open(os.path.join(args.out, "otus.json")) as handle:
+        atlas_ids = {record["id"] for record in json.load(handle)}
+    written, missing = write_reference_sequences(
+        args.out, os.path.join(REPO, "data", "otu_seq", "feces_seq_16S_silva.fasta"),
+        server_dir, name="atlas_refseqs.fasta", wanted=atlas_ids)
+    print(f"  {written} sequences to {server_dir}/atlas_refseqs.fasta; "
+          f"{missing} atlas OTUs have no sequence and cannot be found by ASV")
 
     # Everything in the web root except the manifest itself, which cannot
     # carry its own hash.

@@ -22,8 +22,14 @@ services:
         source: ../data/otu_refseqs.fasta
         target: /srv/data/otu_refseqs.fasta
         read_only: true
+      # Every atlas OTU, for the atlas's sequence search (/map?db=atlas).
+      - type: bind
+        source: ../data/atlas_refseqs.fasta
+        target: /srv/data/atlas_refseqs.fasta
+        read_only: true
     environment:
       OTU_REFSEQS: /srv/data/otu_refseqs.fasta
+      ATLAS_REFSEQS: /srv/data/atlas_refseqs.fasta
       VSEARCH_BINARY: vsearch
     # A single vsearch run uses one core; capping the container keeps it from
     # starving nginx on a two-core host.

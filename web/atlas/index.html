@@ -37,8 +37,12 @@
     <div class="spread" style="gap:24px; align-items:flex-end">
       <div style="flex:1 1 320px; min-width:280px">
         <label for="search">Find a taxon</label>
-        <input type="text" id="search" placeholder="genus, species or OTU id"
+        <input type="text" id="search" placeholder="genus, species, OTU id or a 16S sequence"
                autocomplete="off" style="width:100%; margin-top:4px">
+        <p class="small muted mt-8" style="margin-bottom:0">
+          <label for="reads" style="font-weight:400">Several ASVs? Upload their rep-seqs FASTA:</label>
+          <input type="file" id="reads" accept=".fasta,.fa,.fna,.fas,.txt" style="margin-top:4px; max-width:100%">
+        </p>
         <div id="results" class="stack mt-8"></div>
       </div>
       <div>
@@ -84,6 +88,13 @@
           holding out a whole phylum at a time: the model never sees any
           member of the phylum it is scored on. That is a harder test than a
           random split, and it is the number shown beside every value.
+        </p>
+        <p>
+          A pasted sequence, or each one in an uploaded FASTA, is aligned by
+          the site's server against the representative sequences of all
+          14,093 OTUs and matched at 97% identity; nothing is kept afterwards.
+          A short amplicon is often identical to several OTUs over its length,
+          and when it is, every one of them is listed rather than one picked.
         </p>
         <p>
           Traits whose held-out AUC falls below 0.65 are collapsed by default.
