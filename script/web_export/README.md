@@ -40,6 +40,9 @@ jupyter nbconvert --execute script/atlas_export.ipynb
 cp data/healthy_disease_predict/metadata_disease_classification.tsv \
    data/web/download/disease_sample_metadata.tsv
 python3 script/web_export/export_examples.py
+
+# 7. SILVA lineages of the vocabulary, for the dysbiosis result's taxa.
+python3 script/web_export/export_taxonomy.py
 ```
 
 To rebuild only the one-click examples (the lowest-scoring control and the

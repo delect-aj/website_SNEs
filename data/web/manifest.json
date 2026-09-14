@@ -141,6 +141,11 @@
    "sha256": "adfdcd3c325d570b880672e54190683ad167b43def64370f9c2afbb58aed5109"
   },
   {
+   "file": "taxonomy.json",
+   "bytes": 1230158,
+   "sha256": "518c737152fa51fd02171e3805280c0d7ac113e0c2135cef8b2c02e9a66b845b"
+  },
+  {
    "file": "traits.json",
    "bytes": 2947,
    "sha256": "ab6c5220ca7368e30bbd0762dde97bd1bd4fef8a810bc6d053899e714522b0b6"
