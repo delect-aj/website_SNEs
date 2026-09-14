@@ -282,11 +282,18 @@ Then walk the golden path by hand:
 ### Re-deploying
 
 ```bash
+git pull
+script/check_vendor.sh           # after a pull: the wasm files are not in git
 rsync -av --delete web/          server:/srv/microbial/site/
 rsync -av --delete data/web/     server:/srv/microbial/site/data/
 # only when the model or the vocabulary changed:
 rsync -av --delete data/server/  server:/srv/microbial/data/
 ```
+
+`ort.min.js` is committed but the two `.wasm` files beside it are not, so a
+pull can leave a new loader next to the previous release's wasm — onnxruntime
+then fails in the browser without ever mentioning a version.
+`script/check_vendor.sh` compares both against the pin and says so.
 
 Browser assets are cached for a month, so after changing anything under
 `web/assets/` either rename the file or lower `max-age` in `nginx.conf` — the
