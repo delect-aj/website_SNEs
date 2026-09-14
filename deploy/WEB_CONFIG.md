@@ -320,10 +320,18 @@ measured and why the tolerance is set where it is.
 ```bash
 cd website_SNEs
 git pull
+script/check_vendor.sh          # the wasm files are fetched, not committed
 rsync -av --delete web/ server:/srv/microbial/site/
 rsync -av --delete data/web/ server:/srv/microbial/site/data/
 sudo systemctl reload nginx     # only needed if the config changed
 ```
+
+`script/check_vendor.sh` exists because `web/assets/vendor/ort/` holds a
+committed `ort.min.js` next to two `.wasm` files that `fetch_vendor.sh`
+fetches. A pull replaces the loader and leaves the wasm behind, and
+onnxruntime-web reports the mismatch in the browser without a version in the
+message; the script compares all four files against the pins and exits
+non-zero when any is stale.
 
 The rsync `--delete` is safe here because both directories are build output.
 Never point it at `data/server/`.
