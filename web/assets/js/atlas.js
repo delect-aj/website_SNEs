@@ -222,8 +222,6 @@ async function load() {
     timer = setTimeout(() => runSearch(searchInput.value), 120);
   });
 
-  window.addEventListener('resize', () => scatter.resize());
-
   status.hidden = true;
 
   const requested = new URLSearchParams(location.search).get('otu');

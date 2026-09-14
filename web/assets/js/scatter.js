@@ -79,6 +79,10 @@ export class Scatter {
     this._initGL();
     this._bindEvents();
     this.resize();
+    // The well grows with the card beside it, which no window resize reports:
+    // without this the backing store keeps its first size, the points stretch
+    // and clicks land on the wrong OTU.
+    new ResizeObserver(() => this.resize()).observe(canvas);
   }
 
   _initGL() {
