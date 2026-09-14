@@ -14,12 +14,12 @@
  * translate sequences into OTU ids.
  */
 
-import { fetchWithProgress, halfToFloat } from './binary.js';
-import { element } from './dom.js';
-import { preprocessSample, UNK_INDEX } from './preprocess.js';
-import { makeGather, scoreSample, percentileOf, topContributors } from './inference.js';
-import { renderBand } from './band.js';
-import { readTable } from './table.js';
+import { fetchWithProgress, halfToFloat } from './binary.js?v=5';
+import { element } from './dom.js?v=5';
+import { preprocessSample, UNK_INDEX } from './preprocess.js?v=5';
+import { makeGather, scoreSample, percentileOf, topContributors } from './inference.js?v=5';
+import { renderBand } from './band.js?v=5';
+import { readTable } from './table.js?v=5';
 
 const DATA = '/data';
 const WASM_PATH = '/assets/vendor/ort/';

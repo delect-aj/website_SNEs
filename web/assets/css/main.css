@@ -358,15 +358,16 @@ details > summary::marker { color: var(--ink-3); }
 .band svg { display: block; width: 100%; height: auto; }
 .band__axis { stroke: var(--line); stroke-width: 1; }
 .band__tick { stroke: var(--line); stroke-width: 1; }
-.band__label { fill: var(--ink-2); font-size: 11px; font-family: var(--font); }
+.band__label { fill: var(--ink-2); font-size: 10px; font-family: var(--font); }
 /* Group names and the marker's label are HTML under the plot, so a long
    label wraps instead of running into the one beside it. */
 .band__legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px 16px;
+  gap: 0 14px;
   margin-top: 2px;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.5;
   color: var(--ink-2);
 }
 .band__key {

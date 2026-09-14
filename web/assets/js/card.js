@@ -15,8 +15,8 @@
  * their left border as well.
  */
 
-import { element } from './dom.js';
-import { renderBand } from './band.js';
+import { element } from './dom.js?v=5';
+import { renderBand } from './band.js?v=5';
 
 const RANKS = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'];
 
@@ -198,8 +198,8 @@ function renderBandFor(trait, record, data) {
   return {
     ctrl, case: cases, you,
     className: meta.value_labels[queryValue] || queryValue,
-    ctrlLabel: `labelled as ${otherValues.join(' / ')}`,
-    caseLabel: `labelled as ${meta.value_labels[queryValue] || queryValue}`,
+    ctrlLabel: otherValues.join(' / '),
+    caseLabel: meta.value_labels[queryValue] || queryValue,
     youLabel: measured ? `${record.id} (BacDive measurement)`
       : labelled ? `${record.id} (genome annotation)` : `${record.id} (predicted)`,
   };

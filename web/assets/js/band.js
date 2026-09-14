@@ -14,7 +14,7 @@
  * purpose is to show evidence.
  */
 
-import { element, svgElement } from './dom.js';
+import { element, svgElement } from './dom.js?v=5';
 
 /**
  * Deterministic vertical jitter.
