@@ -431,6 +431,13 @@ async function load() {
 
   status.hidden = true;
 
+  // The home page's search box submits here as ?q=.
+  const query = new URLSearchParams(location.search).get('q');
+  if (query) {
+    searchInput.value = query;
+    runSearch(query);
+  }
+
   const requested = new URLSearchParams(location.search).get('otu');
   if (requested) {
     const found = data.otus.find((record) => record.id === requested);

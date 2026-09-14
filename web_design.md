@@ -275,29 +275,23 @@ POST /map   multipart: rep_seqs.fasta
 
 ## Design tokens
 
+主题参照 UniProt（franklin 设计系统），2026-09 起替换原先的期刊衬线风格。
+
 ```css
 :root {
-  /* 纸与墨（参照 Nature 系期刊站点） */
-  --paper:    #FFFFFF;   /* 页面底色 */
-  --surface:  #FFFFFF;   /* 卡片 */
-  --tint:     #F5F6F7;   /* 注释框、代码块底色 */
-  --ink:      #222222;   /* 正文 */
-  --ink-2:    #626262;   /* 次要文字、单位、注释 */
-  --ink-3:    #9AA0A6;   /* 禁用、占位 */
-  --line:     #D4D4D4;   /* 分隔线，1px */
-  --accent:   #025E8D;   /* 链接、选中态 */
-  --accent-bg:#EBF6FF;
-  --brand:    #29303B;   /* 顶栏、页脚、主按钮 */
+  --sapphire:     #014371;   /* 链接、导航、蓝色标题 */
+  --sea:          #00639a;   /* 主按钮、logo 字标 */
+  --cerulean:     #00a6d5;   /* 强调：左侧竖条、logo 的点 */
+  --yankees:      #161d39;   /* 标题 */
+  --platinum:     #e4e8eb;   /* 灰色区块、页脚、边框 */
+  --gainsborough: #d2dce3;   /* 较深的边框 */
+  --sky-white:    #fbfeff;   /* 顶栏 */
 
   /* 图谱画布：唯一的深色区域 */
-  --well:     #12161B;
-  --well-ink: #C9D1D9;
-  --well-line:#2A313A;
+  --well: #12161B;
 
   /* 参考队列两组（Okabe-Ito，避开红绿） */
-  --ctrl:     #0072B2;   /* 对照 */
-  --case:     #D55E00;   /* 病例 */
-  --you:      #16181C;   /* 你的样本 = 墨色，永远比两组更重 */
+  --ctrl: #0072B2;  --case: #D55E00;  --you: #16181C;
 }
 ```
 
@@ -305,24 +299,23 @@ POST /map   multipart: rep_seqs.fasta
 `#0072B2 #D55E00 #009E73 #CC79A7 #F0E442 #56B4E9 #E69F00 #999999`。
 超过八类的门归入"其他 #999999"，不发明第九个颜色。
 
-**连续量**（性状概率、余弦相似度）用 `--accent` 单色明度梯度，不用 viridis
-彩虹——单色梯度在灰度下仍然单调，彩虹不是。
-
 ## 字体与数字
 
-```css
---font:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-         "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
---serif: "Palatino Linotype", Palatino, "Book Antiqua", Georgia,
-         "Songti SC", SimSun, serif;   /* h1、h2、顶栏站名、首页关键数字 */
---mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Consolas, monospace;
-```
-
-- 正文 16px / 1.6；
+- 正文 Lato 400/700，标题 Source Sans 3 600–700，与 UniProt 一致；字体文件自托管在
+  `web/assets/fonts/`（拉丁子集，约 57 KB），不依赖 Google Fonts；
+- 标题：h1 36 / h2 26 / h3 18，均为 700；链接默认加粗；
 - **所有 OTU id、序列、AUC、概率、分位数用 `--mono` + `font-variant-numeric:
-  tabular-nums`**。等宽是让一列 AUC 能被竖着扫读的唯一办法；
-- 标题只用三级：h1 34 / h2 24 用 `--serif` 常规字重，h3 17 无衬线 600；
-- 中文不做斜体，强调用 `--ink` 加粗或 `--accent-bg` 底色。
+  tabular-nums`**；
+- 分类名（各级）用斜体。
+
+## Logo 与页头页脚
+
+- Logo = 字标 "SNEs"（Source Sans 3 700，`--sea`）+ 右上方的点阵标记：一串由小到大的
+  浅蓝点汇入一簇深蓝点，表示共享同一生态位的 OTU。标记是内联 SVG，favicon 用同一图形；
+- 页头：浅色底，左上角 logo，主导航加粗蓝色，右侧 Cite / GitHub；
+- 首页：蓝色渐变横幅（标题 + 搜索框 + Examples + 一句简介），信息条，三块彩色资源卡片，
+  灰色区块，引用；
+- 页脚：`--platinum` 灰底，左下角大号 logo + 版权，右侧分栏链接与"Research use only"。
 
 ## 布局
 
@@ -330,8 +323,7 @@ POST /map   multipart: rep_seqs.fasta
 - `/atlas` 例外：全幅两栏，左边 WebGL 画布自适应，右边微生物卡片固定 400px，
   <1024px 时卡片变为覆盖式底部抽屉；
 - 顶栏与页脚为 `--brand` 深蓝底白字，与 Nature 期刊站点一致；
-- 卡片：`--surface` + 1px `--line`，圆角 2px，**不用阴影**。阴影是 App 语言，
-  细边框是文献语言；
+- 卡片与控件：直角，1px 边框；首页信息条可用轻微阴影；
 - 所有间距取 4 的倍数，段落之间 16，区块之间 32。
 
 ## 关键组件
