@@ -392,8 +392,9 @@ main { padding: 40px 0 64px; }
   .hero-band h1 { font-size: 36px; }
 }
 
-/* Boxed prose runs wider than body text, so a full-width box is not half empty. */
-.note p, .cite-box p { max-width: 118ch; }
+/* Boxed and folded-out prose runs wider than body text, so a full-width block
+   is not half empty. */
+.note p, .cite-box p, details > .stack > p { max-width: 118ch; }
 
 /* Cards ------------------------------------------------------------------- */
 
