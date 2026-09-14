@@ -38,9 +38,9 @@
   <h1>Download</h1>
 
   <p class="lede mt-12">
-    Data files used by this site. The sample-level metadata of the reference
-    cohort behind the dysbiosis score is available below; further files will be
-    added.
+    Data files used by this site: the sample-level metadata of the reference
+    cohort, the social niche embedding matrix, the dysbiosis classifier, the
+    trait probabilities and the reference cohort scores.
   </p>
 
   <section class="mt-32" id="files">
@@ -164,11 +164,19 @@
 </footer>
 
 <script type="module">
-// Only the files named here are listed; the rest of the manifest is served but
-// not offered on this page for now.
+// Only the files named here are listed, in this order: the ones File
+// descriptions explains, plus vocab.json and traits.json, which those
+// descriptions say are needed to read the classifier and the trait block.
 const DESCRIPTIONS = {
   "download/disease_sample_metadata.tsv":
     "Sample-level metadata for the 13-disease reference cohort (10,276 samples)",
+  "download/sne_vectors.txt.gz": "Embedding matrix, 14,093 × 100 (word2vec text format)",
+  "dysbiosis_encoder.onnx": "13-fold ensemble classifier (ONNX)",
+  "dysbiosis_embed.f16.bin": "Frozen embedding table used by the classifier (float16)",
+  "vocab.json": "Mapping from OTU identifier to model index",
+  "traits_proba.f16.bin": "Random forest probabilities for labelled OTUs (float16)",
+  "traits.json": "Trait metadata: class order, offsets and AUCs",
+  "ref_scores.json": "Model scores of the 10,276 reference samples (controls and cases)",
 };
 
 function human(bytes) {
@@ -184,9 +192,11 @@ const head = document.createElement("thead");
 head.innerHTML = "<tr><th>File</th><th>Contents</th><th class='num'>Size</th></tr>";
 table.appendChild(head);
 
+const byName = new Map(manifest.files.map((entry) => [entry.file, entry]));
 const body = document.createElement("tbody");
-for (const entry of manifest.files) {
-  if (!(entry.file in DESCRIPTIONS)) continue;
+for (const file of Object.keys(DESCRIPTIONS)) {
+  const entry = byName.get(file);
+  if (!entry) continue;
   const row = document.createElement("tr");
 
   const name = document.createElement("td");
