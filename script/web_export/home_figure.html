@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<!--
+  Renders web/assets/img/umap-phylum.png, the figure on the home page: the
+  atlas's UMAP of all OTUs, coloured by phylum with the atlas's own palette.
+
+  Serve the site with this file beside it (it reads /data/umap.f32.bin,
+  /data/otus.json and /data/meta.json), then capture the canvas:
+
+    "Google Chrome" --headless=new --hide-scrollbars --force-device-scale-factor=1 \
+      --window-size=920,800 --virtual-time-budget=20000 \
+      --screenshot=web/assets/img/umap-phylum.png http://localhost:8000/home_figure.html
+-->
+<meta charset="utf-8">
+<style>html, body { margin: 0; background: #fff; } canvas { display: block; }</style>
+<canvas id="c" width="920" height="800"></canvas>
+<script type="module">
+// Same order and folding as paletteFor() in atlas.js: the seven commonest
+// phyla get a colour, everything else is grey.
+const OKABE_ITO = ['#0072B2', '#D55E00', '#009E73', '#CC79A7', '#F0E442', '#56B4E9', '#E69F00', '#999999'];
+
+const [coords, otus, meta] = await Promise.all([
+  fetch('/data/umap.f32.bin').then((r) => r.arrayBuffer()).then((b) => new Float32Array(b)),
+  fetch('/data/otus.json').then((r) => r.json()),
+  fetch('/data/meta.json').then((r) => r.json()),
+]);
+const colour = new Map(meta.color_by.phylum.slice(0, 7).map((p, i) => [p, OKABE_ITO[i]]));
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+for (let i = 0; i < coords.length; i += 2) {
+  minX = Math.min(minX, coords[i]); maxX = Math.max(maxX, coords[i]);
+  minY = Math.min(minY, coords[i + 1]); maxY = Math.max(maxY, coords[i + 1]);
+}
+const pad = 16;
+const scale = Math.min((canvas.width - 2 * pad) / (maxX - minX), (canvas.height - 2 * pad) / (maxY - minY));
+const offX = (canvas.width - (maxX - minX) * scale) / 2;
+const offY = (canvas.height - (maxY - minY) * scale) / 2;
+
+// Grey first, so the coloured phyla sit on top of it.
+const order = otus.map((o, i) => i).sort((a, b) => colour.has(otus[a].phylum) - colour.has(otus[b].phylum));
+ctx.globalAlpha = 0.75;
+for (const i of order) {
+  ctx.fillStyle = colour.get(otus[i].phylum) || OKABE_ITO[7];
+  const x = offX + (coords[2 * i] - minX) * scale;
+  const y = canvas.height - (offY + (coords[2 * i + 1] - minY) * scale);   // y up, as on the atlas
+  ctx.beginPath();
+  ctx.arc(x, y, 2.2, 0, 2 * Math.PI);
+  ctx.fill();
+}
+document.title = 'done';
+</script>
