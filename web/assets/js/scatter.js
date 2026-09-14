@@ -221,7 +221,7 @@ export class Scatter {
   }
 
   /** Index of the point nearest to a pointer event, or -1 beyond `radius` px. */
-  _nearest(event, radius = 8) {
+  _nearest(event, radius = 10) {
     if (!this.positions) return -1;
     const rect = this.canvas.getBoundingClientRect();
     const target = this._toWorld(event);
@@ -248,16 +248,24 @@ export class Scatter {
     let dragging = false;
     let moved = false;
     let last = { x: 0, y: 0 };
+    let start = { x: 0, y: 0 };
 
     canvas.addEventListener('pointerdown', (event) => {
       dragging = true;
       moved = false;
       last = { x: event.clientX, y: event.clientY };
+      start = last;
       canvas.setPointerCapture(event.pointerId);
     });
 
     canvas.addEventListener('pointermove', (event) => {
       if (dragging) {
+        // A click is rarely perfectly still. Until the pointer has travelled a
+        // few pixels this is still a click, or every trackpad tap would pan by
+        // a pixel and select nothing.
+        if (!moved && Math.hypot(event.clientX - start.x, event.clientY - start.y) < 4) {
+          return;
+        }
         const aspect = this._aspect();
         const rect = canvas.getBoundingClientRect();
         this.view.x -= (event.clientX - last.x) / rect.width

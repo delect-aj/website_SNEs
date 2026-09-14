@@ -46,16 +46,21 @@ function taxonName(record) {
  * weakens the point the pair is making, so the only difference is the heading
  * and a background tint on rows present in both.
  */
-// Rows shown before "Show all"; the overlap count still covers all K.
-const NEIGHBOURS_SHOWN = 15;
+// Rows per column. The overlap is counted over these rows only, so every
+// shaded row has its partner visible in the other column.
+const NEIGHBOURS_SHOWN = 10;
 
 function renderNeighbours(container, index, data) {
   const wrapper = element('div', 'neighbours');
+  const top = (array) => new Set(Array.from(
+    array.subarray(index * data.k, index * data.k + NEIGHBOURS_SHOWN)));
+  const ecological = top(data.nbrSneIdx);
+  const phylogenetic = top(data.nbrPhyloIdx);
   const lists = [
     { title: 'Ecological neighbours', idx: data.nbrSneIdx, sim: data.nbrSneSim,
-      other: new Set(Array.from(data.nbrPhyloIdx.subarray(index * data.k, (index + 1) * data.k))) },
+      other: phylogenetic },
     { title: 'Phylogenetic neighbours', idx: data.nbrPhyloIdx, sim: data.nbrPhyloSim,
-      other: new Set(Array.from(data.nbrSneIdx.subarray(index * data.k, (index + 1) * data.k))) },
+      other: ecological },
   ];
 
   for (const list of lists) {
@@ -63,12 +68,11 @@ function renderNeighbours(container, index, data) {
     column.appendChild(element('h3', null, list.title));
     const ordered = element('ol');
     const start = index * data.k;
-    for (let k = 0; k < data.k; k += 1) {
+    for (let k = 0; k < NEIGHBOURS_SHOWN; k += 1) {
       const neighbour = list.idx[start + k];
       const record = data.otus[neighbour];
       const row = element('li');
       if (list.other.has(neighbour)) row.classList.add('overlap');
-      if (k >= NEIGHBOURS_SHOWN) row.classList.add('more');
       const name = element('span', 'taxon', taxonName(record));
       name.title = record.id;
       row.appendChild(name);
@@ -83,20 +87,11 @@ function renderNeighbours(container, index, data) {
     wrapper.appendChild(column);
   }
 
-  const overlap = data.otus[index].nbr_overlap;
+  const overlap = [...ecological].filter((neighbour) => phylogenetic.has(neighbour)).length;
   const note = element('p', 'small muted');
-  note.style.marginTop = '12px';
-  note.textContent = `${overlap} of ${data.k} ecological neighbours are also `
-    + `phylogenetic neighbours. Shaded rows appear in both lists.`;
+  note.textContent = `Top ${NEIGHBOURS_SHOWN} by cosine similarity. ${overlap} of `
+    + `${NEIGHBOURS_SHOWN} OTUs appear in both lists (shaded).`;
   wrapper.appendChild(note);
-
-  const toggle = element('button', 'link small', `Show all ${data.k} neighbours`);
-  toggle.type = 'button';
-  toggle.addEventListener('click', () => {
-    const expanded = wrapper.classList.toggle('is-expanded');
-    toggle.textContent = expanded ? `Show top ${NEIGHBOURS_SHOWN}` : `Show all ${data.k} neighbours`;
-  });
-  wrapper.appendChild(toggle);
 
   container.replaceChildren(wrapper);
 }
