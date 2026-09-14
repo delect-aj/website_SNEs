@@ -42,13 +42,13 @@
   },
   {
    "file": "examples.json",
-   "bytes": 635,
-   "sha256": "33040a4b6779deb2e3ac9b4524cbe97b287b763811f5f3d6642a98580c34112a"
+   "bytes": 637,
+   "sha256": "fd19a2d246b252dddeb86f2e3844f66e8ad8a386650af1255d92c6c1b662f38b"
   },
   {
    "file": "examples/asv_table_example.tsv",
-   "bytes": 3571,
-   "sha256": "62dbd3987d3879233d1c94e7d32c83d35907d92bf2ddb3d9b3a9557228d0ab7d"
+   "bytes": 4115,
+   "sha256": "6efd79ccab48b717a06bd5fa4248e791202cd447155174cfdf87dc82020b661f"
   },
   {
    "file": "examples/atlas_asv_example.fasta",
@@ -57,43 +57,43 @@
   },
   {
    "file": "examples/crc_case.json",
-   "bytes": 4548,
-   "sha256": "9fdd6fa8bb8788e0420b9a859a523ff3f0412d7c7183644541e9b24f0ecd685a"
+   "bytes": 5069,
+   "sha256": "d643f40638f30e9fb0ab5a66d125f9a45ad46870ca966ee5e428dcfa2cb5b991"
   },
   {
    "file": "examples/crc_control.json",
-   "bytes": 4349,
-   "sha256": "06ef6673f22cf97e0e9f1f6b736b7b777fa29de45f38a4c3f52e7daa2847b8b5"
+   "bytes": 4676,
+   "sha256": "facba6dab81f4a9c1c7db755ff98ced8feff37ba79b50cafdce10ffb1369f928"
   },
   {
    "file": "examples/ibd_case.json",
-   "bytes": 3169,
-   "sha256": "7c243c06c5e972fe858b805fd36c72c39ed1e5fef757890853660469d90d6520"
+   "bytes": 2297,
+   "sha256": "9304a413556241797ec147cb9c63c6869dde98049d09c7fb72844ef26ff7d8eb"
   },
   {
    "file": "examples/ibd_control.json",
-   "bytes": 3849,
-   "sha256": "0624e59ee1490b2a9ae6c02de5f53a357fce5f1f309fbe4b50359dd6397d8cd4"
+   "bytes": 3285,
+   "sha256": "054cb11b3838778d01f19b757e0493c47140b5e16082b6abcd29d69b001a0ecf"
   },
   {
    "file": "examples/otu_table_example.tsv",
-   "bytes": 7418,
-   "sha256": "457bdfcbf37ab812ff5256b2b4a8cdc69264f8a995c355802da6407ff9475917"
+   "bytes": 8050,
+   "sha256": "f21b1c27e9255b4780c9276188812bcd2fe3c659f91956acbf8c3ca4accaebd5"
   },
   {
    "file": "examples/rep_seqs_example.fasta",
-   "bytes": 80910,
-   "sha256": "3cb91d97dcfd30a9d5e1967db6d64653f8ce2f74f0b538f789755ff998b42b3d"
+   "bytes": 91450,
+   "sha256": "91d7a7bebc5f1c21f4bdf5e18a4d1b139748e853056b0da4839b3dbdb5a5b3f9"
   },
   {
    "file": "examples/t2dm_case.json",
-   "bytes": 2939,
-   "sha256": "a02050341381f5a1c4e0aabf7534f4cf839f9ea7334bfc159d4f865aa072ef28"
+   "bytes": 4059,
+   "sha256": "b2cab52bf347a4adff496f4da53c7040a46232e155c38cba981961819273d452"
   },
   {
    "file": "examples/t2dm_control.json",
-   "bytes": 2007,
-   "sha256": "ac89d6b32b46182e710a41c835f1ef9543f35cb55e6695d566a38df831546ba3"
+   "bytes": 5669,
+   "sha256": "0a7bd5c41bea4970a3d08abcb4662d1b6ffeb39b12d3ca110dd42dc12e12048f"
   },
   {
    "file": "meta.json",

@@ -201,6 +201,9 @@ def main():
     parser.add_argument("--web", default=os.path.join(REPO, "data", "web"))
     parser.add_argument("--out", default=os.path.join(REPO, "tests", "fixtures",
                                                       "golden.json"))
+    parser.add_argument("--examples-only", action="store_true",
+                        help="keep the fixture's reference-cohort samples and "
+                             "rebuild only the examples, after they change")
     parser.add_argument("--skip-examples", action="store_true",
                         help="reference-cohort samples only; the resulting "
                              "fixture is incomplete")
@@ -216,8 +219,14 @@ def main():
         "samples": [],
     }
 
-    fixture["samples"].extend(fold_samples(
-        args.data_root, vocab_index, session, table_embedding, num_steps))
+    if args.examples_only:
+        with open(args.out) as handle:
+            kept = json.load(handle)["samples"]
+        fixture["samples"].extend(s for s in kept
+                                  if not s["name"].startswith("example/"))
+    else:
+        fixture["samples"].extend(fold_samples(
+            args.data_root, vocab_index, session, table_embedding, num_steps))
 
     if not args.skip_examples:
         fixture["samples"].extend(example_samples(
