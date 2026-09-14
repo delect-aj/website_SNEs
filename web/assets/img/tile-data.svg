@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 130" fill="none">
+  <!-- Data: a database, a sample-by-microbe table like panel a of the
+       workflow figure, and a download. -->
+  <path d="M22 26 V94 A28 9 0 0 0 78 94 V26" fill="#fff" fill-opacity=".22"/>
+  <path d="M22 26 V94 A28 9 0 0 0 78 94 V26" stroke="#fff" stroke-width="3"/>
+  <path d="M22 49 A28 9 0 0 0 78 49 M22 72 A28 9 0 0 0 78 72" stroke="#fff" stroke-width="3"/>
+  <ellipse cx="50" cy="26" rx="28" ry="9" fill="#fff"/>
+  <!-- table -->
+  <g fill="#fff">
+    <rect x="94" y="22" width="15" height="15" fill-opacity=".9"/><rect x="111" y="22" width="15" height="15" fill-opacity=".35"/><rect x="128" y="22" width="15" height="15" fill-opacity=".6"/><rect x="145" y="22" width="15" height="15" fill-opacity=".2"/>
+    <rect x="94" y="39" width="15" height="15" fill-opacity=".45"/><rect x="111" y="39" width="15" height="15" fill-opacity=".95"/><rect x="128" y="39" width="15" height="15" fill-opacity=".25"/><rect x="145" y="39" width="15" height="15" fill-opacity=".7"/>
+    <rect x="94" y="56" width="15" height="15" fill-opacity=".2"/><rect x="111" y="56" width="15" height="15" fill-opacity=".55"/><rect x="128" y="56" width="15" height="15" fill-opacity=".9"/><rect x="145" y="56" width="15" height="15" fill-opacity=".4"/>
+    <rect x="94" y="73" width="15" height="15" fill-opacity=".65"/><rect x="111" y="73" width="15" height="15" fill-opacity=".25"/><rect x="128" y="73" width="15" height="15" fill-opacity=".45"/><rect x="145" y="73" width="15" height="15" fill-opacity=".95"/>
+    <rect x="94" y="90" width="15" height="15" fill-opacity=".3"/><rect x="111" y="90" width="15" height="15" fill-opacity=".8"/><rect x="128" y="90" width="15" height="15" fill-opacity=".2"/><rect x="145" y="90" width="15" height="15" fill-opacity=".6"/>
+  </g>
+  <!-- download -->
+  <path d="M190 22 V70 M176 56 L190 72 L204 56" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M172 84 V100 H208 V84" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
