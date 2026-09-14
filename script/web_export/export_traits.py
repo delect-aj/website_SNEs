@@ -126,7 +126,10 @@ def main():
             "n_classes": int(block.shape[1]),
         }
         blocks.append(block)
-        offset += block.shape[0]
+        # Offsets index the flat file, which holds rows x classes values per
+        # trait. Counting rows here put every trait after the first (the only
+        # one with three classes) into another trait's block.
+        offset += block.size
         shown = "shown" if meta_traits[trait]["displayed"] else "hidden"
         print(f"  {trait:20s} AUC {auc:.3f}  {len(labelled):5d} labelled  "
               f"{classes}  {shown}")
