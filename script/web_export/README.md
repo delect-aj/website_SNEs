@@ -42,6 +42,16 @@ cp data/healthy_disease_predict/metadata_disease_classification.tsv \
 python3 script/web_export/export_examples.py
 ```
 
+To rebuild only the one-click examples (the lowest-scoring control and the
+highest-scoring case of CRC, IBD and T2DM), which needs just those three
+diseases' `test_loo.biom`, the checkpoints and the files already in `data/web/`:
+
+```bash
+.venv-export/bin/python script/web_export/export_dysbiosis.py --examples-only
+.venv-export/bin/python script/web_export/export_golden.py --examples-only
+python3 script/web_export/export_examples.py
+```
+
 The dysbiosis export takes about 35 minutes, almost all of it scoring the
 10,276 reference samples through 13 folds twice — once as the ensemble the site
 runs, once as each sample's own held-out fold. That second pass is what makes

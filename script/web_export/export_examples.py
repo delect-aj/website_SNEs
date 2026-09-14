@@ -48,8 +48,8 @@ ATLAS_READS = [("DQ805015.1.1370", "Akkermansia"), ("DQ803549.1.1391", "Blautia"
 SUBSTITUTIONS = (100, 200)
 TRANSITION = {"A": "G", "G": "A", "C": "T", "T": "C"}
 
-SAMPLES = [("crc_control.json", "DRR305708_CRC_control"),
-           ("crc_case.json", "DRR305656_CRC_case")]
+# Column names are "<sample id>_CRC_<group>", the id read from each file.
+SAMPLES = [("crc_control.json", "CRC_control"), ("crc_case.json", "CRC_case")]
 
 
 def read_fasta(path):
@@ -93,11 +93,13 @@ def write_atlas_reads(out_dir):
 
 
 def write_sample_tables(out_dir):
-    names = [name for _, name in SAMPLES]
+    names = []
     counts = []
-    for filename, _ in SAMPLES:
+    for filename, suffix in SAMPLES:
         with open(os.path.join(out_dir, filename)) as handle:
-            counts.append(json.load(handle)["counts"])
+            record = json.load(handle)
+        names.append(f"{record['sample_id']}_{suffix}")
+        counts.append(record["counts"])
     otus = sorted(set().union(*counts), key=lambda otu: (-sum(c.get(otu, 0) for c in counts), otu))
 
     write_table(os.path.join(out_dir, "otu_table_example.tsv"),

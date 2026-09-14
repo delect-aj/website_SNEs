@@ -283,52 +283,69 @@ def auc(labels, scores):
                  / (n_pos * n_neg))
 
 
-def write_examples(out_dir, data_root, vocab_index, metadata, model, table):
+# The one-click examples show the two ends of the scale: in each of these
+# diseases, the control the ensemble scores lowest and the case it scores
+# highest. They are chosen, not typical, and the page says so. Only samples
+# with 100 to 600 taxa qualify: enough to look like a real community, and no
+# more than the model reads, so no truncation tie decides what an example holds.
+EXAMPLE_DISEASES = ["CRC", "IBD", "T2DM"]
+EXAMPLE_MIN_OTUS = 100
+
+
+def write_examples(out_dir, data_root, vocab_index, metadata, model, table,
+                   reference):
     """Write one-click examples: raw counts plus the score they should reach.
 
     The counts are stored raw rather than pre-normalized so that clicking an
     example exercises the browser's own preprocessing, the same code the file
     uploads go through. The expected logit is there to be checked against.
+
+    ``reference`` is the sorted ensemble score of the whole reference cohort,
+    used only to report where each chosen sample falls.
     """
     os.makedirs(out_dir, exist_ok=True)
-    wanted = [("control", "CRC", 0), ("case", "CRC", 1),
-              ("control", "IBD", 0), ("case", "IBD", 1),
-              ("control", "T2DM", 0), ("case", "T2DM", 1)]
 
     written = []
-    for wanted_label, disease, group in wanted:
+    for disease in EXAMPLE_DISEASES:
         path = os.path.join(data_root, disease, "test_loo.biom")
-        feature_ids, sample_ids, counts = read_biom(path)
-        mask_rows = [i for i, s in enumerate(sample_ids)
-                     if int(float(metadata["group"][s])) == group]
-        if not mask_rows:
-            continue
-        row = mask_rows[0]
-        sample = sample_ids[row]
+        feature_ids, _, _ = read_biom(path)
+        features, abundance, mask, sample_ids, counts = preprocess_table(
+            path, vocab_index)
+        logits = run_ensemble(model, table, features, abundance, mask)
+        dense = counts.toarray().T
+        n_otus = (dense > 0).sum(axis=1)
+        groups = np.array([int(float(metadata["group"][s])) for s in sample_ids])
+        eligible = (n_otus >= EXAMPLE_MIN_OTUS) & (n_otus <= NUM_STEPS)
 
-        dense = counts.toarray().T[row]
-        ranked = preprocessing.rank_normalize(dense)
-        indices = np.array([vocab_index[f] for f in feature_ids], dtype=np.int64)
-        features, abundance, mask = preprocessing.truncate_pad(
-            ranked[None, :], indices, NUM_STEPS)
-        logit = run_ensemble(model, table, features, abundance, mask)[0]
+        for group in (0, 1):
+            pool = np.flatnonzero(eligible & (groups == group))
+            if not pool.size:
+                raise ValueError(f"{disease}: no group {group} sample with "
+                                 f"{EXAMPLE_MIN_OTUS}-{NUM_STEPS} taxa")
+            row = (pool[np.argmin(logits[pool])] if group == 0
+                   else pool[np.argmax(logits[pool])])
+            label = "case" if group else "control"
+            percentile = 100 * np.searchsorted(reference, logits[row]) / len(reference)
 
-        non_zero = np.nonzero(dense)[0]
-        record = {
-            "name": f"{disease} {'case' if group else 'control'}",
-            "disease": disease,
-            "group": "case" if group else "control",
-            "sample_id": sample,
-            "n_otus": int(non_zero.size),
-            "counts": {feature_ids[i]: int(dense[i]) for i in non_zero},
-            "expected_logit": round(float(logit), 5),
-        }
-        name = f"{disease.lower()}_{wanted_label}.json"
-        with open(os.path.join(out_dir, name), "w") as handle:
-            json.dump(record, handle, separators=(",", ":"))
-        written.append({"file": name, "label": record["name"],
-                        "sample_id": sample, "n_otus": int(non_zero.size)})
-        print(f"  {name}: {non_zero.size} OTUs, logit {logit:.3f}")
+            non_zero = np.nonzero(dense[row])[0]
+            record = {
+                "name": f"{disease} {label}",
+                "disease": disease,
+                "group": label,
+                "sample_id": str(sample_ids[row]),
+                "n_otus": int(non_zero.size),
+                "counts": {feature_ids[i]: int(dense[row][i]) for i in non_zero},
+                "expected_logit": round(float(logits[row]), 5),
+            }
+            name = f"{disease.lower()}_{label}.json"
+            with open(os.path.join(out_dir, name), "w") as handle:
+                json.dump(record, handle, separators=(",", ":"))
+            written.append({"file": name, "label": record["name"],
+                            "sample_id": record["sample_id"],
+                            "n_otus": record["n_otus"]})
+            print(f"  {name}: {record['sample_id']}, {non_zero.size} OTUs, "
+                  f"logit {logits[row]:.3f}, reference percentile "
+                  f"{percentile:.1f} (of {pool.size} eligible {label}s)")
     return written
 
 
@@ -343,6 +360,12 @@ def main():
     parser.add_argument("--out", default=os.path.join(REPO, "data", "web"))
     parser.add_argument("--skip-reference", action="store_true",
                         help="stop before scoring the reference cohort")
+    parser.add_argument("--examples-only", action="store_true",
+                        help="rewrite examples/ and examples.json from the "
+                             "vocab.json and ref_scores.json already in --out; "
+                             "needs only the example diseases' test tables")
+    parser.add_argument("--metadata", default=None,
+                        help="sample metadata TSV (default: DATA_ROOT/metadata.tsv)")
     parser.add_argument("--only", nargs="*", default=None,
                         help="restrict to these folds; a smoke test, the "
                              "resulting reference cohort is incomplete")
@@ -353,6 +376,11 @@ def main():
         DISEASES = args.only
 
     os.makedirs(args.out, exist_ok=True)
+    metadata_path = args.metadata or os.path.join(args.data_root, "metadata.tsv")
+
+    if args.examples_only:
+        write_examples_only(args, metadata_path)
+        return
 
     # ---- vocabulary ------------------------------------------------------ #
     print("vocabulary")
@@ -443,8 +471,7 @@ def main():
     # descriptive of the reference distribution and must not be presented as
     # accuracy.
     print("scoring the reference cohort, one fold at a time")
-    metadata = read_metadata(os.path.join(args.data_root, "metadata.tsv"),
-                             ["group", "disease_name_ab"])
+    metadata = read_metadata(metadata_path, ["group", "disease_name_ab"])
 
     intact_nets, _ = load_encoders(args.ckpt_root, vocab, torch.device("cpu"),
                                    verbose=False)
@@ -526,11 +553,36 @@ def main():
     # ---- examples -------------------------------------------------------- #
     print("writing example samples")
     examples = write_examples(os.path.join(args.out, "examples"), args.data_root,
-                              vocab_index, metadata, model, table)
+                              vocab_index, metadata, model, table, np.sort(scores))
     with open(os.path.join(args.out, "examples.json"), "w") as handle:
         json.dump(examples, handle, indent=1)
 
     print("done")
+
+
+def write_examples_only(args, metadata_path):
+    """Rebuild the examples against the vocabulary and cohort already exported."""
+    with open(os.path.join(args.out, "vocab.json")) as handle:
+        vocab = ["<pad>", "<unk>"] + json.load(handle)["ids"]
+    vocab_index = {otu: i for i, otu in enumerate(vocab)}
+
+    print("loading one member per fold (highest validation AUC)")
+    nets, _ = load_encoders(args.ckpt_root, vocab, torch.device("cpu"))
+    table = reference_embedding(nets)
+    for net in nets:
+        ensemble.strip_embedding(net)
+    model = ensemble.FoldEnsemble(nets).eval()
+
+    with open(os.path.join(args.out, "ref_scores.json")) as handle:
+        cohort = json.load(handle)
+    reference = np.sort(np.array(cohort["controls"] + cohort["cases"]))
+    metadata = read_metadata(metadata_path, ["group", "disease_name_ab"])
+
+    print("writing example samples")
+    examples = write_examples(os.path.join(args.out, "examples"), args.data_root,
+                              vocab_index, metadata, model, table, reference)
+    with open(os.path.join(args.out, "examples.json"), "w") as handle:
+        json.dump(examples, handle, indent=1)
 
 
 if __name__ == "__main__":
