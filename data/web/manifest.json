@@ -27,8 +27,8 @@
   },
   {
    "file": "download/sne_vectors.txt.gz",
-   "bytes": 5290542,
-   "sha256": "70ec9ceb209174bdaf22107519b1976818f24a4f6ed71dd8638ab985ea4f385f"
+   "bytes": 5290538,
+   "sha256": "24a64107ee0b6232565ae04796b254a467a6b33a9a4209be6d882ecea889d56d"
   },
   {
    "file": "dysbiosis_embed.f16.bin",

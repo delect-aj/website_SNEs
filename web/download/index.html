@@ -86,19 +86,9 @@
         </p>
         <p>
           <span class="mono">sne_vectors.txt.gz</span>: the 14,093 × 100
-          embedding matrix in word2vec text format, with one OTU per line. OTU
+          embedding matrix in GloVe text format, with one OTU per line. OTU
           identifiers are SILVA 138.2 accession numbers with the alignment
           span, as used in the OTU tables.
-        </p>
-        <p>
-          <span class="mono">dysbiosis_encoder.onnx</span> and
-          <span class="mono">dysbiosis_embed.f16.bin</span>: the classifier.
-          The ONNX graph takes 100-dimensional embedding vectors as input
-          rather than token indices, because all 13 fold checkpoints share one
-          frozen embedding table, which is stored separately. To run the
-          model, select rows from the embedding table using the indices in
-          <span class="mono">vocab.json</span> and multiply them by the
-          rank-normalized abundances.
         </p>
         <p>
           <span class="mono">traits_proba.f16.bin</span>: random forest
@@ -170,7 +160,7 @@
 const DESCRIPTIONS = {
   "download/disease_sample_metadata.tsv":
     "Sample-level metadata for the 13-disease reference cohort (10,276 samples)",
-  "download/sne_vectors.txt.gz": "Embedding matrix, 14,093 × 100 (word2vec text format)",
+  "download/sne_vectors.txt.gz": "Embedding matrix, 14,093 × 100 (GloVe text format)",
   "dysbiosis_encoder.onnx": "13-fold ensemble classifier (ONNX)",
   "dysbiosis_embed.f16.bin": "Frozen embedding table used by the classifier (float16)",
   "vocab.json": "Mapping from OTU identifier to model index",

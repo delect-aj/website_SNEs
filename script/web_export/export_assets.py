@@ -8,7 +8,7 @@ things the site serves but the research notebooks have no reason to produce.
     nbr_phylo_sim.f16.bin   the same
     sne.f16.bin             the embedding matrix, float16
     download/*.tsv          vectors and metadata for the TF Projector
-    download/*.txt.gz       word2vec text, for gensim
+    download/*.txt.gz       GloVe text, for gensim (no_header=True)
     download/manifest.json  sizes and checksums for the download page
 
 Why halve the similarities: the two arrays are 5.4 MB as float32 and compress
@@ -117,10 +117,10 @@ def write_projector_metadata(ids, script_dir, path):
     return taxonomy
 
 
-def write_word2vec(ids, matrix, path):
-    """Word2vec text format, the form `gensim` loads without a pickled file."""
+def write_glove(ids, matrix, path):
+    """GloVe text format, as the embedding was trained: one OTU per line, no
+    header. gensim reads it with `load_word2vec_format(..., no_header=True)`."""
     with gzip.open(path, "wt") as handle:
-        handle.write(f"{len(ids)} {matrix.shape[1]}\n")
         for otu, row in zip(ids, matrix):
             handle.write(otu + " " + " ".join(f"{v:.6g}" for v in row) + "\n")
 
@@ -262,7 +262,7 @@ def main():
     ids, matrix, download = write_embedding(args.script_dir, args.out)
     taxonomy = write_projector_metadata(
         ids, args.script_dir, os.path.join(download, "projector_metadata.tsv"))
-    write_word2vec(ids, matrix, os.path.join(download, "sne_vectors.txt.gz"))
+    write_glove(ids, matrix, os.path.join(download, "sne_vectors.txt.gz"))
     print(f"  {len(ids)} vectors of {matrix.shape[1]} dimensions")
 
     origin = args.site_url.rstrip("/")
