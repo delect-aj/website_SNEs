@@ -34,8 +34,11 @@ jupyter nbconvert --execute script/atlas_export.ipynb
 # 5. The fixture the browser regression test compares against.
 .venv-export/bin/python script/web_export/export_golden.py
 
-# 6. Downloadable example inputs for the atlas search and the dysbiosis
-#    uploads. Standard library only; refreshes manifest.json.
+# 6. Downloadable files: the reference cohort's sample metadata, then the
+#    example inputs for the atlas search and the dysbiosis uploads. Standard
+#    library only; the second step refreshes manifest.json.
+cp data/healthy_disease_predict/metadata_disease_classification.tsv \
+   data/web/download/disease_sample_metadata.tsv
 python3 script/web_export/export_examples.py
 ```
 

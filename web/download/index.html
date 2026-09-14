@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Download — SNEs</title>
-<meta name="description" content="Download the SNE embedding matrix, trait tables, vocabulary and classifier in standard formats.">
+<meta name="description" content="Data files used by the SNEs site, including sample-level metadata for the 13-disease reference cohort.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/main.css?v=5">
 </head>
@@ -38,94 +38,55 @@
   <h1>Download</h1>
 
   <p class="lede mt-12">
-    All data used by this site are static and publicly available. The
-    embeddings can be loaded in Python, viewed in the TensorFlow Embedding
-    Projector, or used directly as raw arrays.
+    Data files used by this site. The sample-level metadata of the reference
+    cohort behind the dysbiosis score is available below; further files will be
+    added.
   </p>
 
-  <section class="mt-32">
-    <h2>Explore the embeddings in 3D</h2>
-    <div class="card mt-12">
-      <p>
-        The TensorFlow Embedding Projector provides interactive 3D views of the
-        same vectors used by this site. The link below opens the Projector with
-        the embeddings and SILVA taxonomy preloaded.
-      </p>
-      <p>
-        <a class="button" id="projector" href="https://projector.tensorflow.org/"
-           rel="noopener">Open in the Embedding Projector</a>
-      </p>
-      <p class="small muted" id="projector-note"></p>
-    </div>
-  </section>
-
-  <section class="mt-32">
-    <h2>Load the embeddings in Python</h2>
-    <div class="card mt-12">
-      <p>
-        The vectors are provided in word2vec text format and can be loaded
-        with gensim:
-      </p>
-      <pre class="code">import gzip
-from gensim.models import KeyedVectors
-
-with gzip.open("sne_vectors.txt.gz", "rb") as raw:
-    vectors = KeyedVectors.load_word2vec_format(raw, binary=False)
-
-vectors.most_similar("AB002518.1.1416", topn=10)</pre>
-      <p>
-        <a class="button" id="colab" rel="noopener">Open in Colab</a>
-      </p>
-      <p class="small muted">
-        The notebook installs the required packages, downloads the vectors and
-        scores a sample with the same model used on this site, so that results
-        from the two can be compared.
-      </p>
-    </div>
-  </section>
-
-  <section class="mt-32">
+  <section class="mt-32" id="files">
     <h2>Files</h2>
-    <p class="muted mt-12">
-      File sizes are uncompressed. SHA-256 checksums are listed in
-      <a href="/data/manifest.json" class="mono">manifest.json</a>.
-    </p>
-    <div id="files" class="mt-12">
-      <p class="muted">Loading the manifest…</p>
+    <div id="files-table" class="mt-12">
+      <p class="muted">Loading the file list…</p>
     </div>
   </section>
 
   <section class="mt-32">
     <h2>File descriptions</h2>
     <details open>
-      <summary>Formats and layout</summary>
+      <summary>disease_sample_metadata.tsv</summary>
       <div class="stack mt-12">
         <p>
-          <span class="mono">sne_vectors.txt.gz</span>: the 14,093 × 100
-          embedding matrix in word2vec text format, with one OTU per line. OTU
-          identifiers are SILVA 138.2 accession numbers with the alignment
-          span, as used in the OTU tables.
+          Sample-level metadata for the reference cohort of the dysbiosis
+          score: 10,276 human faecal 16S rRNA samples (4,386 controls and 5,890
+          cases) from 13 diseases. The file is tab-separated with one row per
+          sample; empty cells are values not reported by the original study.
         </p>
         <p>
-          <span class="mono">dysbiosis_encoder.onnx</span> and
-          <span class="mono">dysbiosis_embed.f16.bin</span>: the classifier.
-          The ONNX graph takes 100-dimensional embedding vectors as input
-          rather than token indices, because all 13 fold checkpoints share one
-          frozen embedding table, which is stored separately. To run the
-          model, select rows from the embedding table using the indices in
-          <span class="mono">vocab.json</span> and multiply them by the
-          rank-normalized abundances.
+          <span class="mono">sample</span>: sequencing run accession;
+          <span class="mono">study</span>: BioProject accession;
+          <span class="mono">title</span>: title of the source study;
+          <span class="mono">diagnosis</span>: diagnosis as reported by the study;
+          <span class="mono">group</span>: 0 for controls, 1 for cases;
+          <span class="mono">disease_name</span> and
+          <span class="mono">disease_name_ab</span>: disease name and its
+          abbreviation; <span class="mono">age</span>,
+          <span class="mono">sex</span>, <span class="mono">bmi</span>,
+          <span class="mono">host_body_mass_index</span>,
+          <span class="mono">country</span> and
+          <span class="mono">subject_id</span>: host information;
+          <span class="mono">region</span>,
+          <span class="mono">pcr_primers</span> and
+          <span class="mono">platform</span>: amplified 16S region, primers
+          and sequencing platform; <span class="mono">site</span>: sampling
+          site.
         </p>
         <p>
-          <span class="mono">traits_proba.f16.bin</span>: random forest
-          probabilities for all classes of every trait, for each labelled OTU,
-          in the layout described in <span class="mono">traits.json</span>.
-          These values are used to draw the distribution plots in the atlas.
-        </p>
-        <p>
-          <span class="mono">ref_scores.json</span>: sorted model scores of the
-          10,276 reference samples, split into controls and cases. Percentiles
-          are computed from this distribution.
+          Disease abbreviations: AS, ankylosing spondylitis; ASD, autism
+          spectrum disorder; BD, bipolar disorder; CAD, coronary artery disease;
+          CRC, colorectal cancer; GD, Graves' disease; IBD, inflammatory bowel
+          disease; IBS, irritable bowel syndrome; MS, multiple sclerosis; OB,
+          obesity; PD, Parkinson's disease; SZ, schizophrenia; T2DM, type 2
+          diabetes mellitus.
         </p>
       </div>
     </details>
@@ -180,34 +141,11 @@ vectors.most_similar("AB002518.1.1416", topn=10)</pre>
 </footer>
 
 <script type="module">
-const COLAB = "https://colab.research.google.com/github/xu-research-lab/microbial-embeddings/blob/main/script/quickstart_colab.ipynb";
-
+// Only the files named here are listed; the rest of the manifest is served but
+// not offered on this page for now.
 const DESCRIPTIONS = {
-  "sne_vectors.txt.gz": "Embedding matrix (word2vec text format)",
-  "projector_vectors.tsv": "Embedding matrix for the Embedding Projector",
-  "projector_metadata.tsv": "OTU identifiers and SILVA taxonomy (seven ranks)",
-  "projector_config.json": "Embedding Projector configuration",
-  "sne.f16.bin": "Embedding matrix, float16, row-major (14,093 × 100)",
-  "vocab.json": "Mapping from OTU identifier to model index",
-  "dysbiosis_encoder.onnx": "13-fold ensemble classifier (ONNX)",
-  "dysbiosis_embed.f16.bin": "Frozen embedding table used by the classifier",
-  "traits_proba.f16.bin": "Random forest probabilities for labelled OTUs",
-  "traits.json": "Trait metadata: class order, offsets and AUCs",
-  "bacdive.json": "BacDive experimental measurements",
-  "ref_scores.json": "Reference cohort scores (controls and cases)",
-  "metrics.json": "Model performance, fold selection and cohort sizes",
-  "manifest.json": "File sizes and SHA-256 checksums",
-  "umap.f32.bin": "UMAP coordinates (14,093 × 2)",
-  "otus.json": "Taxonomy, genome linkage and trait values for each OTU",
-  "nbr_sne_idx.i16.bin": "50 nearest ecological neighbours of each OTU",
-  "nbr_phylo_idx.i16.bin": "50 nearest phylogenetic neighbours of each OTU",
-  "nbr_sne_sim.f16.bin": "Cosine similarities of ecological neighbours, float16",
-  "nbr_phylo_sim.f16.bin": "Cosine similarities of phylogenetic neighbours, float16",
-  "meta.json": "Array shapes, data types and colour categories",
-  "examples/atlas_asv_example.fasta": "Example input: two 16S V4 reads for the atlas search",
-  "examples/otu_table_example.tsv": "Example input: OTU count table (two samples)",
-  "examples/rep_seqs_example.fasta": "Example input: ASV sequences for the same two samples",
-  "examples/asv_table_example.tsv": "Example input: ASV count table for the same two samples",
+  "download/disease_sample_metadata.tsv":
+    "Sample-level metadata for the 13-disease reference cohort (10,276 samples)",
 };
 
 function human(bytes) {
@@ -216,14 +154,7 @@ function human(bytes) {
   return `${(bytes / 1048576).toFixed(2)} MB`;
 }
 
-const response = await fetch("/data/manifest.json", { cache: "no-cache" });
-const manifest = await response.json();
-
-document.getElementById("projector").href = manifest.projector_url;
-document.getElementById("projector-note").textContent =
-  "The Projector loads the TSV files from this site and therefore requires "
-  + "the site to be publicly accessible.";
-document.getElementById("colab").href = COLAB;
+const manifest = await (await fetch("/data/manifest.json", { cache: "no-cache" })).json();
 
 const table = document.createElement("table");
 const head = document.createElement("thead");
@@ -232,19 +163,20 @@ table.appendChild(head);
 
 const body = document.createElement("tbody");
 for (const entry of manifest.files) {
-  if (entry.file === "manifest.json") continue;
+  if (!(entry.file in DESCRIPTIONS)) continue;
   const row = document.createElement("tr");
 
   const name = document.createElement("td");
   const link = document.createElement("a");
   link.href = `/data/${entry.file}`;
+  link.download = "";
   link.className = "mono";
-  link.textContent = entry.file;
+  link.textContent = entry.file.split("/").pop();
   name.appendChild(link);
   row.appendChild(name);
 
   const description = document.createElement("td");
-  description.textContent = DESCRIPTIONS[entry.file] || "";
+  description.textContent = DESCRIPTIONS[entry.file];
   row.appendChild(description);
 
   const size = document.createElement("td");
@@ -256,7 +188,7 @@ for (const entry of manifest.files) {
 }
 table.appendChild(body);
 
-document.getElementById("files").replaceChildren(table);
+document.getElementById("files-table").replaceChildren(table);
 </script>
 
 </body>
