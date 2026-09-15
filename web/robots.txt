@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://snes-microbiome.org/sitemap.xml
