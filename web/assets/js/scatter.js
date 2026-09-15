@@ -203,15 +203,22 @@ export class Scatter {
     this.render();
   }
 
+  /**
+   * CSS pixels per normalized unit, equal on both axes. The shader's `* 2`
+   * only spans clip space's [-1, 1]; halving back to the canvas cancels it, so
+   * it must not reappear here (tests/js/scatter.test.mjs).
+   */
+  _pixelsPerUnit() {
+    return this.zoom * Math.min(this.cssWidth, this.cssHeight);
+  }
+
   /** Normalized-space coordinates of a pointer event. */
   _toWorld(event) {
     const rect = this.canvas.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width;
-    const py = (event.clientY - rect.top) / rect.height;
-    const aspect = this._aspect();
+    const k = this._pixelsPerUnit();
     return {
-      x: (px - 0.5) / (2 * this.zoom * aspect.x) + this.view.x,
-      y: (0.5 - py) / (2 * this.zoom * aspect.y) + this.view.y,
+      x: this.view.x + (event.clientX - rect.left - rect.width / 2) / k,
+      y: this.view.y - (event.clientY - rect.top - rect.height / 2) / k,
     };
   }
 
@@ -223,17 +230,13 @@ export class Scatter {
   /** Index of the point nearest to a pointer event, or -1 beyond `radius` px. */
   _nearest(event, radius = 10) {
     if (!this.positions) return -1;
-    const rect = this.canvas.getBoundingClientRect();
     const target = this._toWorld(event);
-    const aspect = this._aspect();
-    const scale = 2 * this.zoom;
+    const k = this._pixelsPerUnit();
     let best = -1;
     let bestDistance = Infinity;
     for (let i = 0; i < this.count; i += 1) {
-      const dx = (this.positions[i * 2] - target.x) * scale * aspect.x
-        * rect.width;
-      const dy = (this.positions[i * 2 + 1] - target.y) * scale * aspect.y
-        * rect.height;
+      const dx = (this.positions[i * 2] - target.x) * k;
+      const dy = (this.positions[i * 2 + 1] - target.y) * k;
       const distance = dx * dx + dy * dy;
       if (distance < bestDistance) {
         bestDistance = distance;
@@ -266,12 +269,9 @@ export class Scatter {
         if (!moved && Math.hypot(event.clientX - start.x, event.clientY - start.y) < 4) {
           return;
         }
-        const aspect = this._aspect();
-        const rect = canvas.getBoundingClientRect();
-        this.view.x -= (event.clientX - last.x) / rect.width
-          / (2 * this.zoom * aspect.x);
-        this.view.y += (event.clientY - last.y) / rect.height
-          / (2 * this.zoom * aspect.y);
+        const k = this._pixelsPerUnit();
+        this.view.x -= (event.clientX - last.x) / k;
+        this.view.y += (event.clientY - last.y) / k;
         last = { x: event.clientX, y: event.clientY };
         moved = true;
         this.render();

@@ -10,7 +10,7 @@
 
 import { loadArray, fetchWithProgress, halfToFloat } from './binary.js?v=5';
 import { element } from './dom.js?v=5';
-import { Scatter } from './scatter.js?v=5';
+import { Scatter } from './scatter.js?v=6';
 import { renderCard, cardSummary } from './card.js?v=5';
 
 // Okabe-Ito. Colour is a convenience here, never the only carrier of a

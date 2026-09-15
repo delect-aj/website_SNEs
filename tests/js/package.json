@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Regression tests for the browser-side preprocessing, inference and table reader.",
   "scripts": {
-    "test": "node preprocess.test.mjs && node table.test.mjs && node traits.test.mjs"
+    "test": "node preprocess.test.mjs && node table.test.mjs && node traits.test.mjs && node scatter.test.mjs"
   },
   "dependencies": {
     "onnxruntime-node": "1.16.3"
