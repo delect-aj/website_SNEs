@@ -30,7 +30,7 @@
     50
    ]
   },
-  "nbr_phylo_sim.f16.bin": {
+  "nbr_phylo_dist.f16.bin": {
    "dtype": "float16",
    "shape": [
     14093,
@@ -124,5 +124,6 @@
   "phylo": "phylo_embed_PCA_100.txt",
   "taxonomy": "taxmap_slv_ssu_ref_nr_138.2.txt",
   "traits": "../data/traits_predict/trait_table.csv"
- }
+ },
+ "phylo_neighbours": "patristic distance (substitutions per site) on SSURefNR99_1200_slv_138_2_subset.tre"
 }

@@ -695,6 +695,8 @@ details > summary::marker { color: var(--ink-3); }
 .neighbours li:last-child { border-bottom: 0; }
 .neighbours .overlap { background: var(--accent-bg); }
 .neighbours > p { grid-column: 1 / -1; margin: 0; max-width: none; }
+/* The caption belongs to its own column, so it must not span like the note. */
+.neighbours__caption { margin: 8px 0 0; max-width: none; }
 
 .card__taxon { font-style: italic; }
 .provenance { font-weight: 700; max-width: none; }

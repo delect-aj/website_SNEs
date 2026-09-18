@@ -5,13 +5,15 @@ It reads what those wrote -- it never recomputes a layout -- and adds the
 things the site serves but the research notebooks have no reason to produce.
 
     nbr_sne_sim.f16.bin     cosine similarity, float16
-    nbr_phylo_sim.f16.bin   the same
     sne.f16.bin             the embedding matrix, float16
     download/*.tsv          vectors and metadata for the TF Projector
     download/*.txt.gz       GloVe text, for gensim (no_header=True)
     download/manifest.json  sizes and checksums for the download page
 
-Why halve the similarities: the two arrays are 5.4 MB as float32 and compress
+The phylogenetic neighbours are not here: `export_phylo_neighbours.py` reads
+the SILVA tree and writes them as float16 itself.
+
+Why halve the similarities: the array is 2.8 MB as float32 and compress
 badly, because a cosine to four decimals is close to incompressible. One byte
 per value was the first attempt and is not enough resolution -- see
 `quantise_similarity` for what that costs on these numbers.
@@ -36,7 +38,7 @@ from web_export.trait_labels import load_taxonomy  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-QUANTISED = ["nbr_sne_sim", "nbr_phylo_sim"]
+QUANTISED = ["nbr_sne_sim"]
 
 
 def quantise_similarity(path, out_path):

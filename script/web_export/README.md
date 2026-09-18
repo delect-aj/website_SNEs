@@ -11,13 +11,15 @@ fold checkpoints, the embedding text files — and writes static files into
 #      script/social_niche_embedding_100.txt
 #      script/phylo_embed_PCA_100.txt
 #      script/taxmap_slv_ssu_ref_nr_138.2.txt
+#      data/silva_tree/SSURefNR99_1200_slv_138_2_subset.tre
 #      script/trait_predcit.csv, script/bacDive.csv, script/agg_bac.csv
 #      data/otu_seq/feces_seq_16S_silva.fasta
 #      data/healthy_disease_predict/model/<fold>/members/*/model.pth
 #      ../microbial-embeddings/analysis/Disease_classification_loo/Data/loo_all_diseases/data/
 
 # 1. Atlas arrays. The notebook is the reference implementation; this build
-#    only reads what it wrote.
+#    only reads what it wrote. Its phylogenetic neighbours are replaced in
+#    step 8, so never stop after this one.
 jupyter nbconvert --execute script/atlas_export.ipynb
 
 # 2. Classifier, vocabulary, reference scores, examples.
@@ -43,6 +45,11 @@ python3 script/web_export/export_examples.py
 
 # 7. SILVA lineages of the vocabulary, for the dysbiosis result's taxa.
 python3 script/web_export/export_taxonomy.py
+
+# 8. Nearest relatives from the SILVA tree, replacing the PhyloE neighbours the
+#    notebook writes in step 1. Rewrites nbr_phylo_*, nbr_overlap and meta.json,
+#    so it runs after both. Standard library only.
+python3 script/web_export/export_phylo_neighbours.py
 ```
 
 To rebuild only the one-click examples (the lowest-scoring control and the
@@ -66,7 +73,8 @@ the AUC on the site the honest one.
 |---|---|
 | `export_dysbiosis.py` | `vocab.json`, `dysbiosis_encoder.onnx`, `dysbiosis_embed.f16.bin`, `ref_scores.json`, `metrics.json`, `examples/`, `examples.json` |
 | `export_traits.py` | `traits_proba.f16.bin`, `traits.json`, `bacdive.json` |
-| `export_assets.py` | `nbr_*_sim.f16.bin`, `sne.f16.bin`, `download/*`, `manifest.json`, and the rewrite of `meta.json` |
+| `export_phylo_neighbours.py` | `nbr_phylo_idx.i16.bin`, `nbr_phylo_dist.f16.bin`, `nbr_overlap` in `otus.json`, its `meta.json` entry |
+| `export_assets.py` | `nbr_sne_sim.f16.bin`, `sne.f16.bin`, `download/*`, `manifest.json`, and the rewrite of `meta.json` |
 | `export_golden.py` | `tests/fixtures/golden.json` |
 | `export_examples.py` | `examples/atlas_asv_example.fasta`, `otu_table_example.tsv`, `rep_seqs_example.fasta`, `asv_table_example.tsv`, and the refresh of `manifest.json` |
 | `export_assets.py` | `data/server/otu_refseqs.fasta` and `atlas_refseqs.fasta` (outside the web root) |
