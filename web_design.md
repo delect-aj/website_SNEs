@@ -55,7 +55,7 @@ diseases）已投稿，数据与代码托管在 GitHub
 | `otus.json` | OTU id、SILVA 分类、代表基因组、Traitar/BacDive 性状 | ~4 MB gz |
 | `umap.f32.bin` | 14093 × 2 图谱坐标 | 113 KB |
 | `nbr_sne.bin` | 每个 OTU 的 top-50 生态近邻（int16 索引 + f16 余弦） | 2.1 MB |
-| `nbr_phylo.bin` | 同结构，但来自 PhyloE（Methods L457-463） | 2.1 MB |
+| `nbr_phylo.bin` | 同结构，但存进化距离：SILVA 参考树上的 patristic distance | 2.1 MB |
 | `traits.f16.bin` | 14093 × 约 20 个性状的 RF 预测概率（见"生态属性预测"） | ~560 KB |
 | `traits_meta.json` | 每个性状的留一门交叉验证 AUC、标签数、正样本数 | < 5 KB |
 | `bacdive.json` | 有 BacDive 实测记录的 OTU 及其性状，覆盖预测值 | 小 |

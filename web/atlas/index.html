@@ -109,7 +109,8 @@
           <strong>Layout.</strong> Point positions are a UMAP projection of the
           100-dimensional ecological embeddings. Distances in two dimensions
           are approximate and should not be interpreted quantitatively; the
-          neighbour lists give cosine similarities in the full embedding space.
+          ecological neighbour list gives cosine similarities in the full
+          100-dimensional space.
         </p>
         <p>
           <strong>Names and identifiers.</strong> Every name on this site comes
@@ -129,6 +130,17 @@
           1,245 of the 14,093 OTUs. The others were sequenced from uncultured
           material and carry no species in SILVA, so they are reached by genus,
           by identifier, or by searching their sequence.
+        </p>
+        <p>
+          <strong>The two neighbour lists.</strong> Ecological neighbours are
+          ranked by the cosine similarity of the social niche embeddings, so
+          1.000 would be an identical co-occurrence pattern across the
+          approximately 210,000 samples. Phylogenetic neighbours are ranked by
+          patristic distance on the SILVA 138.2 reference tree &mdash; the sum
+          of the branch lengths along the path between the two OTUs, in
+          substitutions per site &mdash; so 0 would be the same position in the
+          tree. The two numbers answer different questions and are not on one
+          scale; compare values within a column, not across the pair.
         </p>
         <p>
           <strong>Trait prediction.</strong> Traits are predicted by random
@@ -206,7 +218,7 @@
   </div>
 </footer>
 
-<script type="module" src="/assets/js/atlas.js?v=7"></script>
+<script type="module" src="/assets/js/atlas.js?v=8"></script>
 
 </body>
 </html>

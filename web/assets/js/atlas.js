@@ -11,7 +11,7 @@
 import { loadArray, fetchWithProgress, halfToFloat } from './binary.js?v=5';
 import { element } from './dom.js?v=5';
 import { Scatter } from './scatter.js?v=6';
-import { renderCard, cardSummary } from './card.js?v=5';
+import { renderCard, cardSummary } from './card.js?v=8';
 
 // Okabe-Ito. Colour is a convenience here, never the only carrier of a
 // distinction: the card labels everything in words.
@@ -348,7 +348,7 @@ async function load() {
   const nbrSneSim = await loadHalf('nbr_sne_sim.f16.bin');
   const nbrPhyloIdx = await loadArray('/data/nbr_phylo_idx.i16.bin',
                                       spec('nbr_phylo_idx.i16.bin'));
-  const nbrPhyloSim = await loadHalf('nbr_phylo_sim.f16.bin');
+  const nbrPhyloDist = await loadHalf('nbr_phylo_dist.f16.bin');
 
   data = {
     meta,
@@ -364,7 +364,7 @@ async function load() {
     nbrSneIdx: nbrSneIdx.data,
     nbrPhyloIdx: nbrPhyloIdx.data,
     nbrSneSim,
-    nbrPhyloSim,
+    nbrPhyloDist,
   };
 
   setStatus('Drawing…');

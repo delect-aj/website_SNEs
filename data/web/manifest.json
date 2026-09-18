@@ -97,8 +97,8 @@
   },
   {
    "file": "meta.json",
-   "bytes": 1906,
-   "sha256": "828e05e69b99bcbb46281c49d186a175e2d8311c060d7ba00e09477d4786257a"
+   "bytes": 2015,
+   "sha256": "79113e1e63c8670bd9ebad5b115f5e6e61717e7bc7588d47d0761bb089f5b698"
   },
   {
    "file": "metrics.json",
@@ -106,14 +106,14 @@
    "sha256": "0f6a6ebe21d1d31422274dbbd86c650c8c0731ffa636efd7d70c728897a67b22"
   },
   {
-   "file": "nbr_phylo_idx.i16.bin",
+   "file": "nbr_phylo_dist.f16.bin",
    "bytes": 1409300,
-   "sha256": "5a050332f6a484512630cfccb233eff0346580970e9edfec97b76cc7dd965980"
+   "sha256": "f4bcedac6394491113bf9c158b49c03f9b8745abd67c8b6d9eb9f3492f59d812"
   },
   {
-   "file": "nbr_phylo_sim.f16.bin",
+   "file": "nbr_phylo_idx.i16.bin",
    "bytes": 1409300,
-   "sha256": "b27a0ad358d08f749cfdcdbc3bc51d7dfba59b48ea6ed5df5c42f01148cfedd5"
+   "sha256": "794ae54e47ae7f47449e718624c42b9114f2aabe27324d6383ac1ed4b405023a"
   },
   {
    "file": "nbr_sne_idx.i16.bin",
@@ -127,8 +127,8 @@
   },
   {
    "file": "otus.json",
-   "bytes": 16137273,
-   "sha256": "92389925504ab2396e400eaa8db5eb8291bab77233f36c038df5f8414535ec82"
+   "bytes": 16137288,
+   "sha256": "3ef9d823a219fab0ce71112dd35cfa88e26138dba3668bba9d64cd4042e0051d"
   },
   {
    "file": "ref_scores.json",

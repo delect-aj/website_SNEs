@@ -56,11 +56,19 @@ function renderNeighbours(container, index, data) {
     array.subarray(index * data.k, index * data.k + NEIGHBOURS_SHOWN)));
   const ecological = top(data.nbrSneIdx);
   const phylogenetic = top(data.nbrPhyloIdx);
+  // The two columns cannot share a scale: one is a similarity between
+  // embeddings, the other a distance on a tree. Each says which it is.
   const lists = [
-    { title: 'Ecological neighbours', idx: data.nbrSneIdx, sim: data.nbrSneSim,
-      other: phylogenetic },
-    { title: 'Phylogenetic neighbours', idx: data.nbrPhyloIdx, sim: data.nbrPhyloSim,
-      other: ecological },
+    { title: 'Ecological neighbours', idx: data.nbrSneIdx, value: data.nbrSneSim,
+      other: phylogenetic, decimals: 3,
+      caption: 'Cosine similarity of the social niche embeddings: 1 is an '
+        + 'identical co-occurrence pattern, and the list runs from the most '
+        + 'similar downwards.' },
+    { title: 'Phylogenetic neighbours', idx: data.nbrPhyloIdx, value: data.nbrPhyloDist,
+      other: ecological, decimals: 3,
+      caption: 'Patristic distance on the SILVA 138.2 reference tree, in '
+        + 'substitutions per site: 0 is the same position in the tree, and the '
+        + 'list runs from the closest relative outwards.' },
   ];
 
   for (const list of lists) {
@@ -83,10 +91,11 @@ function renderNeighbours(container, index, data) {
       // entirely between 0.992 and 1.000, and two decimals turns that into a
       // column of identical numbers.
       row.appendChild(element('span', 'num',
-        list.sim[start + k].toFixed(3)));
+        list.value[start + k].toFixed(list.decimals)));
       ordered.appendChild(row);
     }
     column.appendChild(ordered);
+    column.appendChild(element('p', 'small muted neighbours__caption', list.caption));
     wrapper.appendChild(column);
   }
 
@@ -99,7 +108,7 @@ function renderNeighbours(container, index, data) {
   const phylogeneticGenera = new Set([...phylogenetic].map(genusOf).filter(Boolean));
   const sameGenus = [...ecological].filter((i) => phylogeneticGenera.has(genusOf(i))).length;
   const note = element('p', 'small muted');
-  note.textContent = `Top ${NEIGHBOURS_SHOWN} by cosine similarity. ${overlap} of `
+  note.textContent = `The ${NEIGHBOURS_SHOWN} nearest of each kind. ${overlap} of `
     + `${NEIGHBOURS_SHOWN} OTUs appear in both lists (shaded); ${sameGenus} of the `
     + `${NEIGHBOURS_SHOWN} ecological neighbours belong to a genus that also appears `
     + `among the phylogenetic neighbours.`;
