@@ -120,7 +120,7 @@ main { padding: 40px 0 64px; }
 
 .muted { color: var(--ink-2); }
 .small { font-size: 13px; }
-.spread { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.spread { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 16px; }
 .stack > * + * { margin-top: 16px; }
 
 /* Logo -------------------------------------------------------------------- */
@@ -713,6 +713,9 @@ table { border-collapse: collapse; width: 100%; font-size: 14px; }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 th { font-weight: 700; color: var(--yankees); background: var(--tint); }
 thead th { border-bottom: 2px solid var(--gainsborough); }
+/* The file table's columns are wider than a phone. It scrolls inside its own
+   box, so the page itself never scrolls sideways. */
+#files-table { overflow-x: auto; }
 tbody tr:hover { background: var(--tint); }
 td.num, th.num { text-align: right; font-family: var(--mono); }
 
