@@ -60,24 +60,12 @@
     <h2>1. Select input data</h2>
 
     <div class="radio-row mt-12" id="modes">
-      <label><input type="radio" name="mode" value="example" checked><span>Example sample</span></label>
-      <label><input type="radio" name="mode" value="table"><span>OTU table (SILVA 138.2 identifiers)</span></label>
+      <label><input type="radio" name="mode" value="table" checked><span>OTU table (SILVA 138.2 identifiers)</span></label>
       <label><input type="radio" name="mode" value="fasta"><span>Representative sequences (FASTA) and count table</span></label>
     </div>
 
     <div class="card mt-16">
-      <div id="mode-example">
-        <p class="muted" style="margin-bottom:12px">
-          Six samples from the reference cohort, provided as OTU count tables:
-          for each of CRC, IBD and T2DM, the control with the lowest score and
-          the case with the highest score, chosen to illustrate the two ends of
-          the scale rather than typical samples. Example samples are processed
-          by the same pipeline as uploaded data.
-        </p>
-        <div id="examples" class="radio-row"></div>
-      </div>
-
-      <div id="mode-table" hidden>
+      <div id="mode-table">
         <p class="muted">
           A tab-separated table with SILVA 138.2 OTU identifiers (97% identity)
           as rows, in the form <span class="mono">accession.start.stop</span>,
@@ -90,6 +78,9 @@
           (two samples: a CRC control and a CRC case).
         </p>
         <p><input type="file" id="table-file" accept=".tsv,.txt,.csv,.biom"></p>
+        <p class="small muted examples" id="examples" style="margin-bottom:0">
+          Or load a sample from the reference cohort:
+        </p>
         <div id="table-samples"></div>
       </div>
 
@@ -212,7 +203,7 @@
   </div>
 </footer>
 
-<script type="module" src="/assets/js/dysbiosis.js?v=6"></script>
+<script type="module" src="/assets/js/dysbiosis.js?v=7"></script>
 
 </body>
 </html>
