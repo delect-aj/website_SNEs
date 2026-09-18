@@ -312,7 +312,8 @@ function runSearch(query) {
   }
 
   if (!matches.length) {
-    const empty = element('p', 'small muted', 'No matching OTU. Try a genus name or an OTU identifier.');
+    const empty = element('p', 'small muted', 'No matching OTU. Names follow the SILVA 138.2 taxonomy: try a family, '
+      + 'genus or species name, or an OTU identifier such as HM007585.1.1335.');
     results.appendChild(empty);
     return;
   }

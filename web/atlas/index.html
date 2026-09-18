@@ -51,7 +51,7 @@
     <div class="spread" style="gap:24px; align-items:flex-end">
       <div style="flex:1 1 320px; min-width:280px">
         <label for="search">Search</label>
-        <input type="text" id="search" placeholder="Genus, species, OTU identifier or 16S rRNA sequence"
+        <input type="text" id="search" placeholder="Family, genus, species, OTU identifier (SILVA 138.2) or 16S rRNA sequence"
                autocomplete="off" style="width:100%; margin-top:4px">
         <p class="small muted mt-8 examples" id="search-examples" style="margin-bottom:0">
           Examples:
@@ -60,6 +60,14 @@
           <button type="button" class="link" data-query="HM007585.1.1335">HM007585.1.1335</button> (OTU) ·
           <button type="button" class="link" data-asv="0">ASV 1</button>,
           <button type="button" class="link" data-asv="1">ASV 2</button> (300-bp V4 reads)
+        </p>
+        <p class="small muted mt-8" style="margin-bottom:0">
+          Names follow the <b>SILVA 138.2</b> taxonomy throughout this site, and
+          matching is on family, genus and species. An <b>OTU identifier</b> is
+          that OTU's SILVA reference accession followed by the aligned region,
+          <span class="mono">accession.start.stop</span>, as used in the OTU
+          tables. Only 1,245 of the 14,093 OTUs (9%) carry a species name in
+          SILVA, so a genus is usually the more reliable query.
         </p>
         <p class="small muted mt-8" style="margin-bottom:0">
           <label for="reads" style="font-weight:400">Or upload representative sequences (FASTA) for multiple ASVs
@@ -102,6 +110,25 @@
           100-dimensional ecological embeddings. Distances in two dimensions
           are approximate and should not be interpreted quantitatively; the
           neighbour lists give cosine similarities in the full embedding space.
+        </p>
+        <p>
+          <strong>Names and identifiers.</strong> Every name on this site comes
+          from the SILVA 138.2 SSU Ref NR99 taxonomy, so the ranks shown for an
+          OTU are that one system rather than a mixture of sources. SILVA 138.2
+          uses the current phylum names, which differ from the older ones still
+          common in the literature: <i>Bacillota</i> (formerly Firmicutes),
+          <i>Bacteroidota</i> (Bacteroidetes), <i>Pseudomonadota</i>
+          (Proteobacteria) and <i>Actinomycetota</i> (Actinobacteria). An OTU
+          identifier is the accession of the OTU's SILVA reference sequence
+          followed by the region of it that is aligned, in the form
+          <span class="mono">accession.start.stop</span>; the identifier
+          <span class="mono">HM007585.1.1335</span>, for example, is bases 1 to
+          1,335 of GenBank accession HM007585. These are the identifiers the
+          OTU tables use, and the ones the dysbiosis score expects. A species
+          name is given only where the SILVA record names an isolate: that is
+          1,245 of the 14,093 OTUs. The others were sequenced from uncultured
+          material and carry no species in SILVA, so they are reached by genus,
+          by identifier, or by searching their sequence.
         </p>
         <p>
           <strong>Trait prediction.</strong> Traits are predicted by random
@@ -179,7 +206,7 @@
   </div>
 </footer>
 
-<script type="module" src="/assets/js/atlas.js?v=6"></script>
+<script type="module" src="/assets/js/atlas.js?v=7"></script>
 
 </body>
 </html>
