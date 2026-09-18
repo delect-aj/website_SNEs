@@ -715,7 +715,7 @@ th { font-weight: 700; color: var(--yankees); background: var(--tint); }
 thead th { border-bottom: 2px solid var(--gainsborough); }
 /* The file table's columns are wider than a phone. It scrolls inside its own
    box, so the page itself never scrolls sideways. */
-#files-table { overflow-x: auto; }
+#files-table, .table-box { overflow-x: auto; }
 tbody tr:hover { background: var(--tint); }
 td.num, th.num { text-align: right; font-family: var(--mono); }
 

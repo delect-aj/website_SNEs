@@ -53,57 +53,69 @@
 
   <section class="mt-32">
     <h2>File descriptions</h2>
-    <details open>
-      <summary>Formats and layout</summary>
-      <div class="stack mt-12">
-        <p>
-          <span class="mono">disease_sample_metadata.tsv</span>: sample-level
-          metadata for the reference cohort of the dysbiosis score, 10,276 human
-          faecal 16S rRNA samples (4,386 controls and 5,890 cases) from 13
-          diseases. The file is tab-separated with one row per sample; empty
-          cells are values not reported by the original study.
-          <span class="mono">sample</span>: sequencing run accession;
-          <span class="mono">study</span>: BioProject accession;
-          <span class="mono">title</span>: title of the source study;
-          <span class="mono">diagnosis</span>: diagnosis as reported by the study;
-          <span class="mono">group</span>: 0 for controls, 1 for cases;
-          <span class="mono">disease_name</span> and
-          <span class="mono">disease_name_ab</span>: disease name and its
-          abbreviation; <span class="mono">age</span>,
-          <span class="mono">sex</span>, <span class="mono">bmi</span>,
-          <span class="mono">host_body_mass_index</span>,
-          <span class="mono">country</span> and
-          <span class="mono">subject_id</span>: host information;
-          <span class="mono">region</span>,
-          <span class="mono">pcr_primers</span> and
-          <span class="mono">platform</span>: amplified 16S region, primers
-          and sequencing platform; <span class="mono">site</span>: sampling
-          site. Disease abbreviations: AS, ankylosing spondylitis; ASD, autism
-          spectrum disorder; BD, bipolar disorder; CAD, coronary artery disease;
-          CRC, colorectal cancer; GD, Graves' disease; IBD, inflammatory bowel
-          disease; IBS, irritable bowel syndrome; MS, multiple sclerosis; OB,
-          obesity; PD, Parkinson's disease; SZ, schizophrenia; T2DM, type 2
-          diabetes mellitus.
-        </p>
-        <p>
-          <span class="mono">sne_vectors.txt.gz</span>: the 14,093 × 100
-          embedding matrix in GloVe text format, with one OTU per line. OTU
-          identifiers are SILVA 138.2 accession numbers with the alignment
-          span, as used in the OTU tables.
-        </p>
-        <p>
-          <span class="mono">traits_proba.f16.bin</span>: random forest
-          probabilities for all classes of every trait, for each labelled OTU,
-          in the layout described in <span class="mono">traits.json</span>.
-          These values are used to draw the distribution plots in the atlas.
-        </p>
-        <p>
-          <span class="mono">ref_scores.json</span>: sorted model scores of the
-          10,276 reference samples, split into controls and cases. Percentiles
-          are computed from this distribution.
-        </p>
+
+    <div class="stack mt-12">
+      <p>
+        <strong class="mono">disease_sample_metadata.tsv</strong> &mdash; Sample-level
+        metadata for the reference cohort of the dysbiosis score: 10,276 human
+        faecal 16S rRNA samples (4,386 controls and 5,890 cases) from 13
+        diseases. Tab-separated, one row per sample; an empty cell is a value
+        the original study did not report.
+      </p>
+      <div class="table-box">
+        <table>
+          <thead><tr><th>Column</th><th>Contents</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">sample</td><td>Sequencing run accession</td></tr>
+            <tr><td class="mono">study</td><td>BioProject accession</td></tr>
+            <tr><td class="mono">title</td><td>Title of the source study</td></tr>
+            <tr><td class="mono">diagnosis</td><td>Diagnosis as reported by the study</td></tr>
+            <tr><td class="mono">group</td><td>0 for controls, 1 for cases</td></tr>
+            <tr><td class="mono">disease_name, disease_name_ab</td><td>Disease name and its abbreviation</td></tr>
+            <tr><td class="mono">age, sex, bmi, host_body_mass_index, country, subject_id</td><td>Host information</td></tr>
+            <tr><td class="mono">region, pcr_primers, platform</td><td>Amplified 16S region, primers and sequencing platform</td></tr>
+            <tr><td class="mono">site</td><td>Sampling site</td></tr>
+          </tbody>
+        </table>
       </div>
-    </details>
+      <div class="table-box">
+        <table>
+          <thead><tr><th>Abbreviation</th><th>Disease</th><th>Abbreviation</th><th>Disease</th></tr></thead>
+          <tbody>
+            <tr><td>AS</td><td>Ankylosing spondylitis</td><td>IBS</td><td>Irritable bowel syndrome</td></tr>
+            <tr><td>ASD</td><td>Autism spectrum disorder</td><td>MS</td><td>Multiple sclerosis</td></tr>
+            <tr><td>BD</td><td>Bipolar disorder</td><td>OB</td><td>Obesity</td></tr>
+            <tr><td>CAD</td><td>Coronary artery disease</td><td>PD</td><td>Parkinson's disease</td></tr>
+            <tr><td>CRC</td><td>Colorectal cancer</td><td>SZ</td><td>Schizophrenia</td></tr>
+            <tr><td>GD</td><td>Graves' disease</td><td>T2DM</td><td>Type 2 diabetes mellitus</td></tr>
+            <tr><td>IBD</td><td>Inflammatory bowel disease</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong class="mono">sne_vectors.txt.gz</strong> &mdash; The 14,093 × 100
+        embedding matrix in GloVe text format, one OTU per line. OTU
+        identifiers are SILVA 138.2 accession numbers with the alignment span,
+        as used in the OTU tables.
+      </p>
+      <p>
+        <strong class="mono">traits_proba.f16.bin</strong> &mdash; Random forest
+        probabilities for all classes of every trait, for each labelled OTU, in
+        the layout described in <span class="mono">traits.json</span>. These
+        values are used to draw the distribution plots in the atlas.
+      </p>
+      <p>
+        <strong class="mono">traits.json</strong> &mdash; Trait metadata: the class
+        order of each trait, its offset into
+        <span class="mono">traits_proba.f16.bin</span>, and its
+        leave-one-phylum-out AUC.
+      </p>
+      <p>
+        <strong class="mono">ref_scores.json</strong> &mdash; Sorted model scores of
+        the 10,276 reference samples, split into controls and cases.
+        Percentiles are computed from this distribution.
+      </p>
+    </div>
   </section>
 
 </main>
