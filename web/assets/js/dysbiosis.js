@@ -126,8 +126,36 @@ function renderSamplePicker(container, samples, onPick) {
 
 /* --------------------------------------------------------------- inference */
 
+/**
+ * Make sure the onnxruntime global is there, fetching it once more if not.
+ *
+ * The runtime is a plain script tag in the page head, so a request that fails
+ * -- a dropped connection, a redeploy mid-load, an extension that blocks
+ * bundled scripts -- leaves `ort` undefined and every later line throwing
+ * "ort is not defined". One retry fixes the transient case; the rest get a
+ * message that says what failed instead of a bare ReferenceError.
+ */
+async function ensureRuntime() {
+  if (typeof ort !== 'undefined') return;
+  status('Loading the inference runtime…', 0);
+  await new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = `${WASM_PATH}ort.min.js`;
+    script.onload = resolve;
+    script.onerror = resolve;
+    document.head.appendChild(script);
+  });
+  if (typeof ort === 'undefined') {
+    throw new Error('The inference runtime (onnxruntime-web) could not be '
+      + 'loaded from this site, so the model cannot run. Reload the page; if '
+      + 'that does not help, a browser extension or a network filter is '
+      + 'likely blocking /assets/vendor/ort/ort.min.js.');
+  }
+}
+
 async function ensureModel() {
   if (state.loaded) return;
+  await ensureRuntime();
 
   status('Loading embedding table…', 0);
   const embeddingBuffer = await fetchWithProgress(`${DATA}/dysbiosis_embed.f16.bin`,
@@ -157,8 +185,19 @@ async function ensureModel() {
   // One thread: the multi-threaded build wants COOP/COEP headers, and a
   // 600x100 encoder does not need them.
   ort.env.wasm.numThreads = 1;
-  state.session = await ort.InferenceSession.create(modelBuffer,
-    { executionProviders: ['wasm'] });
+  try {
+    state.session = await ort.InferenceSession.create(modelBuffer,
+      { executionProviders: ['wasm'] });
+  } catch (error) {
+    // The runtime picks its WebAssembly build at this point: ort-wasm-simd.wasm
+    // where SIMD is available and ort-wasm.wasm where it is not, both of which
+    // this site serves. A failure here is therefore the browser, not a missing
+    // file, and the runtime's own message ("no available backend found") does
+    // not say so.
+    throw new Error('The model could not be started in this browser '
+      + `(${error.message}). Scoring runs on WebAssembly, which needs a `
+      + 'current version of Chrome, Firefox, Edge or Safari.');
+  }
   state.loaded = true;
 }
 
