@@ -2,8 +2,8 @@
 # Check that the vendored browser dependencies are the versions this repository
 # pins, and that the WebAssembly binaries match the JavaScript loader.
 #
-# Only the loader is committed (`web/assets/vendor/ort/ort.min.js`); the two
-# 11 MB `.wasm` files are fetched by `fetch_vendor.sh` and stay out of git. So a
+# Only the loader is committed (`web/assets/vendor/ort/ort.min.js`); the three
+# `.wasm` files are fetched by `fetch_vendor.sh` and stay out of git. So a
 # checkout that has been updated with `git pull` carries the new loader beside
 # whatever wasm was fetched last time, and onnxruntime-web then fails in the
 # browser with a message that never mentions a version. Run this after pulling,
@@ -42,9 +42,10 @@ check() {
     fi
 }
 
-# The loader and both wasm builds have to be the same release; each carries its
+# The loader and every wasm build have to be the same release; each carries its
 # version string, so each is checked against the pin.
 check "${vendor}/ort/ort.min.js" "${ort_version}"
+check "${vendor}/ort/ort-wasm.wasm" "${ort_version}"
 check "${vendor}/ort/ort-wasm-simd.wasm" "${ort_version}"
 check "${vendor}/ort/ort-wasm-simd-threaded.wasm" "${ort_version}"
 check "${vendor}/papaparse/papaparse.min.js" "${papa_version}"

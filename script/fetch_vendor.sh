@@ -32,6 +32,11 @@ mkdir -p "${vendor}/ort"
 cp ort/dist/ort.min.js "${vendor}/ort/"
 cp ort/dist/ort-wasm-simd-threaded.wasm "${vendor}/ort/"
 cp ort/dist/ort-wasm-simd.wasm "${vendor}/ort/"
+# The runtime picks its build at load time: the SIMD one where the browser has
+# WebAssembly SIMD, this one where it does not (Safari before 16.4, Chrome
+# before 91, Firefox before 89). Without it those browsers abort with
+# "both async and sync fetching of the wasm failed".
+cp ort/dist/ort-wasm.wasm "${vendor}/ort/"
 
 echo "Fetching papaparse ${PAPAPARSE_VERSION}"
 mkdir -p papaparse
