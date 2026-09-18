@@ -8,10 +8,10 @@
  * `preprocess.js` is pinned against Python by a regression test rather than
  * written from the description.
  *
- * Three input routes, in decreasing order of how often they will be used:
- * a ready-made example, an OTU table already keyed by SILVA 138.2 ids, and
- * rep-seqs plus counts. Only the last one touches the network, and only to
- * translate sequences into OTU ids.
+ * Two input routes: an OTU table already keyed by SILVA 138.2 ids, and
+ * rep-seqs plus counts. Only the second touches the network, and only to
+ * translate sequences into OTU ids. The reference-cohort examples are written
+ * into the table route's file input, so they are scored as an upload.
  */
 
 import { fetchWithProgress, halfToFloat } from './binary.js?v=5';
@@ -40,7 +40,6 @@ const state = {
 
 const elements = {
   modes: document.getElementById('modes'),
-  example: document.getElementById('mode-example'),
   table: document.getElementById('mode-table'),
   fasta: document.getElementById('mode-fasta'),
   examples: document.getElementById('examples'),
@@ -90,7 +89,6 @@ function currentMode() {
 
 function showMode() {
   const mode = currentMode();
-  elements.example.hidden = mode !== 'example';
   elements.table.hidden = mode !== 'table';
   elements.fasta.hidden = mode !== 'fasta';
   elements.runStatus.replaceChildren();
@@ -422,38 +420,48 @@ async function loadStatics() {
   vocab.ids.forEach((id, position) => state.vocab.index.set(id, position + 2));
 
   state.examples = examples;
-  for (const record of examples) {
-    const label = element('label');
-    const radio = element('input');
-    radio.type = 'radio';
-    radio.name = 'example';
-    radio.value = record.file;
-    const span = element('span');
-    span.textContent = record.label;
-    label.appendChild(radio);
-    label.appendChild(span);
-    elements.examples.appendChild(label);
-  }
-  if (examples.length) elements.examples.querySelector('input').checked = true;
-  elements.examples.addEventListener('change', () => { state.selection = 0; });
+  examples.forEach((record, index) => {
+    if (index) elements.examples.appendChild(document.createTextNode(' · '));
+    const button = element('button', 'link', `${record.label} (${record.sample_id})`);
+    button.type = 'button';
+    button.addEventListener('click', () => loadExample(record));
+    elements.examples.appendChild(button);
+  });
 
   elements.runNote.textContent = `Vocabulary: ${vocab.ids.length} OTUs, `
     + `${metrics.n_informative_otus} with a trained embedding.`;
 }
 
+/**
+ * Put one reference-cohort sample into the upload box, as a table file.
+ *
+ * The counts are written out in the same TSV the page asks visitors to upload
+ * and handed to the file input, so an example takes the upload's code path
+ * rather than one of its own: what it scores is what a downloaded and
+ * re-uploaded table would score.
+ */
+async function loadExample(record) {
+  try {
+    const data = await (await fetch(`${DATA}/examples/${record.file}`,
+      { cache: 'no-cache' })).json();
+    const column = `${data.sample_id}_${record.label.replace(/ /g, '_')}`;
+    const rows = [`#OTU ID\t${column}`];
+    for (const [otu, count] of Object.entries(data.counts)) rows.push(`${otu}\t${count}`);
+    const file = new File([`${rows.join('\n')}\n`], `${column}.tsv`,
+      { type: 'text/tab-separated-values' });
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    elements.tableFile.files = transfer.files;
+    state.selection = 0;
+    elements.tableFile.dispatchEvent(new Event('change'));
+  } catch (error) {
+    problem(`The example could not be loaded: ${error.message}`);
+  }
+}
+
 async function collectSamples() {
   const mode = currentMode();
   state.mappingNote = '';
-
-  if (mode === 'example') {
-    const picked = elements.examples.querySelector('input:checked');
-    if (!picked) throw new Error('Please select an example sample.');
-    const record = await (await fetch(`${DATA}/examples/${picked.value}`, { cache: 'no-cache' })).json();
-    return [{
-      name: `${record.label} (${record.sample_id})`,
-      otuCounts: new Map(Object.entries(record.counts)),
-    }];
-  }
 
   if (mode === 'table') {
     const file = elements.tableFile.files[0];
@@ -527,13 +535,11 @@ async function run() {
 
     const target = currentMode() === 'table' ? elements.tableSamples
       : elements.fastaSamples;
-    if (currentMode() !== 'example') {
-      renderSamplePicker(target, samples, (index) => { state.selection = index; });
-      if (state.mappingNote) {
-        const note = element('p', 'small muted');
-        note.textContent = state.mappingNote;
-        target.appendChild(note);
-      }
+    renderSamplePicker(target, samples, (index) => { state.selection = index; });
+    if (state.mappingNote) {
+      const note = element('p', 'small muted');
+      note.textContent = state.mappingNote;
+      target.appendChild(note);
     }
 
     await ensureModel();
