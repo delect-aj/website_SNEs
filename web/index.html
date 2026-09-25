@@ -95,9 +95,11 @@
         <p class="lede">
           We represent each of 14,093 SILVA 138.2 OTUs (97% identity) as a
           100-dimensional social niche embedding, learned from co-occurrence
-          patterns in approximately 210,000 human faecal samples. OTUs with
-          similar co-occurrence patterns have similar embeddings and thus occupy
-          similar social niches, independent of their phylogenetic relatedness.
+          patterns in approximately 210,000 human faecal samples. Two OTUs lie
+          close together when they share co-occurrence partners, that is when
+          they keep the same company, rather than when they occur together, and
+          keeping the same company is what it means to occupy a similar social
+          niche, independent of phylogenetic relatedness.
           This site provides an interactive atlas of the embeddings, trait
           predictions for uncultured taxa, a research-use dysbiosis score and
           downloadable data files.
@@ -135,8 +137,9 @@
         The embeddings describe <strong>realized niches</strong>: the ecological
         role of a taxon within the gut community, inferred from the taxa it
         co-occurs with. This is not equivalent to its physiology in pure
-        culture. For example, an OTU predicted to be anaerobic behaves like an
-        anaerobe in the gut, in part because it co-occurs with anaerobic taxa.
+        culture. For example, an OTU predicted to be anaerobic is one whose gut
+        neighbours are anaerobes. That is evidence about the niche it occupies,
+        not a measurement of its oxygen tolerance in culture.
       </p>
       <p>
         All models were trained on human faecal 16S rRNA data. The results do

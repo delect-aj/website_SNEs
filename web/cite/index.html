@@ -121,10 +121,13 @@
       </p>
       <p>
         The dysbiosis score is a percentile within a reference cohort, not a
-        probability. Performance on diseases outside the 13 in the cohort is
-        lower than within it (AUC 0.64 compared with 0.80). When reporting
+        probability. On a disease outside the 13 in the cohort the AUC is 0.64,
+        against 0.67 for the pooled leave-one-disease-out model reported in the
+        paper on the same cohort; both are held-out estimates. When reporting
         generalization to new diseases, please use the leave-one-disease-out
-        AUC (0.64).
+        AUC (0.64). The AUC of the deployed ensemble measured on the cohort it
+        was trained on is not a generalization estimate and should not be
+        quoted as one.
       </p>
     </div>
   </section>
