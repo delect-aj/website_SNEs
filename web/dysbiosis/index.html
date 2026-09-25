@@ -136,11 +136,14 @@
         </p>
         <p>
           The reference cohort covers 13 diseases, and the model was trained on
-          all of them. Performance on unseen diseases is therefore lower than
-          within the cohort (AUC 0.64 by leave-one-disease-out validation,
-          compared with 0.80 within the cohort). Samples from conditions not
-          represented in the cohort are likely to receive scores closer to the
-          middle of the distribution.
+          all of them. For a disease outside those 13 the expected performance
+          is AUC 0.64, measured by leave-one-disease-out validation. The pooled
+          leave-one-disease-out model reported in the paper reaches 0.67 on the
+          same cohort, so the deployed ensemble scores an unseen disease at
+          close to the performance the paper reports; both figures are held-out
+          estimates. Samples from conditions not represented in the
+          cohort are likely to receive scores closer to the middle of the
+          distribution.
         </p>
         <p>
           The score is derived from a single sample using a single model.
