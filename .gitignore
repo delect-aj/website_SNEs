@@ -28,3 +28,6 @@ data/atlas_source/
 
 # Test and notebook caches
 .pytest_cache/
+
+# Local editor and assistant settings, never part of the project.
+.claude/
