@@ -70,7 +70,7 @@ export scripts read the BIOM tables, the fold checkpoints and the embedding
 text files and write everything the site serves.
 
 ```bash
-cd website_SNEs
+cd sne-website
 
 # A virtual environment with torch, onnx, onnxruntime, biom, h5py, scipy.
 python -m venv --system-site-packages .venv-export
@@ -324,7 +324,7 @@ measured and why the tolerance is set where it is.
 ### Updating the site
 
 ```bash
-cd website_SNEs
+cd sne-website
 git pull
 script/check_vendor.sh          # the wasm files are fetched, not committed
 rsync -av --delete --exclude=/data web/ server:/srv/microbial/site/

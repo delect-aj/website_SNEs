@@ -71,7 +71,7 @@ On the build machine, not the server. This produces everything under
 `data/web/` plus the vsearch database.
 
 ```bash
-git clone <this repository> && cd website_SNEs
+git clone git@github.com:xu-research-lab/sne-website.git && cd sne-website
 
 python -m venv --system-site-packages .venv-export
 .venv-export/bin/pip install "onnx==1.15.0" "onnxruntime==1.16.3"
